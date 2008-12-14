@@ -48,7 +48,7 @@ VFS Shell
  
  Clearly this list can be extended with all kind of other commands. 
  
- Whitespace can be escaped using a backslash, e.g. cd Program\ Files.
+ Whitespace can be escaped using a backslash, e.g. cd Program\\ Files.
  
  To exit the shell you can use exit, quit or bye.
  
@@ -80,8 +80,11 @@ VFS Shell
 TTD
  
  * Support for wildcards in cp, mv and other operations
+ 
  * Check integration with JLine
+ 
  * Piping of output to files
+ 
  * A java command to run any Java application
  
  []
