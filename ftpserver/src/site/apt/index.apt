@@ -1,0 +1,50 @@
+ -----
+ VFS FTPServer Bridge
+ -----
+ kleij - at - users.sourceforge.net
+ -----
+
+VFS FTPServer Bridge
+
+ Welcome to the VFS FTPServer Bridge homepage.
+
+ This project provides an Apache Commons VFS implementation for the Apache 
+ FTPServer project. Instead of working only on local files, with this VFS
+ bridge you can connect to any VFS provider. You can still use a local file
+ system, but you can also use a ZIP file, loop through to another FTP server,
+ or use any other available VFS implementation such as DctmVFS.
+
+ This bridge provides both read and write access to your VFS using the
+ FTP protocol. 
+ 
+ For the Apache FTPServer two services were implemented based on VFS; a 
+ File System Manager that delegates to the VFS Provider and a User Manager 
+ that allows the authentication to be based on the VFS Provider too.
+
+ It is possible to only use the VFS File System Manager and to handle the 
+ authentication using the standard Apache FTP Server mechanisms which support
+ LDAP, a user database or a properties file with encrypted passwords. 
+ 
+ Note that if the user passes this first station of authentication the VFS 
+ provider still has to allow access to the user too!
+ 
+ With this setup it is easy to restrict access to a certain group of users or to
+ provide authentication if your VFS Provider does not have the ability to do so.
+ 
+ If you want to let your VFS Provider handle authentication directly you should
+ use the VFS User Manager. It authenticates the user via the VFS provider by
+ accessing the configured root. 
+ 
+ To use this bridge you should just add the VFS libraries, the VFS FTP Server 
+ library and, if needed, your custom VFS Provider and its dependencies to the 
+ common/lib directory of your Apache FTP Server installation.
+ 
+ See {{{configuration.html}the configuration page}} for more information about
+ configuring the VFS bridge.
+ 
+ Note that the current version of the FTPServer needs Java 5. If you are using 
+ Java 1.4 you can use the implementation found at 
+ {{{http://dctmvfs.sourceforge.net/ftpserver-vfs/index.html}Dctm VFS}}. The 
+ configuration is described 
+ {{{http://dctmvfs.sourceforge.net/ftpserver-vfs/configuration.html} there too}}.
+ 

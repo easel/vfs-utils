@@ -1,0 +1,37 @@
+<!--
+	Build file for doing the initial setup
+	TODO: try to use maven instead...
+	@author kleij -at- users.sourceforge.net
+-->
+<project name="vfs-utils" default="info" basedir=".">
+	
+	
+	<!-- ====================================== -->
+	<!-- show usage                           -->
+	<!-- ====================================== -->
+	<target name="info">
+		<echo>site : merges the different sites</echo>
+	</target>	
+		
+	<!-- ====================================== -->
+	<!-- setup site                        -->
+	<!-- ====================================== -->
+	<target name="site">
+		<copy todir="target/dist/site">
+			<fileset dir="target/site"/>
+		</copy>
+		<copy todir="target/dist/site/ftpserver">
+			<fileset dir="ftpserver/target/site"/>
+		</copy>
+		<copy todir="target/dist/site/shell">
+			<fileset dir="shell/target/site"/>
+		</copy>
+		<copy todir="target/dist/site/utils">
+			<fileset dir="utils/target/site"/>
+		</copy>
+	</target>
+	
+	<target name="clean">
+		<delete dir="target/dist"/>
+	</target>
+</project>

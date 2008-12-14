@@ -1,0 +1,158 @@
+ -----
+ VFS Utils FTPServer Configuration
+ -----
+ kleij - at - users.sourceforge.net
+ -----
+
+VFS Utils FTPServer Configuration
+
+ To use this bridge you should just add the VFS libraries, the VFS FTP Server 
+ library and, if needed, your custom VFS Provider and its dependencies to the 
+ common/lib directory of your Apache Mina FTP Server installation.
+ 
+ The configuration of the FTPServer is based on a Spring configuration.
+ 
+ As explained in the {{{index.html}introduction}} there are two ways to use
+ the VFS bridge; you can use VFS based authentication or not. The configuration
+ needed for both ways are detailed below.
+ 
+* VFS based authentication
+ 
+ Below you can see an example of a configuration. 
+
+--------
+  <?xml version="1.0" encoding="UTF-8"?>
+  <server xmlns="http://mina.apache.org/ftpserver/spring/v1"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+	   http://mina.apache.org/ftpserver/spring/v1 http://mina.apache.org/ftpserver/ftpserver-1.0.xsd	
+	   "
+	id="myServer">
+	<!-- VFS user manager configuration -->
+ 	<user-manager>
+		<beans:bean class="org.dctmvfs.ftpserver.vfs.usermanager.VfsUserManager"> 
+			<beans:property name="vfsHomePath" value="/home/${user}"/>
+			<beans:property name="authenticator.vfsRoot" value="file:///d:/ftproot"/>
+			<beans:property name="authenticator.vfsType" value="virtual"/>
+			<!-- beans:property name="authenticator.vfsDomain" value="mydomain" -->
+			<beans:property name="adminName" value="admin"/>
+			<!-- normal user settings -->
+			<beans:property name="writePermission" value="false"/>
+			<beans:property name="maxLogin" value="10"/>
+			<beans:property name="maxLoginPerIp" value="5"/>
+			<beans:property name="maxIdleTime" value="3600"/>
+			<beans:property name="uploadRate" value="2000"/>
+			<beans:property name="downloadRate" value="2000"/>
+			<!-- admin settings -->
+			<beans:property name="admin.writePermission" value="false"/>
+		</beans:bean>
+	</user-manager> 
+	<!-- VFS based file system manager configuration -->
+ 	<filesystem>
+		<beans:bean class="org.dctmvfs.ftpserver.vfs.filesystem.VfsFileSystemFactory"/>		
+	</filesystem>
+  </server>	
+-----------
+ 
+ To have your VFS Provider handle authentication you should set the FTPServer
+ user manager to the VFS user manager. You must set the root of the VFS, the 
+ type, the home directory of the user and optionally the domain to be used for 
+ authentication. The relation between the root of the VFS and the type is 
+ explained in {{{http://dctmvfs.sourceforge.net/dctm-vfs-provider/configuration.html} Dctm VFS Provider 
+ configuration}}. Other FTP related settings such as the maximum logins per 
+ user, read-only access or throughput constraints can be configured too.
+ 
+ If the user name is specified within the VFS root this user name will replace
+ the user name specified by the user in his credentials. The same yields for 
+ his password. Therefore normally you would not specify those in your VFS root.
+ 
+ Within the file system specified by the root you can set the 
+ path to the users home directory in which the user will start after connecting.
+ The specification of the users home directory can contain the variable ${user}
+ which will be replaced by the name of the user. 
+ 
+ Since VFS supports the notion
+ of domain, but this is not supported by FTP you can optionally specify the 
+ domain that should be used in the authentication.
+
+ You can set which user should be regarded as the admin account with adminName. 
+ This account has special privileges such as the 'site who' and the 'site stat' 
+ commands. The FTP User management functions do not work however.
+ 
+ Opposite to the default User Managers of the FTP Server which allow different settings for 
+ each user, the VFS User Manager only makes an exception for the administrator role. Below the 
+ settings are described for the normal users, to change the settings for the admin account you
+ should put admin before the setting, e.g. admin.writePermission or admin.msaxLogin. 
+ Note that the settings spanning all users are set in the connection manager.
+
+ Write permission can be configured using writePermission; 
+ by setting this to false the users will have read-only access to the underlying 
+ file system (the default value is true).
+ 
+ The maximum number of simultaneous logins by the user can be set, as well as the 
+ maximum per IP (maxLogin and maxLoginPerIp). 
+ The default values are 1 and 1, allowing only one connection per user 
+ account. When 0 is put, no restrictions are applied. Note that when you use Windows Explorer
+ as FTP client, at least 2 connections are needed.
+ 
+ The connection does not expire by default, but this can be configured setting the 
+ maximum idle time in seconds (maxIdleTime), when 0 is put, 
+ the connection does not expire.
+ 
+ Upload and download rates can be limited by setting uploadRate and
+ downloadRate (in bytes). When 0 is put there are no restrictions.
+ 
+ This will project the directory d:/ftproot as the file system accessible via
+ FTP and will start in home/userA when 'userA' logs in.
+ 
+ To mount a ZIP file you could set
+
+-----------
+ <beans:property name="authenticator.vfsRoot" value="zip://d:/ftproot.zip"/>
+ <beans:property name="authenticator.vfsType" value="normal"/>
+-----------
+
+ or
+
+-----------
+ <beans:property name="authenticator.vfsRoot" value="file://d:/ftproot.zip"/>
+ <beans:property name="authenticator.vfsType" value="layered"/>
+-----------
+ 
+
+* Standard user authentication
+
+ Another way of working with the VFS bridge is to let the Apache FTPServer do
+ the authentication. In that case you can choose between the available database or 
+ file based user authentication or write your own mechanism.
+ 
+ You can specify the root to the VFS in the home directory of each user in your 
+ user administration. In this way each user can have a completely different
+ mapping. In this case the configuration would look like this: 
+
+-----------
+	<!-- VFS based file system manager configuration -->
+ 	<filesystem>
+		<beans:bean class="org.dctmvfs.ftpserver.vfs.filesystem.VfsFileSystemFactory"/>		
+	</filesystem>	
+-----------
+ 
+ However, in most cases you will want to also specify the VFS root in the FileSystemManager 
+ and use the homedirectory in the user administration as a relative path within that root.
+ 
+ Here you have the same options as when using the VFS User Manager; you can 
+ specify the root and type.
+ 
+ An example configuration is this:
+
+----------
+	<!-- VFS based file system manager configuration -->
+ 	<filesystem>
+		<beans:bean class="org.dctmvfs.ftpserver.vfs.filesystem.VfsFileSystemFactory">
+			<beans:property name="authenticator.vfsRoot" value="file:///d:/ftproot"/>
+			<beans:property name="authenticator.vfsType" value="virtual"/>
+		</beans:bean>
+	</filesystem>
+----------
+ 

@@ -1,0 +1,58 @@
+ -----
+ VFS Shell Configuration
+ -----
+ kleij - at - users.sourceforge.net
+ -----
+
+VFS Shell Configuration
+
+ You can configure the shell to add your own commands or to run an initialization script.
+ 
+* Configuring the engine
+
+ If you want to add your custom commands, completely replace the CommandRegistry, change the prompt or do any other customization you can do so in a Beanshell script that should be placed in the classpath.
+ 
+---------------
+ vfs-shell-custom-init.bsh
+---------------
+ 
+ If you want to use another script you can use an environment variable:
+
+----------- 
+ -Dorg.dctmvfs.vfs.shell.customscript=my-custom-init.bsh
+-----------
+ 
+ If you want to avoid the script to load you should set the value of environment variable to 'none':
+ 
+----------- 
+ -Dorg.dctmvfs.vfs.shell.customscript=none
+-----------
+ 
+ The script is a Beanshell script which has access to the variable 'engine'.
+ 
+ Example:
+ 
+--------------
+ import org.dctmvfs.vfs.shell.commands.Ls;
+
+ Ls dir = new Ls();
+ dir.setCommand("dir");
+ dir.setLongListType("dos");
+ dir.register(engine.commandRegistry);
+--------------
+ 
+* Running an initialization script
+
+ On startup the Shell will search for a script named .vfsshellrc. It will first look in the current working directory, if it does not find the file it will look in the location specified by the java.home environment variable.
+ 
+ This script is not a Beanshell script but a proper VFS Shell script containing the commands available to the shell. Typically you use this to set some variables or to initialize the directory stack to your favorites.
+
+ Example:
+ 
+-------------
+ #set the environment variables
+ set desktop=file:///c:/Documents\ and\ Settings/auser/Desktop
+ pushd $desktop
+ pushd .
+-------------
+  

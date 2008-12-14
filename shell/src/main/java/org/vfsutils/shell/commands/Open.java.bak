@@ -1,0 +1,77 @@
+package org.vfsutils.shell.commands;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.Set;
+
+import org.apache.commons.vfs.FileName;
+import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs.FileSystemOptions;
+import org.apache.commons.vfs.FileType;
+import org.apache.commons.vfs.auth.StaticUserAuthenticator;
+import org.apache.commons.vfs.impl.DefaultFileSystemConfigBuilder;
+import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandInfo;
+import org.vfsutils.shell.Engine;
+
+public class Open extends AbstractOpenClose {
+	
+
+	public Open() {
+		super("open", new CommandInfo("Open a connection", "<uri>"));
+	}
+	
+	public void execute(Arguments args, Engine engine)
+			throws IllegalArgumentException, FileSystemException {
+		
+		args.assertSize(1);
+		String path = args.getArgument(0);
+		open(path, engine);
+	}
+	
+	protected void open(String path, Engine engine) throws FileSystemException {
+		
+		if (path.indexOf("://")==-1) {
+			throw new FileSystemException("You can only use open on full URIs");
+		}
+		
+		BufferedReader buf = new BufferedReader(engine.getConsole().getIn());
+		
+		String username, password = null;
+		try {
+			engine.print("username > ");
+			username = buf.readLine();
+			engine.print("password > ");
+			password = buf.readLine();
+		} catch (IOException e) {
+			throw new FileSystemException(e);			
+		}
+
+		StaticUserAuthenticator auth = new StaticUserAuthenticator(null, username, password); 
+		FileSystemOptions opts = new FileSystemOptions(); 
+	    DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
+	    
+	    FileObject file = engine.getMgr().resolveFile(path, opts);
+		
+		//same as the cd command
+		if (!file.exists()) {
+			throw new IllegalArgumentException("File does not exist " + engine.toString(file));
+		}		
+		
+		if (file.getType().equals(FileType.FILE)) {
+            throw new IllegalArgumentException("Not a directory");
+        } 
+		engine.getContext().setCwd(file);
+		
+		FileName root = file.getName().getRoot();
+		Set openFs = getOpenFs(engine);
+		openFs.add(root);
+		
+		engine.println("Opened " + engine.toString(root));
+		engine.println("Current folder is " + engine.toString(file));
+
+	}
+	
+
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="VFS FTPServer">
+  <bannerLeft>
+    <name>VFS FTPServer bridge</name>
+    <src>images/vfsutils-project.png</src>
+    <href>http://vfs-utils.sourceforge.net/</href>
+  </bannerLeft>
+  <bannerRight>
+    <src>images/ftpserver.png</src>
+  </bannerRight>
+  
+  <body>
+  
+    <menu name="VFS Utils">
+      <item name="Home" href="../index.html"/>
+      <item name="VFS FTP" href="index.html"/>
+	  <item name="VFS Shell" href="../shell/index.html"/>
+	  <item name="VFS Utils" href="../utils/index.html"/>
+    </menu>
+  
+    <menu name="VFS FTPServer">
+      <item name="About" href="index.html"/>
+      <item name="Configuration" href="configuration.html"/>
+    </menu>
+    
+    <menu ref="reports"/>
+  </body>
+</project>

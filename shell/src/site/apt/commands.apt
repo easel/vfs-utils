@@ -1,0 +1,181 @@
+ -----
+ VFS Shell Commands
+ -----
+ kleij - at - users.sourceforge.net
+ -----
+
+VFS Shell Commands
+
+ The following commands are available. Note that you can add your own easily.
+ 
+* cd
+
+ Change the current working directory.
+ 
+ Examples:
+ 
+---------------
+ cd lib
+ cd zip://C:/temp/archive.zip
+ cd dctm://dmadmin:pwd@MyDocbase/System
+ cd ~1
+---------------
+ 
+ The last example (cd ~1) is related to the dirs, pushd and popd commands. The number corresponds to the directory stack that is manipulated using pushd and popd. The command dirs shows the current state of the directory stack.
+ If you want to use another script you can use an environment variable:
+
+* dirs
+
+ Shows the directory stack. The items on the stack can be accessed using a number. The current working directory always has number 0. A new item put on the stack will get number 1.
+ You can access directories on the stack using cd ~n where n is a number of a directory on the stack or using peekd. You can manipulate the stack by pushd and popd. Since the directory on top is the current directory the cd command also influences the stack.
+ Note that the stack can hold only 99 items.
+
+ Examples:
+ 
+-----------
+ vfs>dirs 
+ Directory stack (newest first)
+   [0] file:///C:/temp
+  
+ vfs>pushd ..
+ Current folder is file:///C:/
+ vfs>dirs
+ Directory stack (newest first)
+   [0] file:///C
+   [1] file:///C:/temp 
+----------- 
+ 
+* pushd
+
+ Add a folder to the directory stack. When you don't give any arguments it will push the current directory to the directory stack. When you give a path it will also change directory to the given path afterwards. If you provide the -n flag than the provided path will be put on the stack and the current working directory will not change.
+ 
+ Examples:
+ 
+----------- 
+ pushd
+ pushd lib
+ pushd zip://c:/temp/archive.zip
+ pushd -n dctm://dmadmin:pwd@MyDocbase/System
+-----------
+ 
+* popd
+
+ Remove a folder to the directory stack and change the working directory to it. If you provide the -n flag the current working directory will not change. 
+ 
+ Examples:
+ 
+----------- 
+ popd -n
+ popd
+-----------
+ 
+* peekd
+
+ Changes the working directory to the last one pushed on the directory stack without removing it from the stack. It is equivalent to cd ~1.
+ 
+ Examples: 
+ 
+--------------
+ peekd
+--------------
+ 
+* ls
+
+ Lists the content of a directory. With the -l flag you get the long listing. You can specify a filter to limit the listing. If you specify a directory wildcard (**/) subdirectories are searched too.
+ 
+ Examples:
+ 
+--------------
+ ls -l
+ ls **/*.zip
+--------------
+
+* cp
+
+ Copy the file or directory to the specified location.
+ 
+ Examples:
+  
+------------
+ cp archive.zip file:///C:/temp
+ cp archive.zip file:///C:/temp/renamed_archive.zip
+ cp mydir /temp
+------------
+
+* mv
+
+ Move the file or directory to the specified location. You can use this too to rename files and directories.
+ 
+* mkdir
+
+ Create a directory.
+ 
+* rm
+
+ Remove the specified file.
+ 
+* rmDir
+
+ Removes the specified folder
+ 
+* load
+
+ Loads a file with shell command. The commands are executed in the current context. If you dont want to change the current context you can use the -c flag.
+ 
+* cat
+
+ Dumps the content of a file to the console.
+ 
+* attr
+
+ File object attribute manipulation. There are three subcommands: info, get and set. 
+ info shows all of the attributes of the specified file object. 
+ get shows the specified attribute.
+ set changes the specified attribute to the given value.
+ 
+* ops
+
+ File object operation support. There are three subcommands: list, do and usage
+ list lists the available operations on the specified file object
+ do executes the operation; you can use the name or the sequence number of the operation
+ usage shows the parameters of the operation
+ 
+* error
+
+ Prints the last occurred error. If you specify the -p flag the stacktrace related to the error is printed.
+ 
+* set
+
+ Sets environment variables that you can later use by prefixing a $ sign to the name. 
+ 
+* bsh 
+
+ Runs the Beanshell script specified. Currently it does not allow loading scripts.
+ 
+ Examples:
+ 
+---------------
+ bsh print(vfs.cwd);
+---------------
+ 
+* open
+
+ Opens a filesystem with optional explicit authentication. When you specify flag u the username will be asked, when you specify the flag p the password will be asked, when you specify flag d the domain will be asked.
+ When you don't specify a URI a list of open filesystems is shown. The difference with the cd command is that you can explicitly close opened filesystem and that you can easier work with layered filesystems.
+ 
+ Examples:
+ 
+-------------
+ open -up dctm://MyDocbase
+ open -p ftp://localhost
+ open archive.zip
+ open
+-------------
+ 
+* close
+
+ Closes a filesystem. You can specify which filesystem you want to close, otherwise the current filesystem is closed.
+ 
+* help
+
+ Shows the list of available commands. When you give a command it will show the usage information of the command.

@@ -1,0 +1,56 @@
+ -----
+ VFS Utils Project
+ -----
+ kleij - at - users.sourceforge.net
+ -----
+
+VFS Utils
+
+ Welcome to the VFS Utils Project homepage.
+
+ This project aims to offer a number of tools for the Apache Commons Virtual File System framework.
+ 
+ If you are a developer you can use the VFS API in your code directly. If not, you'll 
+ need some kind of user interface. 
+ 
+ On this site you can find a module that will allow you to use the 
+ {{{http://mina.apache.org/ftpserver.html}Apache FTPServer}} as an interface. 
+ This module provides a VFS based implementation of two modules of Apache FTPServer, 
+ the user manager 
+ and the file system manager. With this you can use the Apache FTPServer
+ to connect to any VFS Provider, including the Dctm VFS Provider. See the
+ {{{ftpserver/index.html} VFS FTPServer homepage}} for more information.
+ 
+ You can also find here the {{{shell/index.html}VFS Shell command line tool}}. This provides you with 
+ a command shell that works on top of the VFS. It is based on the Shell example of Apache Commons VFS 
+ but is more modular and extensible and has some additional features such as pushd, popd, attribute and 
+ operation commands.
+ 
+ Additional VFSutilities can be found in the {{{utils/index.html}Utils project}}.
+ 
+Other VFS clients
+
+ Another front-end you can use is {{{http://jcommander.sourceforge.net/}JCommander}}, 
+ a Java based file manager that uses the Apache VFS layer. 
+
+ Apache VFS is also supported by other tools, for example by two open source ESB 
+ implementations, {{{http://mule.mulesource.org}Mule}} 
+ and {{{http://servicemix.apache.org} Apache ServiceMix}}. 
+ 
+ Hopefully the number
+ of tools will further increase in the future.
+ 
+ This project is hosted at {{{http://sourceforge.net}SourceForge}}.
+ 
+News
+
+  * 19-11-2008: Moved sources from {{{http://dctmvfs.sourceforge.net} Dctm VFS project}} and created first snapshot release
+ 
+Stability
+
+ The libraries on which the project depends are still changing. 
+ This does not mean it isn't usable, but rather that it will
+ adapt to changes in new versions.
+ 
+ The version of Apache Commons VFS that is used is the 2.0 SNAPSHOT.
+ 
