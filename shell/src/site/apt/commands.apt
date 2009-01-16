@@ -22,8 +22,7 @@ VFS Shell Commands
 ---------------
  
  The last example (cd ~1) is related to the dirs, pushd and popd commands. The number corresponds to the directory stack that is manipulated using pushd and popd. The command dirs shows the current state of the directory stack.
- If you want to use another script you can use an environment variable:
-
+ 
 * dirs
 
  Shows the directory stack. The items on the stack can be accessed using a number. The current working directory always has number 0. A new item put on the stack will get number 1.
@@ -114,10 +113,6 @@ VFS Shell Commands
 
  Remove the specified file.
  
-* rmDir
-
- Removes the specified folder
- 
 * load
 
  Loads a file with shell command. The commands are executed in the current context. If you dont want to change the current context you can use the -c flag.
@@ -125,6 +120,10 @@ VFS Shell Commands
 * cat
 
  Dumps the content of a file to the console.
+ 
+* touch
+
+ Resets the modification date of a file (if supported by its filesystem).
  
 * attr
 

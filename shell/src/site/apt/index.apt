@@ -48,7 +48,7 @@ VFS Shell
  
  Clearly this list can be extended with all kind of other commands. 
  
- Whitespace can be escaped using a backslash, e.g. cd Program\\ Files.
+ Whitespace can be escaped using a backslash, e.g. cd Program\\ Files, but also using single or double quotes: 'Program Files' or "Program Files". If you're lazy you can also skip the closing quote, e.g. cd "Program Files.
  
  To exit the shell you can use exit, quit or bye.
  
@@ -59,7 +59,7 @@ VFS Shell
  Example code:
  
 +-----+
- cd /Program\ Files
+ cd '/Program Files
  pushd file:///c:/temp
  
  open vfsshell-dev.zip
