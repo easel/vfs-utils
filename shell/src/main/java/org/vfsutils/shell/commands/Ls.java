@@ -16,7 +16,7 @@ public class Ls extends AbstractCommand implements CommandProvider {
 
 	private String longListType = "nix";
 	//Note that DateFormat.format is not threadsafe and so we can't store an instance
-	private String dateFormat = "dd/MM/yyyy hh:mm";
+	private String dateFormat = "dd/MM/yyyy HH:mm";
 	
 	
 	public Ls() {
