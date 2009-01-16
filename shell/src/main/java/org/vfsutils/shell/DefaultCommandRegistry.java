@@ -32,7 +32,7 @@ public class DefaultCommandRegistry extends CommandRegistry {
 		new Close().register(this);
 		new org.vfsutils.shell.commands.Error().register(this);
 		new Set().register(this);
-		
+		new Touch().register(this);		
 	}
 	
 }
