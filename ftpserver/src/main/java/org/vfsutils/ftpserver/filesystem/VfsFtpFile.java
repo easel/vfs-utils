@@ -87,6 +87,16 @@ public class VfsFtpFile implements FtpFile {
 		
 		return result;
 	}
+	
+	public boolean setLastModified(long time) {
+		try {
+			this.vfsFile.getContent().setLastModifiedTime(time);
+			return true;
+		} catch (FileSystemException e) {
+			log.debug("Could not set last modified of " + this.vfsFile.getName() + " to " + time, e);
+			return false;
+		}
+	}
 
 	public int getLinkCount() {
 		return 0;
