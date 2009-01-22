@@ -26,6 +26,8 @@ VFS Shell
  
  * cat: dumps the content of a file
  
+ * touch: resets the modification date
+ 
  * attr:  meta data (attribute) manipulation (get, set, info)
  
  * ops: operation interaction (list, do, usage)
