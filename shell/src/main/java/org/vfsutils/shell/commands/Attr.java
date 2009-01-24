@@ -48,13 +48,16 @@ public class Attr extends AbstractCommand implements CommandProvider {
 		String attrName = (String)args.getArguments().get(1);
 		String path = (String) args.getArguments().get(2);
 		
-		final FileObject file = engine.getMgr().resolveFile(engine.getCwd(), path);
+		final FileObject[] files = engine.pathToFiles(path);
         
-		if (!file.exists()) {
-        	throw new IllegalArgumentException("File does not exist " + engine.toString(file));
+		if (files==null) {
+        	throw new IllegalArgumentException("File does not exist " + path);
         }
 		
-		getAttr(file, attrName, engine);
+		for (int i=0; i<files.length; i++) {
+			getAttr(files[i], attrName, engine);
+		}
+		
 	}
 	
 	protected void getAttr(FileObject file, String attrName, Engine engine) throws FileSystemException {
@@ -82,13 +85,16 @@ public class Attr extends AbstractCommand implements CommandProvider {
 		String attrValue = (String)args.getArguments().get(2);
 		String path = (String) args.getArguments().get(3); 
 		
-		final FileObject file = engine.getMgr().resolveFile(engine.getCwd(), path);
+		final FileObject[] files = engine.pathToFiles(path);
         
-		if (!file.exists()) {
-        	throw new IllegalArgumentException("File does not exist " + engine.toString(file));
+		if (files==null) {
+        	throw new IllegalArgumentException("File does not exist " + path);
         }
 		
-		setAttr(file, attrName, attrValue, engine);
+		for (int i=0; i<files.length; i++) {
+			setAttr(files[i], attrName, attrValue, engine);
+		}	
+		
 	}
 	
 	protected void setAttr(FileObject file, String attrName, String attrValue, Engine engine) throws FileSystemException {
@@ -109,13 +115,15 @@ public class Attr extends AbstractCommand implements CommandProvider {
         
 		String path = (String) args.getArguments().get(1);
 		
-		final FileObject file = engine.getMgr().resolveFile(engine.getCwd(), path);
+		final FileObject[] files = engine.pathToFiles(path);
         
-		if (!file.exists()) {
-        	throw new IllegalArgumentException("File does not exist " + engine.toString(file));
+		if (files==null) {
+        	throw new IllegalArgumentException("File does not exist " + path);
         }
 		
-		info(file, engine);
+		for (int i=0; i<files.length; i++) {
+			info(files[i], engine);
+		}		
 		
 	}
 	
