@@ -45,7 +45,7 @@ public class Engine {
 		this.commandRegistry = reg;
 		this.mgr = mgr;
 		this.context = new Context(mgr);
-		this.commandParser = new CommandParser();
+		this.commandParser = new MultilineCommandParser();
 	}
 	
 	public void go() throws Exception {

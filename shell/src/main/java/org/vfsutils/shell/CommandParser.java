@@ -4,19 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Parses commands according to a mini DSL.
+ * Parses commands.
  * Flags are one character and can be stuck together -ls is equal to -l -s
  * Long flags can be whole words --all
  * Options are long flags with a value, e.g. --block-size=1024  
- * Examples:
- * cp source destination does 'Copies the source to the destination.'
- * pushd [dir] [-n] 
- *      'pushes the current directory on the stack and changes to dir' 
- * 		where n: 'only modifies the stack' 
- * 		examples {pushd, pushd .., pushd /tmp -n}
- * cd [dir|~i] where dir: 'destination' and i: 'index in directory stack' examples {cd /tmp, cd ~2}
- * ls [-ls] [dir]
- * xx --block-size=1024
+ * 
  * @author kleij - at - users.sourceforge.net
  *
  */
