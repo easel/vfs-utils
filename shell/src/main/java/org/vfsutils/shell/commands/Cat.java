@@ -30,7 +30,11 @@ public class Cat extends AbstractCommand implements CommandProvider {
         	throw new IllegalArgumentException("File does not exist " + engine.toString(file));
         }
         
-        // Dump the contents to System.out
+        cat(file, engine);
+	}
+	
+	protected void cat(FileObject file, Engine engine) throws FileSystemException {
+		// Dump the contents to System.out
         try {
         	FileUtil.writeContent(file, engine.getConsole().getOut());
         }
