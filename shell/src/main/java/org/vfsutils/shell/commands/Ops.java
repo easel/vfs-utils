@@ -144,10 +144,10 @@ public class Ops extends AbstractCommand implements CommandProvider {
 
 			for( int i=0; i<props.length; i++ ) {
 				PropertyDescriptor p = props[i];
-				if (p.getName().equals("resultString") && p.getReadMethod() != null) {
+				if (p.getName().equals("result") && p.getReadMethod() != null) {
 					Method readMethod = p.getReadMethod();
 					Object result = readMethod.invoke(op, null);
-					if (result ==null) {
+					if (result == null) {
 						engine.println("n/a");
 					}
 					else {
