@@ -22,7 +22,7 @@ public class DefaultCommandRegistry extends CommandRegistry {
 		new Cp().register(this);
 		new Mv().register(this);
 		new Cat().register(this);
-		new Attr().register(this);
+		new Attrs().register(this);
 		new Ops().register(this);
 		new Load().register(this);
 		new Rem().register(this);
@@ -34,6 +34,7 @@ public class DefaultCommandRegistry extends CommandRegistry {
 		new Set().register(this);
 		new Touch().register(this);		
 		new Assert().register(this);
+		new Echo().register(this);
 	}
 	
 }

@@ -36,11 +36,9 @@ public class CommandParser {
 		
 		Arguments args = new Arguments();
 		
-		args.allTokens = cmd;
-		
 		if (cmd.length>0) { 
 
-			args.cmd = cmd[0];
+			args.setCmd(cmd[0]);
 			
 			//ignore the first entry
 			for (int i=1; i<cmd.length; i++) {
