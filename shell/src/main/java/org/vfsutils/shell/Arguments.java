@@ -9,9 +9,9 @@ import java.util.Set;
 
 public class Arguments {
 	
-	protected String[] allTokens;
-	protected String cmd = null;
+	protected List allTokens = new ArrayList();
 	
+	protected String cmd = null;
 	protected Set flags = new HashSet();
 	protected Map options = new HashMap();
 	protected List arguments = new ArrayList(); 
@@ -21,11 +21,18 @@ public class Arguments {
 		for (int i=1; i<flags.length(); i++) {
 			this.flags.add(String.valueOf(flags.charAt(i)));
 		}
+		this.allTokens.add(flags);
+	}
+	
+	public void setCmd(String cmd) {
+		this.cmd = cmd;
+		this.allTokens.add(0, cmd);
 	}
 	
 	public void addLongFlag(String longFlag) {
 		//skip the --
 		this.flags.add(longFlag.substring(2));
+		this.allTokens.add(longFlag);
 	}
 	
 	public void addOption(String option) {
@@ -33,10 +40,12 @@ public class Arguments {
 		String key = option.substring(2, option.indexOf('='));
 		String value = option.substring(option.indexOf('=')+1);
 		this.options.put(key, value);
+		this.allTokens.add(option);
 	}
 	
 	public void addArgument(String value) {
 		this.arguments.add(value);
+		this.allTokens.add(value);
 	}
 	
 	public boolean hasFlag(String flag) {
@@ -77,12 +86,8 @@ public class Arguments {
 		}
 	}
 	
-	public void setAllTokens(String[] tokens) {
-		this.allTokens = tokens;
-	}
-	
 	public String[] getAllTokens() {
-		return this.allTokens;
+		return (String[]) this.allTokens.toArray(new String[this.allTokens.size()]);
 	}
 	
 	public boolean hasCmd() {
@@ -91,6 +96,19 @@ public class Arguments {
 	
 	public String getCmd() {
 		return this.cmd;
+	}
+	
+	public String toString() {
+		return asString(0);
+	}
+	
+	public String asString(int startAt) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i=startAt; i<allTokens.size(); i++) {
+			if (buffer.length()>0) buffer.append(" ");
+			buffer.append(allTokens.get(i));
+		}
+		return buffer.toString();
 	}
 	
 }
