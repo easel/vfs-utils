@@ -14,10 +14,10 @@ import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
 
-public class Attr extends AbstractCommand implements CommandProvider {
+public class Attrs extends AbstractCommand implements CommandProvider {
 
-	public Attr() {
-		super("attr", new CommandInfo("Attribute interaction", "(info <path>| get <attrName> <path> | set <attrName> <attrValue> <path>)"));
+	public Attrs() {
+		super("attrs", new CommandInfo("Attribute interaction", "(info <path>| get <attrName> <path> | set <attrName> <attrValue> <path>)"));
 	}
 
 	public void execute(Arguments args, Engine engine)
