@@ -28,7 +28,7 @@ VFS Shell
  
  * touch: resets the modification date
  
- * attr:  meta data (attribute) manipulation (get, set, info)
+ * attrs:  meta data (attribute) manipulation (get, set, info)
  
  * ops: operation interaction (list, do, usage)
  
@@ -36,7 +36,13 @@ VFS Shell
  
  * set: sets variables
  
- * bsh: executes a line of beanshell script 
+ * bsh: executes a beanshell script file or expression
+ 
+ * rem: does nothing
+ 
+ * echo: writes output
+ 
+ * assert: verifies a file exists
  
  * open: opens a filesystem and asks for username / password
  

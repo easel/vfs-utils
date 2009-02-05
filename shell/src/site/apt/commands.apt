@@ -116,6 +116,16 @@ VFS Shell Commands
 * load
 
  Loads a file with shell command. The commands are executed in the current context. If you dont want to change the current context you can use the -c flag.
+ The script has access to all of the arguments that were specified together with the file. You can use $args to get all arguments or $arg0, $arg1, etc. for 
+ individual arguments. You can use $cmd for the name of the script, $flags for the flags and $options for the options. To get around the -c flag being caught 
+ while calling the script you can pass the --flags option, all values will passed as additional flags.
+ 
+ Examples:
+ 
+--------------------
+ load incontext.vfs hello --world 
+ load -c newcontext.vfs hello world --flags=cde 
+--------------------
  
 * cat
 
@@ -125,7 +135,7 @@ VFS Shell Commands
 
  Resets the modification date of a file (if supported by its filesystem).
  
-* attr
+* attrs
 
  File object attribute manipulation. There are three subcommands: info, get and set. 
  info shows all of the attributes of the specified file object. 
@@ -149,13 +159,44 @@ VFS Shell Commands
  
 * bsh 
 
- Runs the Beanshell script specified. Currently it does not allow loading scripts.
- 
+ Runs the Beanshell script specified. If you use the -f flag you can specify a file to load.
+ The script has access to all variables set in the engine and also sets the arguments that 
+ were specified together with the file as "args". To get around the -f flag being caught 
+ while calling the script you can pass the --flags option, all values will be set as additional flags.
+
  Examples:
  
 ---------------
  bsh print(vfs.cwd);
----------------
+ bsh -f test.bsh hello world -kdh --flags=f
+--------------- 
+ 
+* rem
+
+ Does not do anything. Use this or # to comment lines out.
+ 
+* echo
+
+ Prints the arguments to the output. 
+ 
+ Examples:
+ 
+------------
+  echo current dir: $vfs.cwd
+------------
+
+* assert
+
+  Asserts whether a file or folder exists. With the -n flag you can assert the inverse, that it does not exist. Use the -f flag if you want to assert it is an existing file; use -d to assert it is a directory.
+
+  Examples:
+  
+------------
+  assert -f myexistingfile.txt
+  assert -d subdir/myexistingdir
+  assert -n nonexisting
+------------
+
  
 * open
 
@@ -174,16 +215,6 @@ VFS Shell Commands
 * close
 
  Closes a filesystem. You can specify which filesystem you want to close, otherwise the current filesystem is closed.
-
-* assert
-
-  Asserts whether a file or folder exists. With the -n flag you can assert the inverse, that it does not exist. Use the -f flag if you want to assert it is an existing file; use -d to assert it is a directory.
-
- ------------
-  assert -f myexistingfile.txt
-  assert -d subdir/myexistingdir
-  assert -n nonexisting
- ------------
  
 * help
 
