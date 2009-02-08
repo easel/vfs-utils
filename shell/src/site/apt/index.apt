@@ -15,6 +15,10 @@ VFS Shell
  The command style is *nix like.
 
  The available commands are:
+
+ * open: opens a filesystem and asks for username / password
+ 
+ * close: closes a filesystem
  
  * cd, pushd, popd, peekd, dirs: directory manipulation
  
@@ -22,19 +26,19 @@ VFS Shell
  
  * cp, mv, mkdir, rmdir, rm: basic file manipulations
  
- * load: executes a file containing shell instructions
- 
- * cat: dumps the content of a file
- 
- * touch: resets the modification date
- 
  * attrs:  meta data (attribute) manipulation (get, set, info)
  
  * ops: operation interaction (list, do, usage)
  
+ * cat: dumps the content of a file
+ 
+ * touch: resets the modification date 
+ 
  * error: details of last occurred error
  
  * set: sets variables
+ 
+ * load: executes a file containing shell instructions
  
  * bsh: executes a beanshell script file or expression
  
@@ -44,9 +48,7 @@ VFS Shell
  
  * assert: verifies a file exists
  
- * open: opens a filesystem and asks for username / password
- 
- * close: closes a filesystem
+ * register: registers a script as a command
  
  * help: displays the list of commands
  

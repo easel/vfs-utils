@@ -259,14 +259,14 @@ VFS Shell Commands
  Examples:
  
 ------------
-  echo current dir: $vfs.cwd
+ echo current dir: $vfs.cwd
 ------------
 
 * assert
 
-  Asserts whether a file or folder exists. With the -n flag you can assert the inverse: that it does not exist. Use the -f flag if you want to assert it is an existing file; use -d to assert it is a directory.
+ Asserts whether a file or folder exists. With the -n flag you can assert the inverse: that it does not exist. Use the -f flag if you want to assert it is an existing file; use -d to assert it is a directory.
 
-  Examples:
+ Examples:
   
 ------------
   assert myexistingfile.txt
@@ -276,11 +276,28 @@ VFS Shell Commands
   assert -d subdir/myexistingdir  
 ------------
  
+* register
+
+  Registers the given scripts as commands. Both vfs and bsh scripts are supported. The name of the script (without its extension) is used for registering it.
+  
+  Optionally, when you specify only one file you can override the name and give a description and usage information. If your file does not have an extension you
+  can specify the type ("vfs" or "bsh"). For this, use the options name, description, usage and type. 
+  
+  Note that when a command already exists with the same name it will be replaced by the script that is being registered; be careful with what you do.
+
+  Examples :
+  
+----------------
+  register d:/temp/test.bsh --description="test script" --usage="<path>"
+  register d:/temp/test --type=bsh --name=mycommand
+  register *.bsh
+----------------
+ 
 * help
 
- Shows the list of available commands. When you give a command it will show the usage information of the command.
+  Shows the list of available commands. When you give a command it will show the usage information of the command.
 
- Examples:
+  Examples:
  
 --------------
  help
