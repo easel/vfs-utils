@@ -99,7 +99,7 @@ public class Load extends AbstractCommand implements CommandProvider {
 	 * Executes the given script but does not change the current context
 	 * 
 	 * @param file
-	 * @param engine
+	 * @param newEngine
 	 * @throws FileSystemException
 	 */
 	public void call(final FileObject file, Engine newEngine)
