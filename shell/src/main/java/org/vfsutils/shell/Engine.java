@@ -183,7 +183,7 @@ public class Engine {
     /**
      * Handles a command.
      */
-    protected boolean handleCommand(final Arguments args) throws Exception {    	
+    public boolean handleCommand(final Arguments args) {    	
     	
     	if (args.hasCmd()) {
     		String cmd = args.getCmd();

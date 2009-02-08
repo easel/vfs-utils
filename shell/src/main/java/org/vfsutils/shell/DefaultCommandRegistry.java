@@ -35,6 +35,7 @@ public class DefaultCommandRegistry extends CommandRegistry {
 		new Touch().register(this);		
 		new Assert().register(this);
 		new Echo().register(this);
+		new Register().register(this);
 	}
 	
 }
