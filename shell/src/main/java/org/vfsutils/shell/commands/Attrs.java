@@ -10,6 +10,7 @@ import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
@@ -21,7 +22,7 @@ public class Attrs extends AbstractCommand implements CommandProvider {
 	}
 
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 
 		args.assertSize(2);
 

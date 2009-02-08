@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.Engine;
 
@@ -20,75 +20,62 @@ import bsh.Interpreter;
 public class Bsh extends AbstractCommand {
 
 	public Bsh() {
-		super("bsh", new CommandInfo("Execute a bsh file or expression", "-f <path>| <expression>"));
+		super("bsh", new CommandInfo("Execute a bsh file or expression", "<path>| -e <expression>"));
 	}
 	
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 		
-		try {
+		args.assertSize(1);
+		
+		if (args.hasFlag("e")) {
 			
-			args.assertSize(1);
-			
-			Interpreter interpreter = new Interpreter(engine.getConsole());
-			
-			//pass all variables
-			Map vars = engine.getContext().getAll();
-			Iterator iterator = vars.keySet().iterator();
-			while (iterator.hasNext()) {
-				Object key = iterator.next();
-				Object value = vars.get(key);
-				if (value!=null) {
-					interpreter.set(key.toString(), value);
-				}
-			}			
-			
-			if (args.hasFlag("f")) {
-				FileObject file = engine.pathToFile(args.getArgument(0));
-				
-				if (!file.exists()) {
-		        	throw new IllegalArgumentException("File does not exist " + engine.toString(file));
-		        }
-				
-				//copy the arguments
-				Arguments largs = copyArgs(args);
-				interpreter.set("args", largs);				
-				
-				bsh(file, interpreter, engine);
-			}
-			else {
-				//concat all arguments
-				String script = args.asString(1);				
-				bsh(script, interpreter, engine);
-			}
-			
+			//concat all arguments, except command and first flags
+			String script = args.asString(2);				
+			bsh(script, engine);			
 		}
-		catch (Exception e) {
-			throw new FileSystemException(e);
-		}
-
+		else {
+			
+			FileObject file = engine.pathToExistingFile(args.getArgument(0));
+			
+			//copy the arguments
+			Arguments largs = copyArgs(args);
+			
+			bsh(file, largs, engine);
+		}			
 	}
 	
-	protected void bsh(String expression, Interpreter interpreter, Engine engine) throws FileSystemException {
+	protected void bsh(String expression, Engine engine) throws CommandException {
 		try {
-				
+			Interpreter interpreter = new Interpreter(engine.getConsole());
+			//pass variables
+			setVariables(interpreter, engine);	
 			//With using interpreter.run() calling exit will kill the JVM! There is no way to return to the shell.
 			//interpreter.run();			
 			interpreter.eval(expression);
 		}
 		catch (Exception e) {
-			throw new FileSystemException(e);
+			throw new CommandException(e);
 		}
 	}
 
-	protected void bsh(FileObject file, Interpreter interpreter, Engine engine) throws FileSystemException {
+	protected void bsh(FileObject file, Arguments args, Engine engine) throws CommandException, FileSystemException {
 		Reader reader = null;
 		try {
+			Interpreter interpreter = new Interpreter(engine.getConsole());
+			//pass variables
+			setVariables(interpreter, engine);
+			
+			interpreter.set("args", args);				
+			
 			reader = new InputStreamReader(file.getContent().getInputStream());
 			interpreter.eval(reader);
 		}
+		catch (FileSystemException e) {
+			throw e;
+		}
 		catch (Exception e) {
-			throw new FileSystemException(e);
+			throw new CommandException(e);
 		}
 		finally {
 			if (reader!=null) { 
@@ -102,6 +89,21 @@ public class Bsh extends AbstractCommand {
 			}
 			
 		}
+	}
+
+	protected void setVariables(Interpreter interpreter, Engine engine) throws EvalError {
+		//pass all variables
+		Map vars = engine.getContext().getAll();
+		Iterator iterator = vars.keySet().iterator();
+		while (iterator.hasNext()) {
+			Object key = iterator.next();
+			Object value = vars.get(key);
+			if (value!=null) {
+				interpreter.set(key.toString(), value);
+			}
+		}
+		//experimental:
+		interpreter.set("engine", engine);
 	}
 	
 	protected Arguments copyArgs(Arguments args) {
@@ -123,10 +125,8 @@ public class Bsh extends AbstractCommand {
 		Iterator flagIterator = args.getFlags().iterator();
 		while (flagIterator.hasNext()) {
 			String flag = (String) flagIterator.next();
-			if (flag.equals("f")) {
-				//ignore it
-			}
-			else if (flag.length()==1){
+			
+			if (flag.length()==1){
 				result.addFlags("-" + flag);
 			}
 			else {

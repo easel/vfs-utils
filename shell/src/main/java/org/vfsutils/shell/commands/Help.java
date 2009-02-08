@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.apache.commons.vfs.FileSystemException;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.CommandRegistry;
@@ -17,8 +18,7 @@ public class Help extends AbstractCommand implements CommandProvider {
 	}
 	
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
-		
+			throws IllegalArgumentException, CommandException, FileSystemException {
 		
 		if (args.getArguments().size()==0) {
 			help(engine);
@@ -29,7 +29,7 @@ public class Help extends AbstractCommand implements CommandProvider {
 
 	}
 	
-	protected void help(Engine engine) throws FileSystemException {
+	protected void help(Engine engine) {
 		CommandRegistry reg = engine.getCommandRegistry();
 		Set commands = reg.getAllCommands();
 		
@@ -43,7 +43,7 @@ public class Help extends AbstractCommand implements CommandProvider {
 		}
 	}
 	
-	protected void help(String cmd, Engine engine) throws FileSystemException {
+	protected void help(String cmd, Engine engine) {
 		CommandRegistry reg = engine.getCommandRegistry();
 		CommandProvider command = reg.getCommand(cmd);
 		if (command!=null) {

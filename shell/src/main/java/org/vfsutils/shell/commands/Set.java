@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.vfs.FileSystemException;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.Engine;
 
@@ -15,7 +16,7 @@ public class Set extends AbstractCommand {
 	}
 	
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 		
 		if (args.size()==0) {
 			printAll(args.hasFlag("a"), engine);

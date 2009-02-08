@@ -2,6 +2,7 @@ package org.vfsutils.shell.commands;
 
 import org.apache.commons.vfs.FileSystemException;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.Engine;
 
@@ -12,7 +13,7 @@ public class Error extends AbstractCommand {
 	}
 	
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 		
 		if (args.getFlags().contains("p")) {
 			printError(engine);
@@ -20,7 +21,6 @@ public class Error extends AbstractCommand {
 		else {
 			lastError(engine);
 		}
-
 	}
 
 	public void lastError(Engine engine) {

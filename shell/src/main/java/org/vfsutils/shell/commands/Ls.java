@@ -8,6 +8,7 @@ import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
@@ -24,7 +25,7 @@ public class Ls extends AbstractCommand implements CommandProvider {
 	}
 	
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 
 		FileObject file = null;
 		FileObject[] files;
@@ -202,7 +203,5 @@ public class Ls extends AbstractCommand implements CommandProvider {
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
-
-	
 	
 }

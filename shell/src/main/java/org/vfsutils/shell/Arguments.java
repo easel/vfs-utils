@@ -3,21 +3,72 @@ package org.vfsutils.shell;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class Arguments {
 	
-	protected List allTokens = new ArrayList();
+	public class TokenList extends ArrayList {
+		public String toString() {
+			return asString(0);
+		}
+		
+		public String asString(int startAt) {
+			StringBuffer buffer = new StringBuffer();
+			for (int i=startAt; i<allTokens.size(); i++) {
+				if (buffer.length()>0) buffer.append(" ");
+				buffer.append(allTokens.get(i));
+			}
+			return buffer.toString();
+		}
+	}
+	
+	public class FlagSet extends HashSet {
+		public String toString() {
+			StringBuffer buffer = new StringBuffer();
+			Iterator iterator = this.iterator();
+			
+			while (iterator.hasNext()) {
+				if (buffer.length()>0) buffer.append(" ");
+
+				String flag = (String) iterator.next();
+				
+				if (flag.length()==1){
+					buffer.append("-").append(flag);
+				}
+				else {
+					buffer.append("--").append(flag);
+				}
+			}
+			
+			return buffer.toString();
+		}
+	}
+	
+	public class OptionMap extends HashMap {
+		public String toString() {
+			StringBuffer buffer = new StringBuffer();
+			Iterator iterator = this.keySet().iterator();
+			while (iterator.hasNext()) {
+				if (buffer.length()>0) buffer.append(" ");
+				String key = (String) iterator.next();
+				buffer.append("--").append(key).append("=").append(this.get(key));
+			}
+			return buffer.toString();
+		}
+	}
+
+	protected TokenList allTokens = new TokenList();
 	
 	protected String cmd = null;
-	protected Set flags = new HashSet();
-	protected Map options = new HashMap();
-	protected List arguments = new ArrayList(); 
+	protected FlagSet flags = new FlagSet();
+	protected OptionMap options = new OptionMap();
+	protected TokenList arguments = new TokenList(); 
 	
 	public void addFlags(String flags) {
-		//skip the -
+		//skip the - and add each flag separately
 		for (int i=1; i<flags.length(); i++) {
 			this.flags.add(String.valueOf(flags.charAt(i)));
 		}
@@ -52,7 +103,7 @@ public class Arguments {
 		return this.flags.contains(flag);
 	}
 	
-	public Set getFlags() {
+	public FlagSet getFlags() {
 		return this.flags;
 	}
 	
@@ -64,16 +115,27 @@ public class Arguments {
 		return (String) this.options.get(name);
 	}
 	
-	public Map getOptions() {
+	public OptionMap getOptions() {
 		return this.options;
 	}
 	
-	public List getArguments() {
+	public TokenList getArguments() {
 		return this.arguments;
 	}
 	
+	/**
+	 * Return the argument at the given index, if the argument
+	 * does not exist an empty string is returned.
+	 * @param index
+	 * @return
+	 */
 	public String getArgument(int index) {
-		return (String) this.arguments.get(index);
+		if (index<0 || index>=this.arguments.size()) {
+			return "";
+		}
+		else {
+			return (String) this.arguments.get(index);
+		}
 	}
 	
 	public int size() {
@@ -86,8 +148,8 @@ public class Arguments {
 		}
 	}
 	
-	public String[] getAllTokens() {
-		return (String[]) this.allTokens.toArray(new String[this.allTokens.size()]);
+	public TokenList getAllTokens() {
+		return this.allTokens;
 	}
 	
 	public boolean hasCmd() {
@@ -99,16 +161,11 @@ public class Arguments {
 	}
 	
 	public String toString() {
-		return asString(0);
+		return allTokens.toString();
 	}
 	
 	public String asString(int startAt) {
-		StringBuffer buffer = new StringBuffer();
-		for (int i=startAt; i<allTokens.size(); i++) {
-			if (buffer.length()>0) buffer.append(" ");
-			buffer.append(allTokens.get(i));
-		}
-		return buffer.toString();
+		return allTokens.asString(startAt);
 	}
 	
 }

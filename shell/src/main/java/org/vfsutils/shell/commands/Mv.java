@@ -4,6 +4,7 @@ import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
@@ -15,17 +16,25 @@ public class Mv extends AbstractCommand implements CommandProvider {
 	}
 	
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 
 		args.assertSize(2);
 
 		String srcPath = args.getArgument(0);
 		String destPath = args.getArgument(1);
 		
-        final FileObject src = engine.getMgr().resolveFile(engine.getCwd(), srcPath);
+        move (srcPath, destPath, engine);
+	}
+	
+	protected void move(String srcPath, String destPath, Engine engine) throws FileSystemException {
+		final FileObject src = engine.getMgr().resolveFile(engine.getCwd(), srcPath);
         FileObject dest = engine.getMgr().resolveFile(engine.getCwd(), destPath);
         
-        if (dest.exists() && dest.getType() == FileType.FOLDER) {
+        move(src, dest, engine);
+	}
+	
+	protected void move(FileObject src, FileObject dest, Engine engine) throws FileSystemException {
+		if (dest.exists() && dest.getType() == FileType.FOLDER) {
             dest = dest.resolveFile(src.getName().getBaseName());
         }
 

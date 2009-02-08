@@ -6,6 +6,7 @@ import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileUtil;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
@@ -17,29 +18,25 @@ public class Cat extends AbstractCommand implements CommandProvider {
 	}
 	
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 		
 		args.assertSize(1);
 
 		String path = args.getArgument(0);
 		
         // Locate the file
-        final FileObject file = engine.getMgr().resolveFile(engine.getCwd(), path);
-
-        if (!file.exists()) {
-        	throw new IllegalArgumentException("File does not exist " + engine.toString(file));
-        }
+        final FileObject file = engine.pathToExistingFile(path);
         
         cat(file, engine);
 	}
 	
-	protected void cat(FileObject file, Engine engine) throws FileSystemException {
+	protected void cat(FileObject file, Engine engine) throws CommandException, FileSystemException {
 		// Dump the contents to System.out
         try {
         	FileUtil.writeContent(file, engine.getConsole().getOut());
         }
         catch (IOException e) {
-        	throw new FileSystemException(e);
+        	throw new CommandException(e);
         }
         engine.println("");
 	}

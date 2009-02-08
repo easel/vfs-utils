@@ -30,7 +30,7 @@ public interface CommandProvider {
 	 * @throws FileSystemException
 	 */
 	public abstract void execute(Arguments args, Engine engine) 
-		throws IllegalArgumentException, FileSystemException;
+		throws IllegalArgumentException, CommandException, FileSystemException;
 	
 	
 	/**

@@ -10,6 +10,7 @@ import java.util.ListIterator;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
@@ -21,7 +22,7 @@ public class Load extends AbstractCommand implements CommandProvider {
 	}
 
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 		
 		args.assertSize(1);
 
@@ -34,15 +35,11 @@ public class Load extends AbstractCommand implements CommandProvider {
 	}
 
 	public void load(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 
 		String path = (String) args.getArguments().get(0);
 		
-		final FileObject file = engine.pathToFile(path);
-	
-		if (!file.exists()) {
-        	throw new IllegalArgumentException("File does not exist " + engine.toString(file));
-        }
+		final FileObject file = engine.pathToExistingFile(path);
 		
 		Arguments largs = copyArgs(args);
 		try {
@@ -55,7 +52,7 @@ public class Load extends AbstractCommand implements CommandProvider {
 	}
 
 	public void load(final FileObject file, Engine engine, boolean haltOnError)
-			throws FileSystemException {
+			throws CommandException, FileSystemException {
 
 		final InputStream in = file.getContent().getInputStream();
 
@@ -66,7 +63,7 @@ public class Load extends AbstractCommand implements CommandProvider {
 			engine.setEchoOn(true);
 			engine.load(new InputStreamReader(in));
 		} catch (Exception e) {
-			throw new FileSystemException(e);
+			throw new CommandException(e);
 		} finally {
 			if (in != null) {
 				try {
@@ -82,14 +79,10 @@ public class Load extends AbstractCommand implements CommandProvider {
 	}
 
 	public void call(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 		
 		String path = (String) args.getArguments().get(0);
-		final FileObject file = engine.pathToFile(path);
-		
-		if (!file.exists()) {
-        	throw new IllegalArgumentException("File does not exist " + engine.toString(file));
-        }
+		final FileObject file = engine.pathToExistingFile(path);
 		
 		Arguments largs = copyArgs(args);
 		
@@ -110,14 +103,14 @@ public class Load extends AbstractCommand implements CommandProvider {
 	 * @throws FileSystemException
 	 */
 	public void call(final FileObject file, Engine newEngine)
-			throws FileSystemException {
+			throws CommandException, FileSystemException {
 
 		final InputStream in = file.getContent().getInputStream();
 
 		try {			
 			newEngine.load(new InputStreamReader(in));
 		} catch (Exception e) {
-			throw new FileSystemException(e);
+			throw new CommandException(e);
 		} finally {
 			if (in != null) {
 				try {
@@ -127,7 +120,6 @@ public class Load extends AbstractCommand implements CommandProvider {
 				;
 			}
 		}
-
 	}
 	
 	protected Arguments copyArgs(Arguments args) {
@@ -191,36 +183,16 @@ public class Load extends AbstractCommand implements CommandProvider {
 		}
 		
 		if (set){ 
-			Iterator fIterator = args.getFlags().iterator();
-			StringBuffer buffer = new StringBuffer();
-			while (fIterator.hasNext()) {
-				String f = (String) fIterator.next();
-				if (buffer.length()>0) buffer.append(" ");
-				if (f.length()==1) {
-					buffer.append("-").append(f);
-				}
-				else {
-					buffer.append("--").append(f);
-				}
-			}
-			
-			engine.getContext().set("flags", buffer.toString());
+			String flags = args.getFlags().toString();
+			engine.getContext().set("flags", flags);
 		}
 		else {
 			engine.getContext().unset("flags");
 		}
 		
 		if (set){
-			Iterator oIterator = args.getOptions().keySet().iterator();
-			StringBuffer buffer = new StringBuffer();
-			while (oIterator.hasNext()) {
-				String key = (String) oIterator.next();
-				String value = (String) args.getOptions().get(key);
-				if (buffer.length()>0) buffer.append(" ");
-				buffer.append("--").append(key).append("=").append(value);
-			}
-			
-			engine.getContext().set("options", buffer.toString());
+			String options = args.getOptions().toString();
+			engine.getContext().set("options", options);
 		}
 		else {
 			engine.getContext().unset("options");

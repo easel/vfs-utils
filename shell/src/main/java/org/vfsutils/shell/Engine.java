@@ -200,6 +200,13 @@ public class Engine {
 	    				return false;
 	    			}
 	    		}
+	    		catch (CommandException e) {
+	    			error(e.getMessage());
+	    			lastError = e;
+	    			if (haltOnError) {
+	    				return false;
+	    			}
+	    		}
 	    		catch (FileSystemException e) {
 	    			error(e.getMessage());
 	    			lastError = e;
@@ -397,13 +404,32 @@ public class Engine {
 		return tmp;
 	}
 	
+	
+	/**
+	 * Resolves the path to a file. If the file does not exist an
+	 * IllegalArgumentException is thrown.
+	 * @param path
+	 * @return
+	 * @throws FileSystemException
+	 * @throws IllegalArgumentException
+	 */
+	public FileObject pathToExistingFile(String path) throws FileSystemException, IllegalArgumentException {
+		FileObject file = this.pathToFile(path);
+		
+		if (!file.exists()) {
+        	throw new IllegalArgumentException("File does not exist " + this.toString(file));
+        }
+		
+		return file;
+	}
+	
 	/**
 	 * Resolves files. The returned files (or folders) are guaranteed to exist.
 	 * @param pathPattern
 	 * @return
 	 * @throws FileSystemException
 	 */
-	public FileObject[] pathToFiles(String pathPattern) throws FileSystemException {		
+	public FileObject[] pathToFiles(String pathPattern) throws FileSystemException, IllegalArgumentException {		
 		
 		if (pathPattern.indexOf('*')>-1) {
 			FilenameSelector selector = new FilenameSelector();
@@ -416,10 +442,7 @@ public class Engine {
 			return array;
 		}
 		else {
-			FileObject file = this.pathToFile(pathPattern);
-			if (!file.exists()) {
-				throw new FileSystemException("File does not exist " + file.getName());
-			}
+			FileObject file = this.pathToExistingFile(pathPattern);
 			return new FileObject[]{file};
 		}
 		

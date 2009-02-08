@@ -1,6 +1,5 @@
 package org.vfsutils.shell.commands;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.vfs.FileName;
@@ -9,6 +8,7 @@ import org.apache.commons.vfs.FileSystem;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.Engine;
 
@@ -20,7 +20,7 @@ public class Close extends AbstractOpenClose {
 	}
 	
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 		
 		if (args.hasFlag("a")) {
 			closeAll(engine);

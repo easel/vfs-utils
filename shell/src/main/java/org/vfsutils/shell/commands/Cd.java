@@ -6,6 +6,7 @@ import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
@@ -14,10 +15,9 @@ public class Cd extends AbstractDirManip implements CommandProvider {
 	
 	public Cd() {
 		super("cd", new CommandInfo("Change the current working directory", "[(<path> | <~index>)]"));
-	}
+	}		
 		
-		
-	public void execute(Arguments args, Engine engine) throws FileSystemException {
+	public void execute(Arguments args, Engine engine) throws CommandException, FileSystemException {
 		
 		if (args.size() >= 1) {
 			String path = args.getArgument(0);
@@ -44,16 +44,12 @@ public class Cd extends AbstractDirManip implements CommandProvider {
 		}
 		else {
 			//Locate and validate the folder		
-			FileObject tmp = engine.pathToFile(path);    
+			FileObject tmp = engine.pathToExistingFile(path);    
 			cd(tmp, engine);
 		}
 	}
 
-	protected void cd(FileObject file, Engine engine) throws IllegalArgumentException, FileSystemException {
-		
-		if (!file.exists()) {
-			throw new IllegalArgumentException("Directory does not exist " + engine.toString(file));
-		}		
+	protected void cd(FileObject file, Engine engine) throws IllegalArgumentException, FileSystemException {		
 		
 		if (file.getType().equals(FileType.FILE)) {
             throw new IllegalArgumentException("Not a directory");

@@ -5,6 +5,7 @@ import java.util.Stack;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.vfsutils.shell.Arguments;
+import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.Engine;
 
@@ -15,7 +16,7 @@ public class Peekd extends AbstractDirManip {
 	}
 
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, FileSystemException {
+			throws IllegalArgumentException, CommandException, FileSystemException {
 		peekd(engine);
 		printCwd(engine);
 	}
