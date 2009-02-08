@@ -7,6 +7,31 @@
 VFS Shell Commands
 
  The following commands are available. Note that you can add your own easily.
+
+* open
+
+ Opens a filesystem with optional explicit authentication. 
+ 
+ When you specify flag u the username will be asked, when you specify flag p the password will be asked, when you specify flag d the domain will be asked.
+ 
+ When you don't specify a URI a list of open filesystems is shown. 
+ 
+ You are not obliged to use the open command to open filesystems, you can also use the cd command. The difference with the cd command is that you can access 
+ layered filesystems more easily and that you can explicitly close opened filesystem.
+ 
+ Examples:
+ 
+-------------
+ open -up dctm://MyDocbase
+ open -p ftp://admin@localhost
+ open archive.zip
+ open
+-------------
+ 
+* close
+
+ Closes a filesystem. You can specify which filesystem you want to close, otherwise the current filesystem is closed. With the -a flag you can close all open filesystems at once.
+
  
 * cd
 
@@ -26,7 +51,11 @@ VFS Shell Commands
 * dirs
 
  Shows the directory stack. The items on the stack can be accessed using a number. The current working directory always has number 0. A new item put on the stack will get number 1.
- You can access directories on the stack using cd ~n where n is a number of a directory on the stack or using peekd. You can manipulate the stack by pushd and popd. Since the directory on top is the current directory the cd command also influences the stack.
+ 
+ You can access directories on the stack using cd ~n where n is a number of a directory on the stack. 
+ 
+ You can manipulate the stack by pushd and popd. Since the directory on top is the current directory the cd command also influences the stack.
+ 
  Note that the stack can hold only 99 items.
 
  Examples:
@@ -112,10 +141,68 @@ VFS Shell Commands
 * rm
 
  Remove the specified file.
+
+* attrs
+
+ File object attribute manipulation. There are three subcommands: info, get and set: 
+ info shows all of the attributes of the specified file object; 
+ get shows the specified attribute;
+ set changes the specified attribute to the given value. 
+ 
+ The availability of attributes depends on the specific filesystem.
+ 
+ Examples:
+ 
+-------------------
+ attrs myfile.txt info
+ attrs myfile.txt get title
+ attrs myfile.txt set title newtitle
+-------------------
+ 
+* ops
+
+ File object operation support. There are three subcommands: list, do and usage
+ list lists the available operations on the specified file object
+ do executes the operation; you can use the name or the sequence number of the operation
+ usage shows the parameters of the operation.
+ 
+ The availability of operations depends on the specific filesystem.
+ 
+-------------------
+ ops list myfile.txt
+ ops usage validate myfile.txt
+ ops do validate --optionx=true myfile.txt
+-------------------
+
+* cat
+
+ Dumps the content of a file to the console.
+ 
+* touch
+
+ Resets the modification date of a file (if supported by its filesystem). 
+ 
+* error
+
+ Prints the last occurred error. If you specify the -p flag the stacktrace related to the error is printed.
+ 
+* set
+
+ Sets environment variables that you can later use by prefixing a $ sign to the name. To unset a variable just
+ give the name.
+ 
+ Examples:
+ 
+----------------
+ set myvar=file://d:/temp
+ cd $myvar
+ set myvar
+----------------
  
 * load
 
  Loads a file with shell command. The commands are executed in the current context. If you dont want to change the current context you can use the -c flag.
+ 
  The script has access to all of the arguments that were specified together with the file. You can use $args to get all arguments or $arg0, $arg1, etc. for 
  individual arguments. You can use $cmd for the name of the script, $flags for the flags and $options for the options. To get around the -c flag being caught 
  while calling the script you can pass the --flags option, all values will passed as additional flags.
@@ -127,57 +214,47 @@ VFS Shell Commands
  load -c newcontext.vfs hello world --flags=cde 
 --------------------
  
-* cat
-
- Dumps the content of a file to the console.
- 
-* touch
-
- Resets the modification date of a file (if supported by its filesystem).
- 
-* attrs
-
- File object attribute manipulation. There are three subcommands: info, get and set. 
- info shows all of the attributes of the specified file object. 
- get shows the specified attribute.
- set changes the specified attribute to the given value.
- 
-* ops
-
- File object operation support. There are three subcommands: list, do and usage
- list lists the available operations on the specified file object
- do executes the operation; you can use the name or the sequence number of the operation
- usage shows the parameters of the operation
- 
-* error
-
- Prints the last occurred error. If you specify the -p flag the stacktrace related to the error is printed.
- 
-* set
-
- Sets environment variables that you can later use by prefixing a $ sign to the name. 
- 
 * bsh 
 
- Runs the Beanshell script specified. If you use the -f flag you can specify a file to load.
- The script has access to all variables set in the engine and also sets the arguments that 
- were specified together with the file as "args". To get around the -f flag being caught 
- while calling the script you can pass the --flags option, all values will be set as additional flags.
+ Runs the Beanshell script specified. If you use the -e flag you can enter the expression directly, otherwise
+ the specified file will be loaded.
+ 
+ The script has access to all variables set in the engine. When you load a file it will have access to the 
+ arguments as "args". When loading a file you can also pass flags using 
+ the --flags option; all values will be set as additional flags. 
+ 
+ When using quotes in an expression you must be aware that they are first interpreted by the shell as token 
+ delimiters; you need to escape them.
 
  Examples:
  
 ---------------
- bsh print(vfs.cwd);
- bsh -f test.bsh hello world -kdh --flags=f
+ bsh -e print(vfs.cwd);
+ bsh -e print(vfs.cwd + \" hello world\");
+ bsh -e 'print( vfs.cwd + " hello world");'
+ bsh test.bsh hello world -fva --option1=doit
 --------------- 
+ 
+ The file test.bsh could be something like:
+ 
+--------------
+ print ("cmd: " + args.cmd + " first arg:" + args.getArgument(0));
+--------------
  
 * rem
 
  Does not do anything. Use this or # to comment lines out.
  
+ Examples:
+ 
+---------------
+ rem does nothing
+ # does not anything either
+---------------
+ 
 * echo
 
- Prints the arguments to the output. 
+ Prints the arguments to the output. Use it to print variables. 
  
  Examples:
  
@@ -187,35 +264,25 @@ VFS Shell Commands
 
 * assert
 
-  Asserts whether a file or folder exists. With the -n flag you can assert the inverse, that it does not exist. Use the -f flag if you want to assert it is an existing file; use -d to assert it is a directory.
+  Asserts whether a file or folder exists. With the -n flag you can assert the inverse: that it does not exist. Use the -f flag if you want to assert it is an existing file; use -d to assert it is a directory.
 
   Examples:
   
 ------------
-  assert -f myexistingfile.txt
-  assert -d subdir/myexistingdir
+  assert myexistingfile.txt
+  assert myexistingdir
   assert -n nonexisting
+  assert -f myexistingfile.txt
+  assert -d subdir/myexistingdir  
 ------------
-
- 
-* open
-
- Opens a filesystem with optional explicit authentication. When you specify flag u the username will be asked, when you specify the flag p the password will be asked, when you specify flag d the domain will be asked.
- When you don't specify a URI a list of open filesystems is shown. The difference with the cd command is that you can explicitly close opened filesystem and that you can easier work with layered filesystems.
- 
- Examples:
- 
--------------
- open -up dctm://MyDocbase
- open -p ftp://localhost
- open archive.zip
- open
--------------
- 
-* close
-
- Closes a filesystem. You can specify which filesystem you want to close, otherwise the current filesystem is closed.
  
 * help
 
  Shows the list of available commands. When you give a command it will show the usage information of the command.
+
+ Examples:
+ 
+--------------
+ help
+ help mv
+--------------
