@@ -6,7 +6,30 @@
 
 VFS Shell Configuration
 
- You can configure the shell to add your own commands or to run an initialization script.
+ You can configure the shell to add your own commands or run an initialization script.
+ 
+* Running an initialization script
+
+ On startup the Shell will search for a script named '.vfsshellrc'. It will first look in the current working directory, if it does not find the file it will look in the location specified by the java.home environment variable.
+ 
+ This script is not a Beanshell script but a proper VFS Shell script containing the commands available to the shell. Typically you use this to set some variables or to initialize the directory stack to your favorites.
+ 
+ You can also register new commands from classes or scripts. With this you can add new functionality or create shortcuts for often used commands or combinations of commands.
+
+ Example:
+ 
+-------------
+ #set environment variables
+ set desktop=file:///c:/Documents\ and\ Settings/auser/Desktop
+ set myfiles=file:///d:/users/me/files
+ #push some locations on the directory stack
+ pushd -n $desktop
+ pushd -n .
+ #add custom commands
+ register org.vfsutils.shell.commands.Ls --name=dir --type=class
+ register scripts/* 
+-------------
+  
  
 * Configuring the engine
 
@@ -41,18 +64,4 @@ VFS Shell Configuration
  dir.register(engine.commandRegistry);
 --------------
  
-* Running an initialization script
 
- On startup the Shell will search for a script named .vfsshellrc. It will first look in the current working directory, if it does not find the file it will look in the location specified by the java.home environment variable.
- 
- This script is not a Beanshell script but a proper VFS Shell script containing the commands available to the shell. Typically you use this to set some variables or to initialize the directory stack to your favorites.
-
- Example:
- 
--------------
- #set the environment variables
- set desktop=file:///c:/Documents\ and\ Settings/auser/Desktop
- pushd $desktop
- pushd .
--------------
-  

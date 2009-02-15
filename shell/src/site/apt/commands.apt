@@ -191,12 +191,18 @@ VFS Shell Commands
  Sets environment variables that you can later use by prefixing a $ sign to the name. To unset a variable just
  give the name.
  
+ You can change the prompt by setting the PROMPT variable. To add the full name of the current working directory set it to \n, to add the path 
+ within the current file system set it to \p.
+ 
  Examples:
  
 ----------------
  set myvar=file://d:/temp
  cd $myvar
  set myvar
+ set PROMPT="\\n > "
+ set PROMPT="\\p#"
+ set PROMPT="vfs > "
 ----------------
  
 * load
@@ -278,19 +284,29 @@ VFS Shell Commands
  
 * register
 
-  Registers the given scripts as commands. Both vfs and bsh scripts are supported. The name of the script (without its extension) is used for registering it.
+  Registers the given class or scripts as commands, it supports java classes, vfs scripts and beashell scripts. 
   
-  Optionally, when you specify only one file you can override the name and give a description and usage information. If your file does not have an extension you
-  can specify the type ("vfs" or "bsh"). For this, use the options name, description, usage and type. 
+  This allows for easy extension of the existing commands using command classes in the classpath and using macro-like functions with vfs scripts or more enhanced scripts using beanshell.
+
+  For the effect of calling a vfs script see the load command, for the effect of calling a beanshell script see the bsh command.
   
-  Note that when a command already exists with the same name it will be replaced by the script that is being registered; be careful with what you do.
+  To register a class you must specify option --type=class; the class should be a subclass of the CommandProvider class. 
+  
+  If you use a script that has extension '.vfs' or '.bsh' the type is detected, but you can also
+  specify it explicitly using the type option. The name of the script, without its extension, is used for registering it.
+  
+  You can override the name that should be used for the command, and also the description and usage information, but not when you use a wildcard to find multiple scripts.
+  For classes this will only work when your class is a subclass of AbstractCommand.
+    
+  Note that the registered command will replace an existing command with the same name; be careful with what you do.
 
   Examples :
   
 ----------------
+  register org.vfsutils.shell.commands.Ls --name=dir --type=class
   register d:/temp/test.bsh --description="test script" --usage="<path>"
   register d:/temp/test --type=bsh --name=mycommand
-  register *.bsh
+  register scripts/*.bsh
 ----------------
  
 * help
