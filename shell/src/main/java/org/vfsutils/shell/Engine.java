@@ -447,5 +447,15 @@ public class Engine {
 		}
 		
 	}
+	
+	public String escapeWhitespace(String input) {
+		if (input.indexOf(' ')==-1) {
+			return input;
+		}
+		else {
+			//escape the whitespace by putting a backslash before it
+			return input.replaceAll(" ", "\\\\ ");
+		}
+	}
 
 }

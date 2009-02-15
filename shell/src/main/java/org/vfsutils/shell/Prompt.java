@@ -10,7 +10,7 @@ public class Prompt {
 	public Prompt(Context context) {
 		this.context = context;
 		if (this.context.get("PROMPT")==null) {
-			this.context.set("PROMPT", "vfs >");
+			this.context.set("PROMPT", "vfs > ");
 		}
 	}
 	

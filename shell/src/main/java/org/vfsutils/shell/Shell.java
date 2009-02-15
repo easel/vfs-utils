@@ -23,10 +23,9 @@ public class Shell implements bsh.ConsoleInterface {
 	
 	protected Reader reader;
 	
-	
-	public Shell() throws FileSystemException {
-		this(System.in);
-	}	
+	protected Shell() {
+		//do nothing
+	}
 	
 	public Shell(InputStream in) throws FileSystemException {
 		
@@ -36,7 +35,6 @@ public class Shell implements bsh.ConsoleInterface {
 		loadRc();
 	}
 	
-
 	protected void customizeEngine(Engine engine) {
 				
 		String configScriptLocation = System.getProperty("org.dctmvfs.vfs.shell.customscript", "vfs-shell-custom-init.bsh");
@@ -100,6 +98,7 @@ public class Shell implements bsh.ConsoleInterface {
 			}
 			catch(Exception e) {
 				this.error("Error in script " + initFile + ": " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -122,7 +121,7 @@ public class Shell implements bsh.ConsoleInterface {
 		
 		try {
 			if (args.length==0) {
-				Shell shell = new Shell();
+				Shell shell = new Shell(System.in);
 				shell.go();
 			}
 			else {
