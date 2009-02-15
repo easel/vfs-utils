@@ -26,6 +26,9 @@ VFS Utils
  but is more modular and extensible and has some additional features such as pushd, popd, attribute and 
  operation commands.
  
+ You can enhance the shell by using the {{{jline/index.html}JLine integration }} which adds password masking 
+ and tab completion for commands and file names.
+ 
  Additional VFSutilities can be found in the {{{utils/index.html}Utils project}}.
  
 Other VFS clients
@@ -44,6 +47,7 @@ Other VFS clients
  
 News
 
+  * 15-02-2008: Added JLine integration
   * 14-12-2008: Moved sources from {{{http://dctmvfs.sourceforge.net} Dctm VFS project}} 
  
 Stability

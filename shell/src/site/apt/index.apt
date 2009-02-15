@@ -12,6 +12,10 @@ VFS Shell
  
  It is easy to add commands or to change the behaviour of the existing commands.
  
+ Make sure to check out the integration with {{{http://jline.sourceforge.net}JLine}} using the {{{../jline/index.html}VFS JLine Shell}}.
+ It adds tab completion for commands and file names and does password masking on the open command. This makes the Shell a whole lot
+ more professional.
+ 
  The command style is *nix like.
 
  The available commands are:
@@ -91,10 +95,10 @@ TTD
  
  * Support for wildcards in cp, mv and other operations
  
- * Check integration with JLine
- 
  * Piping of output to files
  
  * A java command to run any Java application
+ 
+ * Sync command, Tranform command etc.
  
  []
