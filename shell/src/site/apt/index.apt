@@ -52,7 +52,7 @@ VFS Shell
  
  * assert: verifies a file exists
  
- * register: registers a script as a command
+ * register: registers a new class or script as a command
  
  * help: displays the list of commands
  

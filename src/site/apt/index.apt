@@ -47,14 +47,7 @@ Other VFS clients
  
 News
 
-  * 15-02-2008: Added JLine integration
-  * 14-12-2008: Moved sources from {{{http://dctmvfs.sourceforge.net} Dctm VFS project}} 
- 
-Stability
+  * 15-02-2009: Added JLine integration
 
- The libraries on which the project depends are still changing. 
- This does not mean it isn't usable, but rather that it will
- adapt to changes in new versions.
- 
- The version of Apache Commons VFS that is used is the 2.0 SNAPSHOT.
+  * 14-12-2008: Moved sources from {{{http://dctmvfs.sourceforge.net} Dctm VFS project}} 
  
