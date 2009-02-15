@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemOptions;
@@ -40,9 +39,9 @@ public class Open extends AbstractOpenClose {
 	protected void listOpen(Engine engine) throws FileSystemException {
 		List openFs = getOpenFs(engine);
 		for (int i = 0; i < openFs.size(); i++) {
-			FileName name = (FileName) openFs.get(i);
+			FileObject root = (FileObject) openFs.get(i);
 			engine.println(" " + (i > 8 ? "" : " ") + "[" + (i + 1) + "] "
-					+ name.getURI());
+					+ engine.toString(root.getName()));
 		}
 	}
 
@@ -97,13 +96,14 @@ public class Open extends AbstractOpenClose {
 			throw new IllegalArgumentException("Not a directory");
 		}
 
-		FileName root = file.getName().getRoot();
+		FileObject root = file.getFileSystem().getRoot();
 		List openFs = getOpenFs(engine);
 
-		// If the new fs is not layered add the current fs in the list to go to
-		// when the new fs is closed
+		// When the fs is closed we should go back to something. For a layered fs this
+		// is the parent layer. For others we take the previously opened fs. In case
+		// this is the first fs to open the current directory is put as fallback.
 		if (openFs.size() == 0 && file.getFileSystem().getParentLayer() == null) {
-			openFs.add(engine.getCwd().getName());
+			openFs.add(engine.getCwd());
 		}
 
 		// add the new fs to the list if it is not there yet
@@ -111,6 +111,7 @@ public class Open extends AbstractOpenClose {
 			openFs.add(root);
 		}
 
+		//change the working dir
 		engine.getContext().setCwd(file);
 
 		engine.println("Opened " + engine.toString(root));

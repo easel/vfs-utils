@@ -44,11 +44,12 @@ public class Close extends AbstractOpenClose {
 	protected void close(FileObject file, Engine engine)
 			throws FileSystemException {
 		List openFs = getOpenFs(engine);
-		FileName root = file.getName().getRoot();
+		FileObject root = file.getFileSystem().getRoot();
 		if (openFs.contains(root)) {
 			// check for layered fs
 			FileObject parentFs = engine.getCwd().getFileSystem()
 					.getParentLayer();
+			
 			// get index of current fs (needed for cd afterwards)
 			int index = openFs.indexOf(root);
 
@@ -66,9 +67,9 @@ public class Close extends AbstractOpenClose {
 				}
 			} else if (index > 0) {
 				// go the fs just above in the list
-				FileName parentName = (FileName) openFs.get(index - 1);
-				parentFs = engine.getMgr().resolveFile(parentName.getURI());
+				parentFs = (FileObject) openFs.get(index - 1);
 			} else {
+				//empty list
 				parentFs = engine.getMgr().getBaseFile();
 			}
 			engine.getContext().setCwd(parentFs);
@@ -82,10 +83,10 @@ public class Close extends AbstractOpenClose {
 		// start from last one
 		for (int i = openFs.size() - 1; i >= 0; i--) {
 			// get file from name
-			FileName root = (FileName) openFs.get(i);
-			FileObject file = engine.getMgr().resolveFile(root.getURI());
+			FileObject root = (FileObject) openFs.get(i);
+			
 			// close the filesystem
-			FileSystem fs = file.getFileSystem();
+			FileSystem fs = root.getFileSystem();
 			engine.getMgr().closeFileSystem(fs);
 			// remove from list
 			openFs.remove(i);
