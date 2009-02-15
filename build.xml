@@ -26,6 +26,9 @@
 		<copy todir="target/dist/site/shell">
 			<fileset dir="shell/target/site"/>
 		</copy>
+		<copy todir="target/dist/site/jline">
+			<fileset dir="jline/target/site"/>
+		</copy>
 		<copy todir="target/dist/site/utils">
 			<fileset dir="utils/target/site"/>
 		</copy>
