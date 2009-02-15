@@ -9,6 +9,7 @@ import org.apache.commons.vfs.FileSystemException;
 import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
+import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
 
 public class Register extends AbstractCommand {
@@ -34,7 +35,7 @@ public class Register extends AbstractCommand {
 	}
 	
 	public Register() {
-		super("register", new CommandInfo("Registers a script", "<path>"));
+		super("register", new CommandInfo("Registers a script", "[<path>|<class>] --type={class|vfs|bsh} --name=<name> --description=<descr> --usage=<usage>"));
 	}
 
 	public void execute(Arguments args, Engine engine)
@@ -43,30 +44,35 @@ public class Register extends AbstractCommand {
 		
 		args.assertSize(1);
 		
-		FileObject[] files = engine.pathToFiles(args.getArgument(0));
-		
-		if (files.length==0) {
-			engine.println("No files selected");
-		}
-		else if (files.length==1) {
-			register(files[0], args.getOption("name"), args.getOption("description"), args.getOption("usage"), args.getOption("type"), engine);
+		if (args.hasOption("type") && args.getOption("type").equals("class")) {
+			registerClass(args.getArgument(0), args.getOption("name"), args.getOption("description"), args.getOption("usage"), engine);
 		}
 		else {
-			register(files, engine);
+			FileObject[] files = engine.pathToFiles(args.getArgument(0));
+			
+			if (files.length==0) {
+				engine.println("No files selected");
+			}
+			else if (files.length==1) {
+				registerScript(files[0], args.getOption("name"), args.getOption("description"), args.getOption("usage"), args.getOption("type"), engine);
+			}
+			else {
+				registerScripts(files, engine);
+			}
 		}
 	}
 	
-	protected void register(FileObject[] files, Engine engine) {
+	protected void registerScripts(FileObject[] files, Engine engine) {
 		for (int i=0; i<files.length; i++) {
-			register(files[i], engine);
+			registerScript(files[i], engine);
 		}
 	}
 	
-	protected void register(FileObject file, Engine engine) {
-		register(file, null, null, null, null, engine);
+	protected void registerScript(FileObject file, Engine engine) {
+		registerScript(file, null, null, null, null, engine);
 	}
 	
-	protected void register(FileObject file, String name, String description, String usage, String type, Engine engine) {
+	protected void registerScript(FileObject file, String name, String description, String usage, String type, Engine engine) {
 		
 		FileName fileName = file.getName();
 		
@@ -102,6 +108,43 @@ public class Register extends AbstractCommand {
 		engine.println("Registered script " + fileName.toString() + " as " + name);
 	}
 
+	public void registerClass(String className, String name, String description, String usage, Engine engine) throws CommandException {
+		try {
+			Class commandClass = Class.forName(className);
+			if (CommandProvider.class.isAssignableFrom(commandClass)) {
+				CommandProvider command = (CommandProvider) commandClass.newInstance();
+	
+				if (command instanceof AbstractCommand) {
+					
+					AbstractCommand abstractCommand = (AbstractCommand) command;
+					if (name!=null) {
+						abstractCommand.setCommand(name);					
+					}
+					
+					if (description!=null) {
+						abstractCommand.setDescription(description);
+					}
+					
+					if (usage!=null) {
+						abstractCommand.setUsage(usage);
+					}
+				}
+				
+				command.register(engine.getCommandRegistry());
+			}
+			else {
+				throw new CommandException("Class " + className + " is not a valid Command");
+			}
+		}
+		catch (CommandException e) {
+			throw e;
+		} 
+		catch (Exception e) {
+			throw new CommandException("Error while registering class " + className, e);
+		}
+	}
+	
+	
 	protected Arguments copyArgs(Script script, Arguments args) {
 		Arguments result = new Arguments();
 		
