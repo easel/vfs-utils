@@ -100,7 +100,7 @@ public class Ops extends AbstractCommand implements CommandProvider {
 		// counting starts at 1
 		if (index > 0 && index <= ops.length) {
 			FileOperation op = fops.getOperation(ops[index - 1]);
-			doop(op, args, engine);
+			doop(file, op, args, engine);
 		} else {
 			engine.println("Operation at index " + index + " does not exist");
 		}
@@ -119,14 +119,14 @@ public class Ops extends AbstractCommand implements CommandProvider {
 				engine.println("Could not find operation " + displayname);
 			} else {
 				FileOperation op = fops.getOperation(opClass);
-				doop(op, args, engine);
+				doop(file, op, args, engine);
 			}
 		} catch (Exception e) {
 			throw new CommandException("Error in operation " + displayname, e);
 		}
 	}
 
-	protected void doop(FileOperation op, Arguments args, Engine engine)
+	protected void doop(FileObject file, FileOperation op, Arguments args, Engine engine)
 			throws FileSystemException, CommandException {
 
 		try {
@@ -146,6 +146,7 @@ public class Ops extends AbstractCommand implements CommandProvider {
 				if (p.getName().equals("result") && p.getReadMethod() != null) {
 					Method readMethod = p.getReadMethod();
 					Object result = readMethod.invoke(op, null);
+					engine.println("Operation result for " + engine.getCwd().getName().getRelativeName(file.getName()) + ":");
 					if (result == null) {
 						engine.println("n/a");
 					} else {
