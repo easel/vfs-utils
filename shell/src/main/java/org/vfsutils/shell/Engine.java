@@ -121,8 +121,7 @@ public class Engine {
                 	return;
                 }
             }
-            catch (final Exception e)
-            {
+            catch (final Exception e) {
                 console.error(e.getMessage());
                 lastError = e;
                 if (haltOnError) {
@@ -253,8 +252,9 @@ public class Engine {
     		Object value = this.getContext().get(var.substring(1));
     		//only replace matched values
     		if (value!=null) {
-    			//escape the dollar, because replaceAll works on regexp
-    			result = result.replaceAll("\\"+var, value.toString());
+    			//escape the dollar, because replaceAll works on regexp; the backslashes that escape
+    			//whitespace in the value need to be escaped for use within replaceAll
+    			result = result.replaceAll("\\"+var, escapeBackslash(value.toString()));
     		}
     		else {
     			throw new IllegalArgumentException("Unbound variable " + var);
@@ -455,6 +455,17 @@ public class Engine {
 		else {
 			//escape the whitespace by putting a backslash before it
 			return input.replaceAll(" ", "\\\\ ");
+		}
+	}
+	
+	protected String escapeBackslash(String input) {
+		if (input.indexOf('\\')==-1) {
+			return input;
+		}
+		else {
+			//replace \ by \\, in replaceAll it takes 4 \ for on backslash because of capture groups
+			String result = input.replaceAll("\\\\", "\\\\\\\\");
+			return result;
 		}
 	}
 
