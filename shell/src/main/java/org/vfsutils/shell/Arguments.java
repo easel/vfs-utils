@@ -19,10 +19,11 @@ public class Arguments {
 			StringBuffer buffer = new StringBuffer();
 			for (int i=startAt; i<allTokens.size(); i++) {
 				if (buffer.length()>0) buffer.append(" ");
-				buffer.append(allTokens.get(i));
+				buffer.append(escapeWhitespace((String)allTokens.get(i)));
 			}
 			return buffer.toString();
 		}
+		
 	}
 	
 	public class FlagSet extends HashSet {
@@ -54,7 +55,7 @@ public class Arguments {
 			while (iterator.hasNext()) {
 				if (buffer.length()>0) buffer.append(" ");
 				String key = (String) iterator.next();
-				buffer.append("--").append(key).append("=").append(this.get(key));
+				buffer.append("--").append(key).append("=").append(escapeWhitespace((String)this.get(key)));
 			}
 			return buffer.toString();
 		}
@@ -166,6 +167,17 @@ public class Arguments {
 	
 	public String asString(int startAt) {
 		return allTokens.asString(startAt);
+	}
+	
+	public String escapeWhitespace(String input) {
+		if (input.indexOf(' ')==-1) {
+			return input;
+		}
+		else {
+			//escape the whitespace by putting a backslash before it, 
+			//in replaceAll it takes 4 \ to create one backslash because of group capture
+			return input.replaceAll(" ", "\\\\ ");
+		}
 	}
 	
 }
