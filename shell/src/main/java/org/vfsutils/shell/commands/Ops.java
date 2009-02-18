@@ -29,16 +29,6 @@ public class Ops extends AbstractCommand implements CommandProvider {
 				"list <file> | do <id|name> <file> | usage <id|name> <file>"));
 	}
 
-	public void execute(String[] cmd, Engine engine)
-			throws IllegalArgumentException, CommandException,
-			FileSystemException {
-
-		CommandParser parser = new CommandParser();
-		Arguments args = parser.parse(cmd);
-
-		execute(args, engine);
-	}
-
 	public void execute(Arguments args, Engine engine)
 			throws IllegalArgumentException, CommandException,
 			FileSystemException {
