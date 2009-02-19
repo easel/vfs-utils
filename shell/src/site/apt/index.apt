@@ -15,6 +15,8 @@ VFS Shell
  the shell you have access to the engine to set variables and dynamically add new commands
  and use scripts.
  
+ You can setup the environment using scripts that are loaded when the shell starts.
+ 
  Make sure to check out the integration with {{{http://jline.sourceforge.net}JLine}} using the
  {{{../jline/index.html}VFS JLine Shell}}.
  It adds tab completion for commands and file names and does password masking on the open command. 
