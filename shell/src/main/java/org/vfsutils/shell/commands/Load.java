@@ -178,8 +178,8 @@ public class Load extends AbstractCommand implements CommandProvider {
 		
 		List a = args.getArguments();
 		for (int i=0; i<a.size(); i++) {
-			if (set) engine.getContext().set("arg" + i, a.get(i));
-			else engine.getContext().unset("arg" + i);
+			if (set) engine.getContext().set("arg" + (i+1), a.get(i));
+			else engine.getContext().unset("arg" + (i+1));
 		}
 		
 		if (set){ 
