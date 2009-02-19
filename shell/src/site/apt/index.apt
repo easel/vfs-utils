@@ -15,7 +15,8 @@ VFS Shell
  the shell you have access to the engine to set variables and dynamically add new commands
  and use scripts.
  
- You can setup the environment using scripts that are loaded when the shell starts.
+ You can setup the environment using scripts that are loaded when the shell starts, see 
+ {{{configuration.html} Configuration}}.
  
  Make sure to check out the integration with {{{http://jline.sourceforge.net}JLine}} using the
  {{{../jline/index.html}VFS JLine Shell}}.
@@ -109,9 +110,16 @@ VFS Shell
  pushd file:///c:/temp
  
  open vfsshell-dev.zip
- cp vfshshell-dev file://C:/Program\ Files
+ cp vfsshell-dev file://C:/Program\ Files
+ 
+ attrs info vfsshell.dev
+ 
  popd
  cd vfsshell-dev
+ 
+ open -p dctm://dmadmin@MyDocbase/System
+ ops do dump Sysadmin
+ attrs get r_object_id Sysadmin
  
  set myvar=file:///c:/temp
  echo $myvar
