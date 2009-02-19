@@ -15,8 +15,7 @@ public class Context {
 	public Context(FileSystemManager mgr) throws FileSystemException {
 		
 		FileObject cwd = mgr.resolveFile(System.getProperty("user.dir"));
-		// don't use setCwd yet because the prompt does not yet exist
-		set("vfs.cwd", cwd);
+		setCwd(cwd);
 		setPrompt(new Prompt(this));
 	}
 
@@ -27,6 +26,12 @@ public class Context {
 
 	public void setCwd(FileObject dir) {
 		this.set("vfs.cwd", dir);
+		this.set("cwd", dir.getName().getURI());
+		try {
+			this.set("cwp", dir.getName().getPathDecoded());
+		}
+		catch (FileSystemException e) {}
+		
 	}
 
 	public Prompt getPrompt() {
