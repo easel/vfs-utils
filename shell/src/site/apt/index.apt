@@ -8,13 +8,17 @@ VFS Shell
 
  This project provides a Java Shell interface (or Java Command Line) .
  
- The shell interface is inspired on the Shell example that comes with the Apache Commons VFS library but it is more extensible and adds more functionality.
+ The shell interface is inspired on the Shell example that comes with the Apache Commons VFS 
+ library but it is more extensible and adds more functionality.
  
- It is easy to add commands or to change the behaviour of the existing commands.
+ It is easy to add commands or to change the behaviour of the existing commands. From within 
+ the shell you have access to the engine to set variables and dynamically add new commands
+ and use scripts.
  
- Make sure to check out the integration with {{{http://jline.sourceforge.net}JLine}} using the {{{../jline/index.html}VFS JLine Shell}}.
- It adds tab completion for commands and file names and does password masking on the open command. This makes the Shell a whole lot
- more professional.
+ Make sure to check out the integration with {{{http://jline.sourceforge.net}JLine}} using the
+ {{{../jline/index.html}VFS JLine Shell}}.
+ It adds tab completion for commands and file names and does password masking on the open command. 
+ This makes the Shell a whole lot more professional.
  
  The command style is *nix like.
 
@@ -34,43 +38,69 @@ VFS Shell
  
  * ops: operation interaction (list, do, usage)
  
- * cat: dumps the content of a file
- 
- * touch: resets the modification date 
- 
- * error: details of last occurred error
- 
  * set: sets variables
  
  * load: executes a file containing shell instructions
  
  * bsh: executes a beanshell script file or expression
  
- * rem: does nothing
- 
- * echo: writes output
+ * register: registers a new class or script as a command
  
  * assert: verifies a file exists
  
- * register: registers a new class or script as a command
+ * error: details of last occurred error
+
+ * cat: dumps the content of a file
+ 
+ * touch: resets the modification date 
+
+ * echo: writes output
+  
+ * rem: does nothing
  
  * help: displays the list of commands
  
  []
  
+ To exit the shell you can use exit, quit or bye.
+ 
  See the {{{commands.html} list of available commands}} for more details.
  
  Clearly this list can be extended with all kind of other commands. 
  
- Whitespace can be escaped using a backslash, e.g. cd Program\\ Files, but also using single or double quotes: 'Program Files' or "Program Files". If you're lazy you can also skip the closing quote, e.g. cd "Program Files.
+ The arguments passing is somewhat standardized. Normal arguments are given separated by whitespace. 
+ Flags exist in two flavours, short flags and long flags. Short flags have one character and can be 
+ combined in a single argument: -ef passes the flags e and f. Long flags are multi-character flags,
+ e.g. --delete. They should be used when the flag has a big impact or when there are no short flags
+ left. Options are key value pairs; e.g. --format=json. The pattern '-format json' is not 
+ supported; it will be interpreted as a bunch of flags and one argument. The order of the arguments
+ is only guaranteed for normal arguments; 'do a b c -def --ghij --klm=nop' is equal to 
+ 'do --klm=nop a --ghij -f b -ed c'. 
  
- To exit the shell you can use exit, quit or bye.
+ Whitespace can be escaped using a backslash, e.g. cd Program\\ Files, but also using single or 
+ double quotes: 'Program Files' or "Program Files". If you're lazy you can also skip the closing 
+ quote, e.g. cd "Program Files. Multine input is possible when you end the line with ' \' (space 
+ backslash).
  
- The variables are resolved before tokenizing and interpretation of the line which means you can also create a variable for commands and create macro-like structures.
+ The variables in the input are resolved before tokenizing and interpretation of the line which 
+ means you can also create a variable for a command and create macro-like structures, 
+ e.g. set x="cd /tmp".
  
- The beanshell interpreter has access to all variables but can not change them. Note that the beanshell interpreter accesses them without the $ sign.
+ Currently you can not chain commands, nor pipe them or do things in the background.
  
- Example code:
+ There is no bash like control flow logic. If you want to script you can use Beanshell scripts or
+ for
+ sequences of normal commands you can load 'vfs' scripts.
+
+ You can load files containing commands as a scripting facility. The scripts are interpreted within 
+ the current context unless you specify the -c flag, which will create a new context. In the 
+ scripts you can use # for comments. The scripts have access to all environment variables and the 
+ arguments passed to the script. 
+ 
+ The Beanshell interpreter also has access to all variables. Note that the Beanshell interpreter 
+ accesses them without the $ sign.
+ 
+ Example VFS Shell code:
  
 +-----+
  cd '/Program Files
@@ -81,24 +111,34 @@ VFS Shell
  popd
  cd vfsshell-dev
  
- set myvar file:///c:/temp
- bsh print(myvar);
+ set myvar=file:///c:/temp
+ echo $myvar
+ set curdir=$cwd
+ 
+ bsh -e print(myvar);
+ bsh myscript.bsh
  
  cd $myvar
 
  load myscript.vfs
 +-----+
 
- You can load files containing commands as a scripting facility. The scripts are interpreted within the current context unless you specify the -c flag for the load command. Interesting for script files is the use of # for comments. You can also use the rem command for comments in the script. 
  
 TTD
  
- * Support for wildcards in cp, mv and other operations
+ * Correct usage of wildcards; currently only relative downward search is supported, you can not go
+   up or provide absolute paths
  
- * Piping of output to files
+ * Support for wildcards in cp, mv and some other operations
+ 
+ * Piping of output to files, chaining commands
+ 
+ * Starting commands in the background
  
  * A java command to run any Java application
  
- * Sync command, Tranform command etc.
+ * Additional commands: Sync, Tranform etc.
+ 
+ * Scoping of commands to VFS provider schemes
  
  []
