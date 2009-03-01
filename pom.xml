@@ -31,7 +31,6 @@
     <module>ftpserver</module>
     <module>utils</module>
 	<module>shell</module>
-	<module>jline</module>
   </modules>
 
   <licenses>
