@@ -10,7 +10,7 @@ public class LocalShell extends Shell {
 	
 	public LocalShell(InputStream in) throws FileSystemException {
 		
-		this.engine = new org.vfsutils.shell.mina.LocalEngine(this);
+		this.engine = new LocalEngine(this);
 		this.reader = new InputStreamReader(in);
 	}
 	
