@@ -22,7 +22,7 @@ public class Assert extends AbstractCommand {
 		String path = args.getArgument(0);
 		
         // Locate the file
-        final FileObject file = engine.getMgr().resolveFile(engine.getCwd(), path);
+        final FileObject file = engine.pathToFile(path);
 
         boolean notExists = args.hasFlag("n");
         boolean assertFile = args.hasFlag("f");

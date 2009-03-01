@@ -27,8 +27,8 @@ public class Mv extends AbstractCommand implements CommandProvider {
 	}
 	
 	protected void move(String srcPath, String destPath, Engine engine) throws FileSystemException {
-		final FileObject src = engine.getMgr().resolveFile(engine.getCwd(), srcPath);
-        FileObject dest = engine.getMgr().resolveFile(engine.getCwd(), destPath);
+		final FileObject src = engine.pathToFile(srcPath);
+        FileObject dest = engine.pathToFile(destPath);
         
         move(src, dest, engine);
 	}
