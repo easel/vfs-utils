@@ -1,4 +1,4 @@
-package org.vfsutils.sell.jline;
+package org.vfsutils.shell.jline;
 
 import java.io.File;
 import java.io.FileInputStream;
