@@ -1,5 +1,6 @@
-package org.vfsutils.shell;
+package org.vfsutils.shell.boxed;
 
+import org.vfsutils.shell.CommandRegistry;
 import org.vfsutils.shell.commands.Assert;
 import org.vfsutils.shell.commands.Attrs;
 import org.vfsutils.shell.commands.BoxedOpen;
