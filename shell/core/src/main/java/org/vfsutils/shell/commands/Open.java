@@ -46,11 +46,26 @@ public class Open extends AbstractOpenClose {
 		}
 	}
 
+	public void open(String path, String username, String password,
+			String domain, boolean virtual, Engine engine) 
+		throws FileSystemException, CommandException {
+		
+		FileObject file = 
+			resolvePath(path, username, password, domain, virtual, engine);
+		
+		open(file, engine);
+	}
+
 	public void open(String path, boolean askUsername, boolean askPassword,
 			boolean askDomain, boolean virtual, Engine engine) throws FileSystemException, CommandException {
 
 		FileObject file = 
 			resolvePath(path, askUsername, askPassword, askDomain, virtual,	engine);
+		
+		open(file, engine);
+	}
+	
+	public void open(FileObject file, Engine engine) throws FileSystemException, CommandException {
 
 		// same as the cd command
 		if (!file.exists()) {
@@ -84,10 +99,11 @@ public class Open extends AbstractOpenClose {
 		engine.println("Current folder is " + engine.toString(file));
 
 	}
-
-	protected FileObject resolvePath(String path, boolean askUsername,
-			boolean askPassword, boolean askDomain, boolean virtual,
-			Engine engine) throws FileSystemException, CommandException {
+		
+	
+	public FileObject resolvePath(String path, String username, String password,
+			String domain, boolean virtual, Engine engine) 
+		throws FileSystemException, CommandException {
 		
 		FileObject file;
 		if (path.indexOf("://") == -1) {
@@ -104,34 +120,15 @@ public class Open extends AbstractOpenClose {
 		else {
 			FileSystemOptions opts = new FileSystemOptions();
 
-			if (askUsername || askPassword) {
-				BufferedReader buf = new BufferedReader(engine.getConsole()
-						.getIn());
-
-				String username = null, password = null, domain = null;
-				try {
-					if (askUsername) {
-						engine.print("username > ");
-						username = buf.readLine();
-					}
-					if (askPassword) {
-						engine.print("password > ");
-						password = buf.readLine();
-					}
-					if (askDomain) {
-						engine.println("domain > ");
-						domain = buf.readLine();
-					}
-				} catch (IOException e) {
-					throw new CommandException(e);
-				}
-
+			if (username!=null || password!=null || domain!=null) {
+				
 				StaticUserAuthenticator auth = new StaticUserAuthenticator(
 						domain, username, password);
 
 				DefaultFileSystemConfigBuilder.getInstance()
 						.setUserAuthenticator(opts, auth);
 			}
+
 			file = engine.getMgr().resolveFile(path, opts);
 			
 			if (virtual) {
@@ -139,6 +136,41 @@ public class Open extends AbstractOpenClose {
 			}
 		}
 		return file;
+	}
+
+	protected FileObject resolvePath(String path, boolean askUsername,
+			boolean askPassword, boolean askDomain, boolean virtual,
+			Engine engine) throws FileSystemException, CommandException {
+		
+		String username = null, password = null, domain = null;
+
+		//only read input for full URLs
+		if (path.indexOf("://") > -1 && (askUsername || askPassword || askDomain)) {
+			
+			try {
+				BufferedReader buf = 
+					new BufferedReader(engine.getConsole().getIn());
+				
+				if (askUsername) {
+					engine.print("username > ");
+					username = buf.readLine();
+				}
+				if (askPassword) {
+					engine.print("password > ");
+					password = buf.readLine();
+				}
+				if (askDomain) {
+					engine.println("domain > ");
+					domain = buf.readLine();
+				}
+			} catch (IOException e) {
+				throw new CommandException(e);
+			}
+
+		}
+		
+		return resolvePath(path, username, password, domain, virtual, engine);
+	
 	}
 
 }
