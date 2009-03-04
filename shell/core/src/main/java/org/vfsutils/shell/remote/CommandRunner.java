@@ -9,7 +9,7 @@ import org.vfsutils.shell.Engine;
 
 import bsh.ConsoleInterface;
 
-public class CommandRunner implements ConsoleInterface {
+public class CommandRunner implements ConsoleInterface, EngineRunner {
 
 	protected ByteArrayOutputStream outBuffer = new ByteArrayOutputStream(2048);
 	protected PrintStream out = new PrintStream(outBuffer);
