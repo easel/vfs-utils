@@ -18,6 +18,8 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
 import org.vfsutils.selector.FilenameSelector;
+import org.vfsutils.shell.events.EngineEventListener;
+import org.vfsutils.shell.events.EngineEventManager;
 
 import bsh.ConsoleInterface;
 
@@ -35,8 +37,9 @@ public class Engine {
     protected Exception lastError = null;  
     
     protected boolean continueGoLoop = true;
-    	
-	
+
+    protected EngineEventManager eventManager = new EngineEventManager();
+    
 	public Engine(ConsoleInterface console) throws FileSystemException {
 		this(console, new DefaultCommandRegistry(), VFS.getManager());
 	}
@@ -52,6 +55,8 @@ public class Engine {
 	public void go() throws Exception {
 
 		BufferedReader in = new BufferedReader( console.getIn() );
+		
+		eventManager.fireEngineStarted();
 		
 		while (continueGoLoop) {
 			
@@ -92,6 +97,7 @@ public class Engine {
 	
 	public void stopOnNext() {
 		continueGoLoop = false;
+		eventManager.fireEngineStopping();
 	}
 
 	/**
@@ -195,6 +201,7 @@ public class Engine {
     		
 			if ((command = (CommandProvider)this.commandRegistry.getCommand(cmd))!=null) {
 				try {
+					eventManager.fireCommandStarted(args);
 					command.execute(args, this);
 				}
 	    		catch (IllegalArgumentException e) {
@@ -218,6 +225,9 @@ public class Engine {
 	    				return false;
 	    			}
 	    		}
+	    		finally {
+	    			eventManager.fireCommandFinished(args);
+	    		}
 			} 
 			else {
 				error("Unknown command " + cmd);
@@ -229,6 +239,14 @@ public class Engine {
     	return true;
     }
 
+    public void addEngineEventListener(EngineEventListener listener) {    	
+    	this.eventManager.addEngineEventListener(listener);
+    }
+    
+    public void removeEngineEventListener(EngineEventListener listener) {
+    	this.eventManager.removeEngineEventListener(listener);
+    }
+    
     protected String resolveVariables(final String cmd) throws IllegalArgumentException {
     	    	
     	//first check
@@ -259,7 +277,8 @@ public class Engine {
     		if (value!=null) {
     			//escape the dollar, because replaceAll works on regexp; the backslashes that escape
     			//whitespace in the value need to be escaped for use within replaceAll
-    			result = result.replaceAll("\\"+var, escapeBackslash(value.toString()));
+    			//result = result.replaceAll("\\"+var, escapeBackslash(value.toString()));
+    			result = replaceAll(result, var, value.toString());
     		}
     		else {
     			throw new IllegalArgumentException("Unbound variable " + var);
@@ -453,25 +472,45 @@ public class Engine {
 		
 	}
 	
-	public String escapeWhitespace(String input) {
-		if (input.indexOf(' ')==-1) {
-			return input;
+	protected String replaceAll(String input, String match, String replacement) {
+		StringBuffer buffer = new StringBuffer(input.length());
+		
+		int from = 0;
+		int start = -1;
+
+		while ((start = input.indexOf(match, from))>-1) {
+			//append the begin
+			buffer.append(input.substring(from, start));
+			//append the replacement
+			buffer.append(replacement);
+			//change the pointer in the input
+			from = start + match.length();
 		}
-		else {
-			//escape the whitespace by putting a backslash before it
-			return input.replaceAll(" ", "\\\\ ");
-		}
+		//append the end
+		buffer.append(input.substring(from));
+		
+		return buffer.toString();
 	}
 	
-	protected String escapeBackslash(String input) {
-		if (input.indexOf('\\')==-1) {
-			return input;
+	
+	protected String escape(String input, char match) {
+		StringBuffer buffer = new StringBuffer(input.length()+5);
+		char[] chars = input.toCharArray();
+		
+		for (int i=0; i < chars.length; i++) {
+			char c = chars[i];
+			if (c==match) {
+				buffer.append('\\');
+			}
+			buffer.append(c);
 		}
-		else {
-			//replace \ by \\, in replaceAll it takes 4 \ for on backslash because of capture groups
-			String result = input.replaceAll("\\\\", "\\\\\\\\");
-			return result;
-		}
+		
+		return buffer.toString();
+
+	}
+	
+	public String escapeWhitespace(String input) {		
+		return escape(input, ' ');
 	}
 
 }

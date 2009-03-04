@@ -19,7 +19,7 @@ public class Arguments {
 			StringBuffer buffer = new StringBuffer();
 			for (int i=startAt; i<allTokens.size(); i++) {
 				if (buffer.length()>0) buffer.append(" ");
-				buffer.append(escapeWhitespace((String)allTokens.get(i)));
+				buffer.append(escapeWhitespaceAndQuotes((String)allTokens.get(i)));
 			}
 			return buffer.toString();
 		}
@@ -55,7 +55,7 @@ public class Arguments {
 			while (iterator.hasNext()) {
 				if (buffer.length()>0) buffer.append(" ");
 				String key = (String) iterator.next();
-				buffer.append("--").append(key).append("=").append(escapeWhitespace((String)this.get(key)));
+				buffer.append("--").append(key).append("=").append(escapeWhitespaceAndQuotes((String)this.get(key)));
 			}
 			return buffer.toString();
 		}
@@ -169,15 +169,26 @@ public class Arguments {
 		return allTokens.asString(startAt);
 	}
 	
-	public String escapeWhitespace(String input) {
-		if (input.indexOf(' ')==-1) {
-			return input;
-		}
-		else {
-			//escape the whitespace by putting a backslash before it, 
-			//in replaceAll it takes 4 \ to create one backslash because of group capture
-			return input.replaceAll(" ", "\\\\ ");
-		}
-	}
 	
+	protected String escapeWhitespaceAndQuotes(String input) {
+		return escape(input, new char[] {' ', '\'', '"' });
+	}
+		
+	protected String escape(String input, char[] matches) {
+		StringBuffer buffer = new StringBuffer(input.length()+5);
+		char[] chars = input.toCharArray();
+		
+		for (int i=0; i < chars.length; i++) {
+			char c = chars[i];
+			for (int j=0; j<matches.length; j++) {
+				if (c==matches[j]) {
+					buffer.append('\\');
+				}
+			}			
+			buffer.append(c);
+		}
+		
+		return buffer.toString();
+
+	}
 }
