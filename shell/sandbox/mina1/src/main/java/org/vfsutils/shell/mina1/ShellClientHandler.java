@@ -1,4 +1,4 @@
-package org.vfsutils.shell.mina;
+package org.vfsutils.shell.mina1;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
@@ -70,7 +70,7 @@ public class ShellClientHandler extends IoHandlerAdapter {
 
 	public void messageReceived(IoSession session, Object message)
 			throws Exception {
-		engine.println(message);
+		engine.print(message);
 		
 		synchronized (engine) {
 			engine.notify();

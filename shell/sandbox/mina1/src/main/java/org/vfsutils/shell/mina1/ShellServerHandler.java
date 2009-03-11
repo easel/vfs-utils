@@ -1,4 +1,4 @@
-package org.vfsutils.shell.mina;
+package org.vfsutils.shell.mina1;
 
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandlerAdapter;
@@ -10,8 +10,6 @@ import org.vfsutils.shell.remote.CommandRunner;
 import org.vfsutils.shell.remote.EngineRunner;
 import org.vfsutils.shell.remote.ShellRequest;
 import org.vfsutils.shell.remote.ShellResponse;
-import org.vfsutils.shell.remote.StreamRunner;
-import org.vfsutils.shell.remote.StreamRunner2;
 
 public class ShellServerHandler extends IoHandlerAdapter {
 		public void exceptionCaught(IoSession session, Throwable t) throws Exception {
@@ -50,7 +48,7 @@ public class ShellServerHandler extends IoHandlerAdapter {
 
 	        session.setIdleTime( IdleStatus.BOTH_IDLE, 10 );
 	        
-	        EngineRunner runner = new StreamRunner();
+	        EngineRunner runner = new CommandRunner();
 			Engine remoteEngine = new Engine(runner);
 			runner.startEngine(remoteEngine);
 			

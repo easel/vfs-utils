@@ -1,4 +1,4 @@
-package org.vfsutils.shell.mina;
+package org.vfsutils.shell.mina1;
 
 import java.nio.charset.Charset;
 

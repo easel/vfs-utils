@@ -1,4 +1,4 @@
-package org.vfsutils.shell.mina;
+package org.vfsutils.shell.mina1;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -31,7 +31,8 @@ public class ShellServer {
         cfg.getFilterChain().addLast( "logger", new LoggingFilter() );
         cfg.getFilterChain().addLast( "codec", new ProtocolCodecFilter( new ShellLineCodecFactory( Charset.forName( "UTF-8" ))));
 
-        acceptor.bind( new InetSocketAddress(port), new ShellServerHandler(), cfg);
+        //acceptor.bind( new InetSocketAddress(port), new ShellServerHandler(), cfg);
+        acceptor.bind( new InetSocketAddress(port), new EngineServerHandler(), cfg);
         System.out.println("MINA shell server started.");
     }
 
