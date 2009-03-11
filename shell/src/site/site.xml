@@ -15,12 +15,12 @@
       <item name="Home" href="../index.html"/>
       <item name="VFS FTP" href="../ftpserver/index.html"/>
 	  <item name="VFS Shell" href="index.html"/>
-	  <item name="VFS JLine Shell" href="../jline/index.html"/>
 	  <item name="VFS Utils" href="../utils/index.html"/>
     </menu>
 
     <menu name="VFS Shell">
       <item name="About" href="index.html"/>
+	  <item name="JLine" href="jline.html"/>
       <item name="Configuration" href="configuration.html"/>
 	  <item name="Commands" href="commands.html"/>
     </menu>

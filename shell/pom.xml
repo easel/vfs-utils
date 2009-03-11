@@ -40,12 +40,6 @@
 	<module>jline</module>
   </modules>
    
-<!--
-	<organization>
-		<name>Apache Software Foundation</name>
-		<url>http://www.apache.org/</url>
-	</organization>
--->
    <licenses>
       <license>
          <name>The Apache Software License, Version 2.0</name>
@@ -53,7 +47,7 @@
          <distribution>repo</distribution>
       </license>
    </licenses>
-   <!--
+ 
    <build>
       <plugins>
          <plugin>
@@ -62,7 +56,15 @@
                <locales>en</locales>
             </configuration>
          </plugin>
-      </plugins>
+		 <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<configuration>
+				<source>1.4</source>
+				<target>1.4</target>
+			</configuration>
+		 </plugin>
+		</plugins>
    </build>
    <reporting>
       <plugins>
@@ -76,6 +78,6 @@
          </plugin>
       </plugins>
    </reporting>
--->
+
 
 </project>

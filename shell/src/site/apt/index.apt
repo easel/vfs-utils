@@ -19,7 +19,7 @@ VFS Shell
  {{{configuration.html} Configuration}}.
  
  Make sure to check out the integration with {{{http://jline.sourceforge.net}JLine}} using the
- {{{../jline/index.html}VFS JLine Shell}}.
+ {{{jline.html}VFS JLine Shell}}.
  It adds tab completion for commands and file names and does password masking on the open command. 
  This makes the Shell a whole lot more professional.
  

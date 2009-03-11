@@ -12,10 +12,9 @@
   <body>
 
     <menu name="VFS Utils">
-      <item name="Home" href="../index.html"/>
-      <item name="VFS FTP" href="../ftpserver/index.html"/>
+	  <item name="Home" href="../index.html"/>
+	  <item name="VFS FTP" href="../ftpserver/index.html"/>
 	  <item name="VFS Shell" href="../shell/index.html"/>
-	  <item name="VFS JLine Shell" href="../jline/index.html"/>
 	  <item name="VFS Utils" href="index.html"/>
     </menu>
 
