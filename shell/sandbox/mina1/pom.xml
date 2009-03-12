@@ -41,6 +41,11 @@
         <artifactId>vfsutils-shell</artifactId>
         <version>0.1.0-SNAPSHOT</version>
 	  </dependency>
+	  <dependency>
+	    <groupId>org.vfsutils.shell</groupId>
+        <artifactId>vfsutils-shell-remote</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+	  </dependency>
       <dependency>
          <groupId>commons-logging</groupId>
          <artifactId>commons-logging</artifactId>
