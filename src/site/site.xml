@@ -11,7 +11,7 @@
   
   <poweredBy>
     <logo name="Maven" href="http://maven.apache.org/" img="images/logos/maven-feather.png"/>
-    <logo name="SourceForge" href="http://sourceforge.net/" img="http://sourceforge.net/sflogo.php?group_id=jcommander&amp;type=1"/>
+    <logo name="SourceForge" href="http://sourceforge.net/projects/vfs-utils" img="http://sflogo.sourceforge.net/sflogo.php?group_id=243452&amp;type=11"/>
   </poweredBy>
   
   <body>
@@ -27,7 +27,6 @@
       <item name="Home" href="index.html"/>
       <item name="VFS FTP" href="ftpserver/index.html"/>
 	  <item name="VFS Shell" href="shell/index.html"/>
-	  <item name="VFS JLine Shell" href="jline/index.html"/>
 	  <item name="VFS Utils" href="utils/index.html"/>
     </menu>
 	

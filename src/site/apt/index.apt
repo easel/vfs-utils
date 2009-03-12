@@ -29,7 +29,7 @@ VFS Utils
  You can enhance the shell by using the {{{shell/jline.html}JLine integration }} which adds password masking 
  and tab completion for commands and file names.
  
- Additional VFSutilities can be found in the {{{utils/index.html}Utils project}}.
+ Additional VFS utilities can be found in the {{{utils/index.html}Utils project}}.
  
 Other VFS clients
 
@@ -46,6 +46,10 @@ Other VFS clients
  This project is hosted at {{{http://sourceforge.net}SourceForge}}.
  
 News
+  
+  * 12-03-2009: First release of snapshot of VFS Shell, JLine integration and Utils
+  
+  * 01-03-2009: First release of VFS FTP Server bridge to work with Mina FTP 1.0
 
   * 15-02-2009: Added JLine integration
 
