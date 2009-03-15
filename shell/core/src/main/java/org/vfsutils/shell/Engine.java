@@ -58,40 +58,45 @@ public class Engine {
 		
 		eventManager.fireEngineStarted();
 		
-		while (continueGoLoop) {
-			
-			try {
-				console.print(this.getPrompt());
+		try {
+			while (continueGoLoop) {
 				
-				final Arguments  args = nextCommand(in);
-	            if (args == null) {
-	                return;
-	            }
-	            if (!args.hasCmd()) {
-	                continue;
-	            }
+				try {
+					console.print(this.getPrompt());
+					
+					final Arguments  args = nextCommand(in);
+		            if (args == null) {
+		                return;
+		            }
+		            if (!args.hasCmd()) {
+		                continue;
+		            }
+		            
+		            final String cmd = args.getCmd();
+		            if (cmd.equalsIgnoreCase("exit") || cmd.equalsIgnoreCase("quit") || cmd.equalsIgnoreCase("bye")) {
+		                return;
+		            }
+		            else if (cmd.startsWith("#")) {
+		            	continue;
+		            }
 	            
-	            final String cmd = args.getCmd();
-	            if (cmd.equalsIgnoreCase("exit") || cmd.equalsIgnoreCase("quit") || cmd.equalsIgnoreCase("bye")) {
-	                return;
+	                boolean success = handleCommand(args);
+	                if (!success && haltOnError) {
+	                	return;
+	                }
 	            }
-	            else if (cmd.startsWith("#")) {
-	            	continue;
+	            catch (final Exception e)
+	            {
+	                error(e.getMessage());
+	                lastError = e;
+	                if (haltOnError) {
+	                	return;
+	                }
 	            }
-            
-                boolean success = handleCommand(args);
-                if (!success && haltOnError) {
-                	return;
-                }
-            }
-            catch (final Exception e)
-            {
-                error(e.getMessage());
-                lastError = e;
-                if (haltOnError) {
-                	return;
-                }
-            }
+			}
+		}
+		finally {
+			eventManager.fireEngineStopped();
 		}
 	}
 	
@@ -143,7 +148,7 @@ public class Engine {
 	}
 	
 	
-	public void close() throws FileSystemException {
+	public void close() {
     	
 		//let the close command handle the open filesystems
 		try {
@@ -153,17 +158,23 @@ public class Engine {
 			error("Error while closing down: " + e.getMessage());
 		}
 		
-    	FileSystem fs = getCwd().getFileSystem();
-    	
-    	while (fs!=null) {
-    		this.mgr.closeFileSystem(fs);
-    		FileObject parent = fs.getParentLayer();
-    		if (parent==null) {
-    			fs = null;
-    		} else {
-    			fs = parent.getFileSystem();
-    		}
-    	}
+		try {
+		
+	    	FileSystem fs = getCwd().getFileSystem();
+	    	
+	    	while (fs!=null) {
+	    		this.mgr.closeFileSystem(fs);
+	    		FileObject parent = fs.getParentLayer();
+	    		if (parent==null) {
+	    			fs = null;
+	    		} else {
+	    			fs = parent.getFileSystem();
+	    		}
+	    	}
+		}
+		catch (FileSystemException e) {
+			error("Error while closing down: " + e.getMessage());
+		}
     }
 
 	/**
@@ -199,7 +210,7 @@ public class Engine {
     		String cmd = args.getCmd();
     		CommandProvider command;
     		
-			if ((command = (CommandProvider)this.commandRegistry.getCommand(cmd))!=null) {
+			if ((command = this.commandRegistry.getCommand(cmd))!=null) {
 				try {
 					eventManager.fireCommandStarted(args);
 					command.execute(args, this);
@@ -275,9 +286,6 @@ public class Engine {
     		Object value = this.getContext().get(var.substring(1));
     		//only replace matched values
     		if (value!=null) {
-    			//escape the dollar, because replaceAll works on regexp; the backslashes that escape
-    			//whitespace in the value need to be escaped for use within replaceAll
-    			//result = result.replaceAll("\\"+var, escapeBackslash(value.toString()));
     			result = replaceAll(result, var, value.toString());
     		}
     		else {
@@ -285,30 +293,7 @@ public class Engine {
     		}
     	}
     	
-    	return result;    	
-    	
-    }
-    
-    protected String[] resolveVariables(final String cmd[]) {
-    	String[] result = new String[cmd.length];
-    	for (int i=0; i<cmd.length; i++) {
-    		String s = cmd[i];
-    		if (s.startsWith("$")) {
-    			//try to resolve
-    			Object value = this.getContext().get(s.substring(1));
-    			if (value==null) {
-    				//not found, pass as is
-    				result[i] = s;
-    			}
-    			else {
-    				result[i] = value.toString();
-    			}
-    		}
-    		else {
-    			result[i] = s;
-    		}
-    	}
-    	return result;
+    	return result;    	    	
     }
     
 	public FileSystemManager getMgr() {
@@ -323,11 +308,9 @@ public class Engine {
 		return console;
 	}
 	
-	
 	public CommandRegistry getCommandRegistry() {
 		return commandRegistry;
 	}
-
 
 	public void setCommandRegistry(CommandRegistry commandRegistry) {
 		this.commandRegistry = commandRegistry;
@@ -339,8 +322,7 @@ public class Engine {
 	
 	public void setContext(Context context) {
 		this.context = context;
-	}
-	
+	}	
 	
 	public FileObject getCwd() {
 		return this.context.getCwd();
@@ -365,13 +347,11 @@ public class Engine {
 	public void error(Object o) {
 		this.console.getErr().println(o);
 		this.console.getErr().flush();
-	}
-	
+	}	
 	
 	public boolean isEchoOn() {
 		return echoOn;
 	}
-
 
 	public void setEchoOn(boolean echoOn) {
 		this.echoOn = echoOn;
@@ -399,6 +379,11 @@ public class Engine {
 		return result;
 	}
 	
+	/**
+	 * Utility method to print a file name
+	 * @param filename
+	 * @return
+	 */
 	public String toString(FileName filename) {
 		String result = "";
 		if (filename!=null) {
@@ -472,6 +457,14 @@ public class Engine {
 		
 	}
 	
+	/**
+	 * Replaces all occurences of a string. String.replaceAll has some nasty side-effects
+	 * with escape characters... 
+	 * @param input
+	 * @param match
+	 * @param replacement
+	 * @return
+	 */
 	protected String replaceAll(String input, String match, String replacement) {
 		StringBuffer buffer = new StringBuffer(input.length());
 		
@@ -493,6 +486,12 @@ public class Engine {
 	}
 	
 	
+	/**
+	 * Escapes characters by adding a backslash before it
+	 * @param input
+	 * @param match
+	 * @return
+	 */
 	protected String escape(String input, char match) {
 		StringBuffer buffer = new StringBuffer(input.length()+5);
 		char[] chars = input.toCharArray();
@@ -509,6 +508,11 @@ public class Engine {
 
 	}
 	
+	/**
+	 * Escapes whitespace in the input 
+	 * @param input
+	 * @return input string with escaped whitespace
+	 */
 	public String escapeWhitespace(String input) {		
 		return escape(input, ' ');
 	}

@@ -71,18 +71,24 @@ public class BoxedEngine extends Engine {
 		}
 	}	
 
-	public void close() throws FileSystemException {
+	public void close() {
     	
     	FileSystem fs = getCwd().getFileSystem();
     	
     	while (fs!=null) {
-    		this.mgr.closeFileSystem(fs);
-    		FileObject parent = fs.getParentLayer();
-    		if (parent==null) {
-    			fs = null;
-    		} else {
-    			fs = parent.getFileSystem();
+    		try {
+	    		this.mgr.closeFileSystem(fs);
+	    		FileObject parent = fs.getParentLayer();
+	    		if (parent==null) {
+	    			fs = null;
+	    		} else {
+	    			fs = parent.getFileSystem();
+	    		}
+	    	}
+    		catch (FileSystemException e) {
+    			error("Error closing engine: " + e.getMessage());
     		}
+    		
     	}
     }
 
