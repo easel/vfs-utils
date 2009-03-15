@@ -13,6 +13,10 @@ public abstract class AbstractCommand implements CommandProvider {
 		this.cmd = cmd;
 		this.info = info;
 	}
+	
+	public AbstractCommand(String cmd, String description, String usage) {
+		this(cmd, new CommandInfo(description, usage));
+	}
 		
 	public void setCommand(String cmd) {
 		this.cmd = cmd;
