@@ -101,8 +101,8 @@ public class Engine {
 	}
 	
 	public void stopOnNext() {
-		continueGoLoop = false;
 		eventManager.fireEngineStopping();
+		continueGoLoop = false;
 	}
 
 	/**

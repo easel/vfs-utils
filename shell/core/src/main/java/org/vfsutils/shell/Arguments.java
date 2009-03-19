@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class Arguments {
 	
@@ -102,6 +99,10 @@ public class Arguments {
 	
 	public boolean hasFlag(String flag) {
 		return this.flags.contains(flag);
+	}
+	
+	public boolean hasFlag(char flag) {
+		return this.flags.contains(Character.toString(flag));
 	}
 	
 	public FlagSet getFlags() {
