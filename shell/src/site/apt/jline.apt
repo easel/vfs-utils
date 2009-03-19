@@ -19,7 +19,8 @@ VFS JLine Shell
  In the back the VFS Shell is running normally while the console input and output is enhanced by JLine.
  
  Note: The only drawback of the current version of JLine is that the buffer gets messed up when the input 
- takes more than one line...
+ takes more than one line. Good thing that with vfsshell you can give input on multiple lines by ending the 
+ line with ' \'!
  
  There are two different types of tab completors. The first works on the available commands and the second one works on filenames.
 

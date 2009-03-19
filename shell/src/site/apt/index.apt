@@ -19,7 +19,7 @@ VFS Shell
  {{{configuration.html} Configuration}}.
  
  Make sure to check out the integration with {{{http://jline.sourceforge.net}JLine}} using the
- {{{jline.html}VFS JLine Shell}}.
+ {{{./jline.html}VFS JLine Shell}}.
  It adds tab completion for commands and file names and does password masking on the open command. 
  This makes the Shell a whole lot more professional.
  
@@ -37,29 +37,33 @@ VFS Shell
  
  * cp, mv, mkdir, rmdir, rm: basic file manipulations
  
+ * sync: synchronize two directories
+ 
  * attrs:  meta data (attribute) manipulation (get, set, info)
  
  * ops: operation interaction (list, do, usage)
+ 
+ * cat: dumps the content of a file
+ 
+ * touch: resets the modification date 
+ 
+ * error: details of last occurred error
  
  * set: sets variables
  
  * load: executes a file containing shell instructions
  
  * bsh: executes a beanshell script file or expression
- 
+  
  * register: registers a new class or script as a command
  
- * assert: verifies a file exists
+ * md5: calculate md5 checksum
  
- * error: details of last occurred error
-
- * cat: dumps the content of a file
- 
- * touch: resets the modification date 
-
- * echo: writes output
-  
  * rem: does nothing
+ 
+ * echo: writes output
+ 
+ * assert: verifies a file exists
  
  * help: displays the list of commands
  
@@ -67,7 +71,7 @@ VFS Shell
  
  To exit the shell you can use exit, quit or bye.
  
- See the {{{commands.html} list of available commands}} for more details.
+ See the {{{./commands.html} list of available commands}} for more details.
  
  Clearly this list can be extended with all kind of other commands. 
  
@@ -139,7 +143,7 @@ TTD
  * Correct usage of wildcards; currently only relative downward search is supported, you can not go
    up or provide absolute paths
  
- * Support for wildcards in cp, mv and some other operations
+ * Support for wildcards in mv and some other commands
  
  * Piping of output to files, chaining commands
  
@@ -147,8 +151,12 @@ TTD
  
  * A java command to run any Java application
  
- * Additional commands: Sync, Tranform etc.
+ * Additional commands: Tranform etc.
+ 
+ * Some default scripts: Purge Empty Folders etc.
  
  * Scoping of commands to VFS provider schemes
+ 
+ * A solution for man pages
  
  []

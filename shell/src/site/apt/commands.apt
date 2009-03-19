@@ -8,157 +8,81 @@ VFS Shell Commands
 
  The following commands are available. Note that you can add your own easily.
 
-* open
+ * {{{#assert}assert}}
+ 
+ * {{{#attrs}attrs}}
 
- Opens a filesystem with optional explicit authentication. 
+ * {{{#bsh}bsh}}
  
- When you specify flag u the username will be asked, when you specify flag p the password will be
- asked, when you specify flag d the domain will be asked.
- 
- When you don't specify a URI a list of open filesystems is shown. 
- 
- You are not obliged to use the open command to open filesystems, you can also use the cd command. 
- The difference with the cd command is that you can access 
- layered filesystems more easily and that you can explicitly close opened filesystem.
- 
- Examples:
- 
--------------
- open -up dctm://MyDocbase
- open -p ftp://admin@localhost
- open archive.zip
- open
--------------
- 
-* close
+ * {{{#cat}cat}}
 
- Closes a filesystem. You can specify which filesystem you want to close, otherwise the current 
- filesystem is closed. With the -a flag you can close all open filesystems at once.
+ * {{{#cd}cd}}
 
+ * {{{#close}close}} 
  
-* cd
+ * {{{#cp}cp}}
 
- Change the current working directory.
- 
- Examples:
- 
----------------
- cd lib
- cd zip://C:/temp/archive.zip
- cd dctm://dmadmin:pwd@MyDocbase/System
- cd ~1
----------------
- 
- The last example (cd ~1) is related to the dirs, pushd and popd commands. The number corresponds
- to the directory stack that is manipulated using pushd and popd. The command dirs shows the 
- current state of the directory stack.
- 
-* dirs
+ * {{{#dirs}dirs}}
 
- Shows the directory stack. The items on the stack can be accessed using a number. The current 
- working directory always has number 0. A new item put on the stack will get number 1.
+ * {{{#echo}echo}}
  
- You can access directories on the stack using cd ~n where n is a number of a directory on the 
- stack. 
+ * {{{#error}error}}
  
- You can manipulate the stack by pushd and popd. Since the directory on top is the current 
- directory the cd command also influences the stack.
+ * {{{#exit}exit}}
  
- Note that the stack can hold only 99 items.
+ * {{{#help}help}}
+ 
+ * {{{#load}load}}
 
- Examples:
- 
------------
- vfs>dirs 
- Directory stack (newest first)
-   [0] file:///C:/temp
-  
- vfs>pushd ..
- Current folder is file:///C:/
- vfs>dirs
- Directory stack (newest first)
-   [0] file:///C
-   [1] file:///C:/temp 
------------ 
- 
-* pushd
+ * {{{#ls}ls}}  
 
- Add a folder to the directory stack. When you don't give any arguments it will push the current 
- directory to the directory stack. When you give a path it will also change directory to the given 
- path afterwards. If you provide the -n flag than the provided path will be put on the stack and 
- the current working directory will not change.
- 
- Examples:
- 
------------ 
- pushd
- pushd lib
- pushd zip://c:/temp/archive.zip
- pushd -n dctm://dmadmin:pwd@MyDocbase/System
------------
- 
-* popd
+ * {{{#md5}md5}}  
 
- Remove a folder to the directory stack and change the working directory to it. If you provide the
- -n flag the current working directory will not change. 
- 
- Examples:
- 
------------ 
- popd -n
- popd
------------
- 
-* peekd
+ * {{{#mkdir}mkdir}}  
 
- Changes the working directory to the last one pushed on the directory stack without removing it 
- from the stack. It is equivalent to cd ~1.
+ * {{{#mv}mv}}  
  
- Examples: 
+ * {{{#open}open}} 
  
---------------
- peekd
---------------
+ * {{{#ops}ops}} 
  
-* ls
+ * {{{#peekd}peekd}} 
+ 
+ * {{{#popd}popd}} 
+ 
+ * {{{#pushd}pushd}} 
+ 
+ * {{{#register}register}}
 
- Lists the content of a directory. With the -l flag you get the long listing. You can specify a 
- filter to limit the listing. If you specify a directory wildcard (**/) subdirectories are 
- searched too.
+ * {{{#rem}rem}}
  
- Examples:
+ * {{{#rm}rm}}
  
---------------
- ls -l
- ls **/*.zip
---------------
+ * {{{#set}set}}
+ 
+ * {{{#sync}sync}} 
+ 
+ * {{{#touch}touch}}  
 
-* cp
+[]
 
- Copy the file or directory to the specified location.
- 
+
+* {assert}
+
+ Asserts whether a file or folder exists. With the -n flag you can assert the inverse: that it does not exist. Use the -f flag if you want to assert it is an existing file; use -d to assert it is a directory.
+
  Examples:
   
 ------------
- cp archive.zip file:///C:/temp
- cp archive.zip file:///C:/temp/renamed_archive.zip
- cp mydir /temp
+  assert myexistingfile.txt
+  assert myexistingdir
+  assert -n nonexisting
+  assert -f myexistingfile.txt
+  assert -d subdir/myexistingdir  
 ------------
-
-* mv
-
- Move the file or directory to the specified location. You can use this too to rename files and 
- directories.
  
-* mkdir
 
- Create a directory.
- 
-* rm
-
- Remove the specified file.
-
-* attrs
+* {attrs}
 
  File object attribute manipulation. There are three subcommands: info, get and set: 
  info shows all of the attributes of the specified file object; 
@@ -174,86 +98,8 @@ VFS Shell Commands
  attrs get title myfile.txt 
  attrs set title newtitle myfile.txt 
 -------------------
- 
-* ops
 
- File object operation support. There are three subcommands: list, do and usage.
- 
- list lists the available operations on the specified file object.
- 
- do executes the operation; you can use the name or the sequence number of the operation to 
- address it.
- 
- usage shows the parameters of the operation; you can use the name or the sequence number of the 
- operation to address it.
- 
- The availability of operations depends on the specific filesystem.
- 
--------------------
- ops list myfile.txt
- ops usage validate myfile.txt
- ops do 1 myfile.txt -df
- ops do validate --optionx=true myfile.txt
--------------------
-
-* cat
-
- Dumps the content of a file to the console.
- 
-* touch
-
- Resets the modification date of a file (if supported by its filesystem). 
- 
-* error
-
- Prints the last occurred error. If you specify the -p flag the stacktrace related to the error
- is printed.
- 
-* set
-
- Sets environment variables that you can later use by prefixing a $ sign to the name. To unset a
- variable just give the name.
-
- You have access to the cwd and cwp variables; the first contains the full name of the current 
- working directory, the second the path within the filesystem. Note that changing them has no 
- effect; the next cd command will reset them. 
- 
- You can change the prompt by setting the PROMPT variable. To add the full name of the current 
- working directory set it to \n, to add the path within the current file system set it to \p.
- 
- Examples:
- 
-----------------
- set myvar=file://d:/temp
- cd $myvar
- set myvar
- set curdir=$cwd
- set PROMPT="\\n > "
- set PROMPT="\\p#"
- set PROMPT="vfs > "
-----------------
- 
-* load
-
- Loads a file with shell command. The commands are executed in the current context. If you dont 
- want to change the current context you can use the -c flag.
- 
- The script has access to all of the arguments that were specified together with the file. You can
- use $args to get all arguments or $arg1, $arg2, etc. for individual arguments. You can use $cmd 
- for the name of the script, $flags for the flags and $options for the options. To get around the
- -c flag being caught while calling the script you can pass the --flags option, all values will 
- passed as additional flags.
- 
- Whitespace in the arguments will be esaped by backslash.
- 
- Examples:
- 
---------------------
- load incontext.vfs hello --world 
- load -c newcontext.vfs hello world --flags=cde 
---------------------
- 
-* bsh 
+* {bsh} 
 
  Runs the Beanshell script specified. If you use the -e flag you can enter the expression directly, 
  otherwise the specified file will be loaded.
@@ -280,7 +126,270 @@ VFS Shell Commands
  print ("cmd: " + args.cmd + " first arg:" + args.getArgument(0));
 --------------
 
-* register
+ See: {{{#load}load}}, {{{#register}register}}
+
+* {cat}
+
+ Dumps the content of a file to the console.
+
+ 
+* {cd}
+
+ Change the current working directory.
+ 
+ Examples:
+ 
+---------------
+ cd lib
+ cd zip://C:/temp/archive.zip
+ cd dctm://dmadmin:pwd@MyDocbase/System
+ cd ~1
+---------------
+ 
+ The last example (cd ~1) is related to the dirs, pushd and popd commands. The number corresponds
+ to the directory stack that is manipulated using pushd and popd. The command dirs shows the 
+ current state of the directory stack.
+ 
+ See: {{{#dirs}dirs}}
+
+* {close}
+
+ Closes a filesystem. You can specify which filesystem you want to close, otherwise the current 
+ filesystem is closed. With the -a flag you can close all open filesystems at once.
+
+ See: {{{#open}open}}
+
+* {cp}
+
+ Copy the file or directory to the specified location. If you specify the 'P' flag then it will not try to
+ preserver the modification date; by default it will try to keep it. Flag 'v' will do the copy in verbose 
+ mode.
+ 
+ Note that the cp command will always overwrite the files; you can use the sync command if you do not want to
+ copy up-to-date files.
+ 
+ Examples:
+  
+------------
+ cp archive.zip file:///C:/temp 
+ cp archive.zip file:///C:/temp/renamed_archive.zip
+ cp mydir /temp -Pv
+------------
+
+ See: {{{#sync}sync}}
+ 
+* {dirs}
+
+ Shows the directory stack. The items on the stack can be accessed using a number. The current 
+ working directory always has number 0. A new item put on the stack will get number 1.
+ 
+ You can access directories on the stack using cd ~n where n is a number of a directory on the 
+ stack. 
+ 
+ You can manipulate the stack by pushd and popd. Since the directory on top is the current 
+ directory the cd command also influences the stack.
+ 
+ Note that the stack can hold only 99 items.
+
+ Examples:
+ 
+-----------
+ vfs>dirs 
+ Directory stack (newest first)
+   [0] file:///C:/temp
+  
+ vfs>pushd ..
+ Current folder is file:///C:/
+ vfs>dirs
+ Directory stack (newest first)
+   [0] file:///C
+   [1] file:///C:/temp 
+----------- 
+
+ See: {{{#peekd}peekd}}, {{{#popd}popd}}, {{{#pushd}pushd}}
+
+
+* {echo}
+
+ Prints the arguments to the output. Use it to print variables. 
+ 
+ Examples:
+ 
+------------
+ echo current dir: $cwd
+------------
+ 
+ 
+* {error}
+
+ Prints the last occurred error. If you specify the -p flag the stacktrace related to the error
+ is printed.
+ 
+* {exit}, bye, quit
+
+ Exit the shell
+ 
+* {help}
+
+  Shows the list of available commands. When you give a command it will show the usage information of the command.
+
+  Examples:
+ 
+--------------
+ help
+ help mv
+--------------
+
+* {load}
+
+ Loads a file with shell command. The commands are executed in the current context. If you dont 
+ want to change the current context you can use the -c flag.
+ 
+ The script has access to all of the arguments that were specified together with the file. You can
+ use $args to get all arguments or $arg1, $arg2, etc. for individual arguments. You can use $cmd 
+ for the name of the script, $flags for the flags and $options for the options. To get around the
+ -c flag being caught while calling the script you can pass the --flags option, all values will 
+ passed as additional flags.
+ 
+ Whitespace in the arguments will be esaped by backslash.
+ 
+ Examples:
+ 
+--------------------
+ load incontext.vfs hello --world 
+ load -c newcontext.vfs hello world --flags=cde 
+--------------------
+
+ See: {{{#bsh}bsh}}, {{{#register}register}}
+
+* {ls}
+
+ Lists the content of a directory. With the -l flag you get the long listing. You can specify a 
+ filter to limit the listing. If you specify a directory wildcard (**/) subdirectories are 
+ searched too.
+ 
+ Examples:
+ 
+--------------
+ ls -l
+ ls **/*.zip
+--------------
+ 
+ 
+* {md5}
+
+  Calculates the MD5 checksum. It works on files, not on folders. If you give the 's' flag the first argument
+  is taken as a literal string for which the MD5 will be calculated. A 32 character value will be printed to 
+  the console.
+  
+-----------
+  md5 myfile.txt
+  md5 mydir/*.txt
+  md5 -s "what is my checksum"
+----------- 
+ 
+* {mkdir}
+
+ Create a directory.
+ 
+* {mv}
+
+ Move the file or directory to the specified location. You can use this too to rename files and 
+ directories.
+ 
+* {open}
+
+ Opens a filesystem with optional explicit authentication. 
+ 
+ When you specify flag u the username will be asked, when you specify flag p the password will be
+ asked, when you specify flag d the domain will be asked.
+ 
+ When you don't specify a URI a list of open filesystems is shown. 
+ 
+ You are not obliged to use the open command to open filesystems, you can also use the cd command. 
+ The difference with the cd command is that you can access 
+ layered filesystems more easily and that you can explicitly close opened filesystem.
+ 
+ Examples:
+ 
+-------------
+ open -up dctm://MyDocbase
+ open -p ftp://admin@localhost
+ open archive.zip
+ open
+-------------
+
+  See: {{{#close}close}}
+
+* {ops}
+
+ File object operation support. There are three subcommands: list, do and usage.
+ 
+ list lists the available operations on the specified file object.
+ 
+ do executes the operation; you can use the name or the sequence number of the operation to 
+ address it.
+ 
+ usage shows the parameters of the operation; you can use the name or the sequence number of the 
+ operation to address it.
+ 
+ The availability of operations depends on the specific filesystem.
+ 
+-------------------
+ ops list myfile.txt
+ ops usage validate myfile.txt
+ ops do 1 myfile.txt -df
+ ops do validate --optionx=true myfile.txt
+-------------------
+  
+   
+* {peekd}
+
+ Changes the working directory to the last one pushed on the directory stack without removing it 
+ from the stack. It is equivalent to cd ~1.
+ 
+ Examples: 
+ 
+--------------
+ peekd
+--------------
+
+  See: {{{#dirs}dirs}}, {{{#popd}popd}}, {{{#pushd}pushd}}
+ 
+* {popd}
+
+ Remove a folder to the directory stack and change the working directory to it. If you provide the
+ -n flag the current working directory will not change. 
+ 
+ Examples:
+ 
+----------- 
+ popd -n
+ popd
+-----------
+ 
+ See: {{{#dirs}dirs}}, {{{#peekd}peekd}}, {{{#pushd}pushd}}
+  
+* {pushd}
+
+ Add a folder to the directory stack. When you don't give any arguments it will push the current 
+ directory to the directory stack. When you give a path it will also change directory to the given 
+ path afterwards. If you provide the -n flag than the provided path will be put on the stack and 
+ the current working directory will not change.
+ 
+ Examples:
+ 
+----------- 
+ pushd
+ pushd lib
+ pushd zip://c:/temp/archive.zip
+ pushd -n dctm://dmadmin:pwd@MyDocbase/System
+-----------
+
+ See: {{{#dirs}dirs}}, {{{#peekd}peekd}}, {{{#popd}popd}}
+
+ 
+* {register}
 
   Registers the given class or scripts as commands, it supports java classes, vfs scripts and beashell scripts. 
   
@@ -288,7 +397,8 @@ VFS Shell Commands
 
   For the effect of calling a vfs script see the load command, for the effect of calling a beanshell script see the bsh command.
   
-  To register a class you must specify option --type=class; the class should be a subclass of the CommandProvider class. 
+  To register a class you can specify option --type=class; if you don't specify this option an attempt will be made
+  to instantiate the class. The class should be a subclass of the CommandProvider class. 
   
   If you use a script that has extension '.vfs' or '.bsh' the type is detected, but you can also
   specify it explicitly using the type option. The name of the script, without its extension, is used for registering it.
@@ -302,12 +412,15 @@ VFS Shell Commands
   
 ----------------
   register org.vfsutils.shell.commands.Ls --name=dir --type=class
-  register d:/temp/test.bsh --description="test script" --usage="<path>"
+  register org.vfsutils.shell.commands.Cp --name=copy 
+  register d:/temp/test.vfs --description="test script" --usage="<path>"
   register d:/temp/test --type=bsh --name=mycommand
   register scripts/*.bsh
 ----------------
  
-* rem
+  See: {{{#bsh}bsh}}, {{{#load}load}}
+  
+* {rem}
 
  Does not do anything. Use this or # to comment lines out.
  
@@ -318,42 +431,67 @@ VFS Shell Commands
  # does not do anything either
 ---------------
  
-* echo
 
- Prints the arguments to the output. Use it to print variables. 
+* {rm}
+
+ Remove the specified file. It does not remove non empty directories.
+
+* {set}
+
+ Sets environment variables that you can later use by prefixing a $ sign to the name. To unset a
+ variable just give the name.
+
+ You have access to the cwd and cwp variables; the first contains the full name of the current 
+ working directory, the second the path within the filesystem. Note that changing them has no 
+ effect; the next cd command will reset them. 
+ 
+ You can change the prompt by setting the PROMPT variable. To add the full name of the current 
+ working directory set it to \n, to add the path within the current file system set it to \p.
  
  Examples:
  
-------------
- echo current dir: $cwd
-------------
-
-* assert
-
- Asserts whether a file or folder exists. With the -n flag you can assert the inverse: that it does not exist. Use the -f flag if you want to assert it is an existing file; use -d to assert it is a directory.
-
- Examples:
-  
-------------
-  assert myexistingfile.txt
-  assert myexistingdir
-  assert -n nonexisting
-  assert -f myexistingfile.txt
-  assert -d subdir/myexistingdir  
-------------
+----------------
+ set myvar=file://d:/temp
+ cd $myvar
+ set myvar
+ set curdir=$cwd
+ set PROMPT="\\n > "
+ set PROMPT="\\p#"
+ set PROMPT="vfs > "
+----------------
  
+* {sync}
+
+ Synchronizes two files or two directories. The synchronisation is unidirectional. The first argument
+ represents the source, the second the target. What drives the equality of two files can be configured.
+ By default the date is used; if the source is newer it will overwrite the target; this behaviour can also
+ be triggered by flag 'd'. If flag 's' is given the size will be used; if there is a difference in size then 
+ the target will be overwritten. If flag 'm' is given the md5 codes are calculated and compared; note that this
+ is costly. When you combine flags than the comparisons are combined; e.g. -sd means that the size and the date 
+ are compared; it does not make much sense to combine 'm' with the other flags though.
  
-* help
-
-  Shows the list of available commands. When you give a command it will show the usage information of the command.
-
-  Examples:
+ If you specify flag '--delete' then superfluous files in the target directory are removed.
  
---------------
- help
- help mv
---------------
+ Flag '--dry-run' will do a trial run that will not actually copy or delete files.
+ 
+ The copy behaviour can be influenced by flag 'P'; when given it will not try to preserve the modification date  
+ (note that setting the modification date might not be supported by the target filesystem); by default it is
+ tried.
+ 
+ The 'v' flag will output each operation performed.
+ 
+ There is no mode to force overwriting all files; you can use the cp command for that.
+ 
+ Note that this implementation is not optimized for very large datasets and is not a replacement for rsync.
+ 
+---------
+ sync sourcefile.txt remotefile.txt -mPv
+ sync ftp://anonymous@server/httpd . --delete -sd --dry-run
+---------
 
-* exit, bye, quit
+  See: {{{#cp}cp}}
+ 
+* {touch}
 
- Exit the shell
+ Resets the modification date of a file (if supported by its filesystem). 
+ 
