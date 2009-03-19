@@ -44,10 +44,13 @@ public class Register extends AbstractCommand {
 		
 		args.assertSize(1);
 		
-		if (args.hasOption("type") && args.getOption("type").equals("class")) {
+		String type = args.getOption("type");
+		
+		if ((type !=null && type.equals("class"))
+			|| (type == null && isClassName(args.getArgument(0)))) {
 			registerClass(args.getArgument(0), args.getOption("name"), args.getOption("description"), args.getOption("usage"), engine);
 		}
-		else {
+		else {		
 			FileObject[] files = engine.pathToFiles(args.getArgument(0));
 			
 			if (files.length==0) {
@@ -57,19 +60,19 @@ public class Register extends AbstractCommand {
 				registerScript(files[0], args.getOption("name"), args.getOption("description"), args.getOption("usage"), args.getOption("type"), engine);
 			}
 			else {
-				registerScripts(files, engine);
+				registerScripts(files, args.getOption("type"), engine);
 			}
 		}
 	}
 	
-	protected void registerScripts(FileObject[] files, Engine engine) {
+	protected void registerScripts(FileObject[] files, String type, Engine engine) {
 		for (int i=0; i<files.length; i++) {
-			registerScript(files[i], engine);
+			registerScript(files[i], type, engine);
 		}
 	}
 	
-	protected void registerScript(FileObject file, Engine engine) {
-		registerScript(file, null, null, null, null, engine);
+	protected void registerScript(FileObject file, String type, Engine engine) {
+		registerScript(file, null, null, null, type, engine);
 	}
 	
 	protected void registerScript(FileObject file, String name, String description, String usage, String type, Engine engine) {
@@ -105,7 +108,7 @@ public class Register extends AbstractCommand {
 		}
 		
 		script.register(engine.getCommandRegistry());
-		engine.println("Registered script " + fileName.toString() + " as " + name);
+		engine.println("Registered " + script.type + " script " + fileName.toString() + " as " + name);
 	}
 
 	public void registerClass(String className, String name, String description, String usage, Engine engine) throws CommandException {
@@ -131,6 +134,7 @@ public class Register extends AbstractCommand {
 				}
 				
 				command.register(engine.getCommandRegistry());
+				engine.println("Registered class " + className + " as " + command.getCommand());
 			}
 			else {
 				throw new CommandException("Class " + className + " is not a valid Command");
@@ -189,5 +193,25 @@ public class Register extends AbstractCommand {
 		}			
 		
 		return result;
+	}
+	
+	protected boolean isClassName(String input) {
+			
+		//test for slashes indicating it is a filename		
+		if (input.indexOf("/")>-1) return false;
+		
+		//test for wildcards
+		if (input.indexOf("*")>-1) return false;
+		
+		//more expensive: try to find class
+		try {
+			Class.forName(input);
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+		
+		//is classname
+		return true;
+		
 	}
 }
