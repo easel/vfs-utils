@@ -61,6 +61,10 @@ public class Cp extends AbstractCommand implements CommandProvider {
 		if (src.getType().equals(FileType.FILE)) {
 			if (dest.getType().equals(FileType.FOLDER)) {
 				FileObject imaginaryDest = dest.resolveFile(src.getName().getBaseName());
+				//copyFrom is too aggressive and will destroy a folder to put a file; not very user-friendly imo - I've lost some data this way
+				if (imaginaryDest.getType().equals(FileType.FOLDER)) {
+					throw new CommandException("You cannot copy a file as folder " + engine.toString(imaginaryDest));
+				}
 				cpFiles(src, imaginaryDest, options, engine);
 			}
 			else {				
