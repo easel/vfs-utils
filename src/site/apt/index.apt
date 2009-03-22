@@ -46,6 +46,8 @@ Other VFS clients
  This project is hosted at {{{http://sourceforge.net}SourceForge}}.
  
 News
+
+  * 22-03-2009: Updated shell snapshots for sync and md5 support
   
   * 12-03-2009: First release of snapshot of VFS Shell, JLine integration and Utils
   
