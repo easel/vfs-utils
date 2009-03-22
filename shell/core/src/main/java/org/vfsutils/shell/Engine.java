@@ -52,6 +52,15 @@ public class Engine {
 		this.commandParser = new MultilineCommandParser();
 	}
 	
+	/**
+	 * Start a loop that reads from the input. It will send engine events
+	 * started, stopping and stopped. The loop will stop when the 
+	 * input is closed, when stopOnNext is called or when an exit command
+	 * was given. It also stops when haltOnError is true and the execution
+	 * of a command fails.
+	 * @throws Exception
+	 * @see {@link #stopOnNext()}
+	 */
 	public void go() throws Exception {
 
 		BufferedReader in = new BufferedReader( console.getIn() );
@@ -65,14 +74,21 @@ public class Engine {
 					console.print(this.getPrompt());
 					
 					final Arguments  args = nextCommand(in);
-		            if (args == null) {
+		            
+					//broken input
+					if (args == null) {
 		                return;
 		            }
+		            
+		            //empty input
 		            if (!args.hasCmd()) {
 		                continue;
 		            }
 		            
+		            //get the command
 		            final String cmd = args.getCmd();
+		            
+		            //test for exit and comments
 		            if (cmd.equalsIgnoreCase("exit") || cmd.equalsIgnoreCase("quit") || cmd.equalsIgnoreCase("bye")) {
 		                return;
 		            }
@@ -81,12 +97,14 @@ public class Engine {
 		            }
 	            
 	                boolean success = handleCommand(args);
+	                
+	                //stop on failure if needed
 	                if (!success && haltOnError) {
 	                	return;
 	                }
 	            }
-	            catch (final Exception e)
-	            {
+	            catch (final Exception e) {
+	            	//keep the error info and stop if needed
 	                error(e.getMessage());
 	                lastError = e;
 	                if (haltOnError) {
@@ -96,10 +114,18 @@ public class Engine {
 			}
 		}
 		finally {
+			//if the stop was not requested properly, the stopping event was not yet sent
+			if (continueGoLoop) eventManager.fireEngineStopping();
+			
 			eventManager.fireEngineStopped();
 		}
 	}
 	
+	/**
+	 * Will stop reading the input the next time, but will handle the first or current command.
+	 * It will fire an engineStopping event.
+	 * @see {@link #go()}
+	 */
 	public void stopOnNext() {
 		eventManager.fireEngineStopping();
 		continueGoLoop = false;
@@ -108,6 +134,7 @@ public class Engine {
 	/**
 	 * Loads the commands from the given reader.
 	 * Note that it does not close the reader.
+	 * It does not send any engine events.
 	 * @param reader
 	 * @throws Exception
 	 */
@@ -148,9 +175,13 @@ public class Engine {
 	}
 	
 	
+	/**
+	 * Cleans up open references.
+	 */
 	public void close() {
     	
 		//let the close command handle the open filesystems
+		//TODO: this is an ugly dependency; it should be replace by something event-like
 		try {
 			handleCommand("close -a");
 		}
@@ -178,7 +209,10 @@ public class Engine {
     }
 
 	/**
-     * Returns the next command, split into tokens.
+     * Returns the next command, split into tokens. If echo is enabled
+     * the read string will written to the output
+     * @return Argument tokens or null if reading was unsuccessful
+     * @throws IOException when reading fails
      */
     private Arguments nextCommand(BufferedReader in) throws IOException {
         final String line = in.readLine();
@@ -195,14 +229,22 @@ public class Engine {
         return commandParser.parse(resolvedLine);
     }
     
-    public boolean handleCommand(final String commandString) throws Exception {
+    /**
+     * Handles a command string; the variables in the string will be resolved and 
+     * the arguments parsed before handleCommand(Arguments) is called.
+     * @param commandString
+     * @return true if the command is executed successfully
+     * @throws IllegalArgumentException if there are unbound variables
+     */
+    public boolean handleCommand(final String commandString) throws IllegalArgumentException {
     	String resolvedLine = resolveVariables(commandString);
     	Arguments args = commandParser.parse(resolvedLine);
     	return handleCommand(args);
     }
     
     /**
-     * Handles a command.
+     * Handles a command. There will be no variable resolving on the arguments.
+     * @return true if the command is executed successfully
      */
     public boolean handleCommand(final Arguments args) {    	
     	
@@ -458,7 +500,7 @@ public class Engine {
 	}
 	
 	/**
-	 * Replaces all occurences of a string. String.replaceAll has some nasty side-effects
+	 * Replaces all occurrences of a string. String.replaceAll has some nasty side-effects
 	 * with escape characters... 
 	 * @param input
 	 * @param match
