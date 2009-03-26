@@ -31,11 +31,11 @@ public class Engine {
 	protected Context context;
 	
 	protected CommandParser commandParser;
-	
+
+	//TODO: should this go to context?
 	protected boolean echoOn = false;
     protected boolean haltOnError = false;
     protected Exception lastError = null;  
-    
     protected boolean continueGoLoop = true;
 
     protected EngineEventManager eventManager = new EngineEventManager();

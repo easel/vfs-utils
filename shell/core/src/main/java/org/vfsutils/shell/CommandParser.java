@@ -14,6 +14,8 @@ import java.util.List;
  */
 public class CommandParser {
 	
+	//TODO: these must move to Arguments since it also does the inverse (toString) or,
+	//even better, the toString(Arguments) must move here
 	protected boolean isFlag(String token) {
 		return token.startsWith("-") && !token.startsWith("--");
 	}
