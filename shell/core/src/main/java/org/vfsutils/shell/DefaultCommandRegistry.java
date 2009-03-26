@@ -38,6 +38,7 @@ public class DefaultCommandRegistry extends CommandRegistry {
 		new Register().register(this);
 		new Md5().register(this);
 		new Sync().register(this);
+		new Hash().register(this);
 	}
 	
 }
