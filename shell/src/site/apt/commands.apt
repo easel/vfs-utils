@@ -29,6 +29,8 @@ VFS Shell Commands
  * {{{#error}error}}
  
  * {{{#exit}exit}}
+
+ * {{{#hash}hash}}
  
  * {{{#help}help}}
  
@@ -229,6 +231,18 @@ VFS Shell Commands
 
  Exit the shell
  
+* {hash}
+
+  Calculates the hashcode of the given arguments. You can also give a checksum with which the hashcode
+  will be compared with the checksum option.
+  
+  Examples:
+  
+--------------
+ hash "calculate this hascode" and "this is the third"
+ hash "hello world" --checksum=1794106052
+--------------
+ 
 * {help}
 
   Shows the list of available commands. When you give a command it will show the usage information of the command.
@@ -279,13 +293,14 @@ VFS Shell Commands
 * {md5}
 
   Calculates the MD5 checksum. It works on files, not on folders. If you give the 's' flag the first argument
-  is taken as a literal string for which the MD5 will be calculated. A 32 character value will be printed to 
-  the console.
+  is taken as a literal string for which the MD5 will be calculated. A 32 character hex value will be printed to 
+  the console. You can also give a checksum to compare the calculated MD5 with with the checksum option.
   
 -----------
   md5 myfile.txt
   md5 mydir/*.txt
-  md5 -s "what is my checksum"
+  md5 -s "what is my checksum" "and mine?"
+  md5 -s "what is my checksum" --checksum=609b286c68168d58e8424a4f4146211b
 ----------- 
  
 * {mkdir}
