@@ -8,10 +8,15 @@ import java.security.MessageDigest;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 
+/**
+ * MD5 calculation utilities.
+ * @author kleij - at - users.sourceforge.net
+ *
+ */
 public class Md5 {
 
 	/**
-	 * Creates a 32 character string of the BigInteger representing the md5 code
+	 * Creates a 32 character hex string of the BigInteger representing the md5 code
 	 * A zero will be prepended when necessary.
 	 * @param md5
 	 * @return a 32 character string
@@ -25,11 +30,21 @@ public class Md5 {
 	}
 	
 	/**
+	 * Parses a hex input string to a BigInteger. The input is assumed to represent an
+	 * MD5 checksum.
+	 * @param input a hexadecimal input
+	 * @return the BigInteger represented by the input
+	 * @throws NumberFormatException if the input can not be parsed
+	 */
+	public BigInteger fromString(String input) throws NumberFormatException {
+		return new BigInteger(input, 16);
+	}
+	
+	/**
 	 * Calculates the md5 code for the input string. Note that the string
 	 * does not represent a file; the string itself is used as input.
 	 * @param input the string to calculate the md5 for
-	 * @return BigInteger representation of the md5 code
-	 * @throws  
+	 * @return BigInteger representation of the md5 code 
 	 * @throws NoSuchAlgorithmException
 	 * @see #toString(BigInteger)
 	 */
