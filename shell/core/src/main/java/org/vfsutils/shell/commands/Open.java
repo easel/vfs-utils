@@ -18,7 +18,7 @@ import org.vfsutils.shell.Engine;
 public class Open extends AbstractOpenClose {
 
 	public Open() {
-		super("open", new CommandInfo("Open a filesystem", "[[-upd] [--virtual] <uri>]"));
+		super("open", new CommandInfo("Open a filesystem", "[[-upd] [--virtual] <uri> | ~<idx>]"));
 	}
 
 	public void execute(Arguments args, Engine engine)
@@ -27,7 +27,12 @@ public class Open extends AbstractOpenClose {
 
 		if (args.size() == 0) {
 			listOpen(engine);
-		} else {
+		}
+		else if (args.getArgument(0).startsWith("~") && args.getArgument(0).length()>1) {
+			int i = Integer.parseInt(args.getArgument(0).substring(1));
+			cd(i, engine);
+		}
+		else {
 			String path = args.getArgument(0);
 			boolean askUsername = args.hasFlag("u");
 			boolean askPassword = args.hasFlag("p");
@@ -46,6 +51,19 @@ public class Open extends AbstractOpenClose {
 		}
 	}
 
+	public void cd(int i, Engine engine) throws CommandException {
+		List openFs = getOpenFs(engine);
+		if (i<1 || i>openFs.size()) {
+			throw new CommandException("Invalid index given: " + i);
+		}
+		FileObject file = (FileObject)openFs.get(i-1);
+		
+		//change the working dir
+		engine.getContext().setCwd(file);
+		engine.println("Current folder is " + engine.toString(file));
+
+	}
+	
 	public void open(String path, String username, String password,
 			String domain, boolean virtual, Engine engine) 
 		throws FileSystemException, CommandException {
