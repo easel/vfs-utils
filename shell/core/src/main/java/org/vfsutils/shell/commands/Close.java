@@ -2,7 +2,6 @@ package org.vfsutils.shell.commands;
 
 import java.util.List;
 
-import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystem;
 import org.apache.commons.vfs.FileSystemException;
@@ -15,7 +14,7 @@ import org.vfsutils.shell.Engine;
 public class Close extends AbstractOpenClose {
 
 	public Close() {
-		super("close", new CommandInfo("Close the connection", "[-a|<uri>]"));
+		super("close", new CommandInfo("Close the connection", "[-a|<uri>|~<idx>]"));
 	}
 
 	public void execute(Arguments args, Engine engine)
@@ -28,12 +27,20 @@ public class Close extends AbstractOpenClose {
 			close(engine);
 		} else {
 			String path = args.getArgument(0);
-			close(path, engine);
+			if (path.startsWith("~") && path.length()>1){
+				String subs = path.substring(1);
+				//try to convert to int
+				int i = Integer.parseInt(subs);
+				close(i, engine);
+			}
+			else {
+				close(path, engine);
+			}
 		}
 	}
 
 	protected void close(String path, Engine engine) throws FileSystemException {
-		FileObject file = engine.pathToFile(path);
+		FileObject file = engine.pathToExistingFile(path);
 		close(file, engine);
 	}
 
@@ -41,6 +48,15 @@ public class Close extends AbstractOpenClose {
 		close(engine.getCwd(), engine);
 	}
 
+	protected void close(int i, Engine engine) throws CommandException, FileSystemException {
+		List openFs = getOpenFs(engine);
+		if (i<1 || i>openFs.size()) {
+			throw new CommandException("Invalid index given: " + i);
+		}
+		FileObject file = (FileObject)openFs.get(i-1);
+		close(file, engine);
+	}
+	
 	protected void close(FileObject file, Engine engine)
 			throws FileSystemException {
 		List openFs = getOpenFs(engine);
