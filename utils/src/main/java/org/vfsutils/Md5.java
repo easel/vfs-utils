@@ -2,8 +2,12 @@ package org.vfsutils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
@@ -14,6 +18,15 @@ import org.apache.commons.vfs.FileSystemException;
  *
  */
 public class Md5 {
+	
+	/**
+	 * Class to contain information from a .md5 file containing
+	 * a checksum and optionally a fileName	 
+	 */
+	public class Md5FileInfo {
+		public String fileName = null;
+		public String checksum = null;
+	}
 
 	/**
 	 * Creates a 32 character hex string of the BigInteger representing the md5 code
@@ -106,5 +119,65 @@ public class Md5 {
 				}
 			}
 		}
+	}
+	
+	public Md5FileInfo parseMd5File(FileObject md5File) throws FileSystemException {
+		Md5FileInfo result = new Md5FileInfo();
+		
+		if (!md5File.exists()) {
+			throw new FileSystemException(new IllegalArgumentException("The MD5 file does not exist"));
+		}
+		
+		//check that the checksumFile is small
+		if (md5File.getContent().getSize()>1024) {
+			throw new FileSystemException(new IllegalArgumentException("The MD5 file is exceptionally big, aborting..."));
+		}
+		
+		StringBuffer sBuffer = new StringBuffer(128);
+		
+		InputStreamReader reader  = null;
+		try {
+			reader = new InputStreamReader(md5File.getContent().getInputStream());
+			char[] buffer = new char[128];
+			
+			int read = -1;
+			while ((read = reader.read(buffer))>-1) {
+				sBuffer.append(buffer, 0, read);
+			}
+		}
+		catch (IOException e) {
+			throw new FileSystemException(e);
+		}
+		finally {
+			if (reader!=null) {
+				try {
+					reader.close();
+				}
+				catch (IOException e) {
+					//ignore
+				}
+			}
+		}
+		
+		String fileContent = sBuffer.toString();
+		
+		Pattern pattern = Pattern.compile("([a-fA-F0-9]+)\\s*(\\S*)\\s*");
+		
+		Matcher matcher = pattern.matcher(fileContent);
+		
+		if (matcher.matches()) {
+
+			result.checksum = matcher.group(1);
+			
+			//second group can be empty
+			if (matcher.group(2).length()>0) {
+				result.fileName = matcher.group(2);
+			}
+		}
+		else {
+			throw new FileSystemException(new IllegalArgumentException("The MD5 file does not contain a valid checksum"));
+		}
+		
+		return result;
 	}
 }
