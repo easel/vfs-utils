@@ -25,8 +25,8 @@ VFS Shell
  It adds tab completion for commands and file names and does password masking on the open command. 
  This makes the Shell a whole lot more professional.
  
- The command style is *nix like.
-
+* Commands 
+ 
  The available commands are:
 
  * open: opens a filesystem and asks for username / password
@@ -81,38 +81,45 @@ VFS Shell
  
  Clearly this list can be extended with all kind of other commands. 
  
- The arguments passing is somewhat standardized. Normal arguments are given separated by whitespace. 
+* Argument parsing 
+ 
+ The arguments passing is somewhat standardized. Normal arguments are given separated by whitespace.
+ 
  Flags exist in two flavours, short flags and long flags. Short flags have one character and can be 
  combined in a single argument: -ef passes the flags e and f. Long flags are multi-character flags,
  e.g. --delete. They should be used when the flag has a big impact or when there are no short flags
- left. Options are key value pairs; e.g. --format=json. The pattern '-format json' is not 
- supported; it will be interpreted as a bunch of flags and one argument. The order of the arguments
- is only guaranteed for normal arguments; 'do a b c -def --ghij --klm=nop' is equal to 
- 'do --klm=nop a --ghij -f b -ed c'. 
+ left. 
+ 
+ Options are key value pairs; e.g. --format=json. The pattern '-format json' is not 
+ supported; it will be interpreted as a bunch of flags and one argument. 
+ 
+ The order of the arguments is only important for normal arguments; 
+ 'sync fromdir todir -sd --delete --dry-run' is equal to 
+ 'sync -d --dry-run fromdir --delete todir -s'. 
  
  Whitespace can be escaped using a backslash, e.g. cd Program\\ Files, but also using single or 
  double quotes: 'Program Files' or "Program Files". If you're lazy you can also skip the closing 
- quote, e.g. cd "Program Files. Multi-line input is possible when you end the line with a single 
- backslash ('\').
+ quote, e.g. cd "Program Files. 
  
- The variables in the input are resolved before tokenizing and interpretation of the line which 
+ Multi-line input is possible when you end the line with a single backslash ('\').
+ 
+ The variables in the input are resolved before tokenizing and interpretation of the line, which 
  means you can also create a variable for a command and create macro-like structures, 
  e.g. set x="cd /tmp".
  
  Currently you can not chain commands, nor pipe them or do things in the background.
  
- There is no bash-like control flow logic. If you want to script you can use Beanshell scripts you
- can load 'vfs' scripts with sequences of shell commands.
-
- The VFS scripts are interpreted within 
- the current context unless you specify the -c flag, which will create a new context. In the 
- scripts you can use # for comments. The scripts have access to all environment variables and the 
- arguments passed to the script. 
+* Scripting
  
- The Beanshell interpreter also has access to all variables. Note that the Beanshell interpreter 
- accesses them without the $ sign.
+ There is no bash-like control flow logic, but there are two types of scripts possible: beanshell scripts
+ and vfs scripts, both have arguments passed to them. The scripts can also be registerd as normal commands
+ (see the {{{commands.html#register}register command}}).
  
- Example VFS Shell code:
+ The vfs scripts are plain sequences of shell commands, see the {{{commands.html#load}load command}}.
+ 
+ The beanshell scripts have access to all variables and to the shell-engine, see the {{{commands.html}bsh command}}.
+ 
+* Example
  
 +-----+
  cd '/Program Files
@@ -142,8 +149,15 @@ VFS Shell
  load myscript.vfs
 +-----+
 
+* JavaDoc
+
+ * {{{core/apidocs/index.html}Shell Core}}
  
-TTD
+ * {{{jline/apidocs/index.html}JLine}}
+ 
+ []
+ 
+* TTD
  
  * Correct usage of wildcards; currently only relative downward search is supported, you can not go
    up or provide absolute paths
@@ -172,7 +186,7 @@ TTD
  
  []
  
-Other Shells
+* Other Shells
 
   I didn't go very, very far in studying different Shell/CLI implementations. There don't seem to be
   that many general purpose Java shells available. 
