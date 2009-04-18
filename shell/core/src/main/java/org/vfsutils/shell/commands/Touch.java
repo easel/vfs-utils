@@ -28,7 +28,7 @@ public class Touch extends AbstractCommand {
 
 		final FileObject[] files = engine.pathToFiles(path);
 		
-		long time = System.currentTimeMillis();
+		long time = java.lang.System.currentTimeMillis();
 		
 		if (args.hasOption("date")) {
 			String dateString = args.getOption("date");

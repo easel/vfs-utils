@@ -31,7 +31,7 @@ public class Cd extends AbstractDirManip implements CommandProvider {
 	}
 	
 	protected void cd(Engine engine) throws FileSystemException {
-		String path = System.getProperty("user.home");
+		String path = java.lang.System.getProperty("user.home");
 		cd(path, engine);
 	}
 	

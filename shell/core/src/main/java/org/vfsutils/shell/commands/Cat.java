@@ -31,7 +31,7 @@ public class Cat extends AbstractCommand implements CommandProvider {
 	}
 	
 	protected void cat(FileObject file, Engine engine) throws CommandException, FileSystemException {
-		// Dump the contents to System.out
+		// Dump the contents to output
         try {
         	FileUtil.writeContent(file, engine.getConsole().getOut());
         }
