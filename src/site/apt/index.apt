@@ -47,6 +47,8 @@ Other VFS clients
  
 News
 
+  * 18-04-2009: Updated utils and shell snapshots for sysinfo and others
+
   * 22-03-2009: Updated shell snapshots for sync and md5 support
   
   * 12-03-2009: First release of snapshot of VFS Shell, JLine integration and Utils
