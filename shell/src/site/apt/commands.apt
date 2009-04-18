@@ -64,6 +64,8 @@ VFS Shell Commands
  
  * {{{#sync}sync}} 
  
+ * {{{#sysinfo}sysinfo}}
+ 
  * {{{#touch}touch}}  
 
 []
@@ -104,7 +106,7 @@ VFS Shell Commands
 * {bsh} 
 
  Runs the Beanshell script specified. If you use the -e flag you can enter the expression directly, 
- otherwise the specified file will be loaded.
+ otherwise the specified file will be loaded. You can also use the -e flag to run any Java class.
  
  The script has access to all variables set in the engine. When you load a file it will have access 
  to the arguments as "args". When loading a file you can also pass flags using the --flags option; 
@@ -119,6 +121,7 @@ VFS Shell Commands
  bsh -e print(cwd);
  bsh -e print(cwd + \" hello world\");
  bsh -e 'print(cwd + " hello world");'
+ bsh -e org.apache.xalan.Version.main(new String[]{});
  bsh test.bsh hello world -fva --option1=doit
 --------------- 
  
@@ -292,15 +295,20 @@ VFS Shell Commands
  
 * {md5}
 
-  Calculates the MD5 checksum. It works on files, not on folders. If you give the 's' flag the first argument
-  is taken as a literal string for which the MD5 will be calculated. A 32 character hex value will be printed to 
-  the console. You can also give a checksum to compare the calculated MD5 with with the checksum option.
+  Calculates the MD5 checksum. It works on files, not on folders. If you give the 's' flag the arguments
+  are taken as a literal string for which the MD5 will be calculated. A 32 character hex value will be printed to 
+  the console. You can also give a checksum to compare the calculated MD5 with with the 'checksum' option.
+  
+  With the 'c' flag you can point to files containing a checksum value and optionally a file name 
+  (in format 'checksum filename'). If the file does not contain a filename then the name of the checksum file
+  without '.md5' will be used to find the file for which the MD5 should be calculated.
   
 -----------
-  md5 myfile.txt
-  md5 mydir/*.txt
+  md5 myfile.txt --checksum=609b286c68168d58e8424a4f4146211b
+  md5 mydir/*.txt 
   md5 -s "what is my checksum" "and mine?"
   md5 -s "what is my checksum" --checksum=609b286c68168d58e8424a4f4146211b
+  md5 -c *.md5
 ----------- 
  
 * {mkdir}
@@ -406,7 +414,7 @@ VFS Shell Commands
  
 * {register}
 
-  Registers the given class or scripts as commands, it supports java classes, vfs scripts and beashell scripts. 
+  Registers the given class or scripts as commands, it supports java classes, vfs scripts and beanshell scripts. 
   
   This allows for easy extension of the existing commands using command classes in the classpath and using macro-like functions with vfs scripts or more enhanced scripts using beanshell.
 
@@ -499,12 +507,38 @@ VFS Shell Commands
  
  Note that this implementation is not optimized for very large datasets and is not a replacement for rsync.
  
+ Examples:
+ 
 ---------
  sync sourcefile.txt remotefile.txt -mPv
  sync ftp://anonymous@server/httpd . --delete -sd --dry-run
 ---------
 
   See: {{{#cp}cp}}
+ 
+* {sysinfo}
+
+ Shows system information such as the memory usage, the number of available processors, thread information and
+ system properties. It can also trigger a garbage collection and a finalization.
+ 
+ By default it will show only a summarized view: the number of threads instead of a list of threads and the
+ java and os versions instead of all system properties. Using flags you can indicate that you want to see
+ the details. Use flag 't' for thread information and flag 'p' for properties. If you use such a flag the other
+ information is not shown, unless their flag is also given. E.g. '-t' will only show thread information while '-tp' 
+ will show threads and properties. Use the 'm' flag to also show memory information and the 'a' flag to show all
+ information.
+ 
+ To trigger garbage collection use long flag 'gc' and to trigger finalization use long flag 'finalize'.
+ 
+ Examples:
+
+--------------------
+ sysinfo 
+ sysinfo --finalize --gc
+ sysinfo -tm
+ sysinfo -mp
+ sysinfo --gc -a
+--------------------
  
 * {touch}
 

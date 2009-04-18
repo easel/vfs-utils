@@ -6,7 +6,9 @@
 
 VFS Shell Configuration
 
- You can configure the shell to add your own commands or run an initialization script.
+ You can configure the shell to add your own commands or run an initialization script. 
+ 
+ You can also add functionality at run-time using the register command, see the {{{commands.html#register}list of commands}}.
  
 * Running an initialization script
 

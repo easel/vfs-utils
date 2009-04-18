@@ -6,14 +6,16 @@
 
 VFS Shell
 
- This project provides a Java Shell interface (or Java Command Line) .
+ This project provides a Java Shell interface (or Java Command Line Interface) using VFS.
  
  The shell interface is inspired on the Shell example that comes with the Apache Commons VFS 
  library but it is more extensible and adds more functionality.
  
+ Its first intent is being a file system manipulation shell, not a Java application launcher.
+ 
  It is easy to add commands or to change the behaviour of the existing commands. From within 
  the shell you have access to the engine to set variables and dynamically add new commands
- and use scripts.
+ and use scripts. 
  
  You can setup the environment using scripts that are loaded when the shell starts, see 
  {{{configuration.html} Configuration}}.
@@ -57,13 +59,17 @@ VFS Shell
   
  * register: registers a new class or script as a command
  
- * md5: calculate md5 checksum
+ * md5: calculates and compares md5 checksums
+ 
+ * hash: calculates Java hash codes
  
  * rem: does nothing
  
  * echo: writes output
  
  * assert: verifies a file exists
+ 
+ * sysinfo: shows information about threads, memory and system properties 
  
  * help: displays the list of commands
  
@@ -86,8 +92,8 @@ VFS Shell
  
  Whitespace can be escaped using a backslash, e.g. cd Program\\ Files, but also using single or 
  double quotes: 'Program Files' or "Program Files". If you're lazy you can also skip the closing 
- quote, e.g. cd "Program Files. Multine input is possible when you end the line with ' \' (space 
- backslash).
+ quote, e.g. cd "Program Files. Multi-line input is possible when you end the line with a single 
+ backslash ('\').
  
  The variables in the input are resolved before tokenizing and interpretation of the line which 
  means you can also create a variable for a command and create macro-like structures, 
@@ -95,11 +101,10 @@ VFS Shell
  
  Currently you can not chain commands, nor pipe them or do things in the background.
  
- There is no bash like control flow logic. If you want to script you can use Beanshell scripts or
- for
- sequences of normal commands you can load 'vfs' scripts.
+ There is no bash-like control flow logic. If you want to script you can use Beanshell scripts you
+ can load 'vfs' scripts with sequences of shell commands.
 
- You can load files containing commands as a scripting facility. The scripts are interpreted within 
+ The VFS scripts are interpreted within 
  the current context unless you specify the -c flag, which will create a new context. In the 
  scripts you can use # for comments. The scripts have access to all environment variables and the 
  arguments passed to the script. 
@@ -147,16 +152,42 @@ TTD
  
  * Piping of output to files, chaining commands
  
+ * Remote shell based on RMI or Mina
+ 
  * Starting commands in the background
  
- * A java command to run any Java application
+ * A java command to run any Java application (Though you can already do this using the 'bsh -e' command)
  
- * Additional commands: Tranform etc.
+ * Dynamic classpath extension (so you can load a jar from any VFS provider)
  
- * Some default scripts: Purge Empty Folders etc.
+ * Additional commands: tranform, grep, tail, ...
+ 
+ * Starting and managing other processes: ps, kill, ...
+ 
+ * Some default scripts: Purge empty folders, ...
  
  * Scoping of commands to VFS provider schemes
  
  * A solution for man pages
  
+ []
+ 
+Other Shells
+
+  I didn't go very, very far in studying different Shell/CLI implementations. There don't seem to be
+  that many general purpose Java shells available. 
+  The VFS Shell is primarily based on the VFS Shell Example and the Beanshell CLI.
+  
+  The following projects are of particular interest:
+
+ * Beanshell: More than just a CLI, it provides the interactive interface to the Beanshell Interpreter
+ 
+ * VFS Shell example: Part of VFS, very basic shell to demonstrate VFS capabilities
+ 
+ * Felix shell: Part of Felix, Apache OSGi
+ 
+ * Sshd: Apache Mina SSH Server, a remote Shell
+ 
+ * GShell: Part of Apache Geronimo 
+
  []
