@@ -7,6 +7,7 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.VFS;
 import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandParser;
+import org.vfsutils.shell.MultilineCommandParser;
 
 public class BoxedShell extends org.vfsutils.shell.Shell {
 
@@ -22,7 +23,7 @@ public class BoxedShell extends org.vfsutils.shell.Shell {
 	public static void main(String[] args) {
 		
 
-		CommandParser parser = new CommandParser();
+		CommandParser parser = new MultilineCommandParser();
 		Arguments arguments = parser.parse(args);
 		
 		try {

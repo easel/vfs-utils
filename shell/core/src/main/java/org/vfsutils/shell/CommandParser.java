@@ -3,8 +3,6 @@ package org.vfsutils.shell;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.vfsutils.shell.Arguments.Argument;
 import org.vfsutils.shell.Arguments.ArgumentList;
@@ -18,35 +16,56 @@ import org.vfsutils.shell.Arguments.TokenList;
 
 /**
  * Parses commands.
- * Flags are one character and can be stuck together -ls is equal to -l -s
- * Long flags can be whole words --all
- * Options are long flags with a value, e.g. --block-size=1024  
+ * First input line are split on whitespace. It supports whitespace escaping and
+ * grouping using single or double quotes. 
+ * Then the tokens are transformed into an Arguments object. First it will try
+ * to determine whether the token is a short flag, a long flag or an option. If
+ * it is neither of them the token is assumed to be a normal argument.
+ * Subclasses need to define the representation of these tokens and support
+ * parsing and writing the tokens.
  * 
  * @author kleij - at - users.sourceforge.net
  *
  */
-public class CommandParser {
+public abstract class CommandParser {
 	
-	//TODO: these must move to Arguments since it also does the inverse (toString) or,
-	//even better, the toString(Arguments) must move here
-	protected boolean isFlag(String token) {
-		return token.startsWith("-") && !token.startsWith("--");
-	}
+	/**
+	 * Tells whether the token is a short flag
+	 * @param token
+	 * @return true if the token is a short flag
+	 */
+	protected abstract boolean isFlag(String token);
 	
-	protected boolean isLongFlag(String token) {
-		return token.startsWith("--") && (token.indexOf('=')==-1);
-	}
+	/**
+	 * Tells whether the token is a long flag
+	 * @param token
+	 * @return true if the token is a long flag
+	 */
+	protected abstract boolean isLongFlag(String token);
 	
-	protected boolean isOption(String token) {
-		return token.startsWith("--") && (token.indexOf('=')>-1);
-	}
+	/**
+	 * Tells whether the token is an option
+	 * @param token
+	 * @return
+	 */
+	protected abstract boolean isOption(String token);
 	
-	
+	/**
+	 * First splits the input using split(String) and then calls
+	 * parse(String[])
+	 * @param line the input line
+	 * @return a filled-in Arguments object
+	 */
 	public Arguments parse(String line) {
 		String[] cmd = split(line);
 		return parse(cmd);
 	}
 	
+	/**
+	 * Transforms the list of strings to an Arguments object.
+	 * @param cmd list of input strings
+	 * @return a filled-in Argument object
+	 */
 	public Arguments parse(String[] cmd) {		
 		
 		Arguments args = new Arguments();
@@ -92,8 +111,9 @@ public class CommandParser {
 		StringBuffer part = new StringBuffer();
 		
 		boolean escaped = false;
-		boolean inBlock = false;
-		char blockChar = '0';
+		boolean inGroup = false;
+		//initialized on dummy value
+		char groupingChar = '0';
 		
 		char c;
 		for (int i=0; i < chars.length; i++) {
@@ -116,19 +136,19 @@ public class CommandParser {
 				if (escaped) {
 					part.append(c);
 				}
-				else if (inBlock && blockChar==c) {
-					inBlock = false;
+				else if (inGroup && groupingChar==c) {
+					inGroup = false;
 				}
-				else if (inBlock) {
+				else if (inGroup) {
 					part.append(c);
 				}
 				else {
-					inBlock=true;
-					blockChar=c;
+					inGroup=true;
+					groupingChar=c;
 				}
 			}
 			else if (c==' ' || c=='\n') {
-				if (escaped || inBlock) {
+				if (escaped || inGroup) {
 					part.append(c);
 				}
 				else {
@@ -141,7 +161,7 @@ public class CommandParser {
 			}
 		}
 		
-		//treat left overs
+		//treat left-overs
 		if (part.length()>0) {
 			addPart(parts, part);
 		}
@@ -150,6 +170,12 @@ public class CommandParser {
 		return (String[]) parts.toArray(result);
 	}
 
+	/**
+	 * Adds the content of the buffer to the list of parts
+	 * and empties the buffer. 
+	 * @param parts
+	 * @param part
+	 */
 	protected void addPart(List parts, StringBuffer part) {
 		
 		if (part.length()==0) return;
@@ -158,39 +184,95 @@ public class CommandParser {
 		part.delete(0, part.length());
 	}
 	
-	protected void setCmd(Arguments args, String cmd) {
-		args.setCmd(cmd);
-	}
+	/**
+	 * Sets the given string as a command on the Arguments object.
+	 * This might involve string manipulation.
+	 * @param args
+	 * @param cmd
+	 */
+	protected abstract void setCmd(Arguments args, String cmd);
 	
-	protected void addFlags(Arguments args, String flags) {
-		//skip the - and add each flag separately
-		for (int i=1; i<flags.length(); i++) {
-			args.addFlag(String.valueOf(flags.charAt(i)));
-		}
-	}
+
+	/**
+	 * Sets the given string as an argument on the Arguments object
+	 * This might involve string manipulation.
+	 * @param args
+	 * @param arg
+	 */
+	protected abstract void addArgument(Arguments args, String arg);
 	
-	protected void addLongFlag(Arguments args, String longFlag) {
-		//remove leading --
-		args.addFlag(longFlag.substring(2));
-	}
+	/**
+	 * Sets the given string as a short flag on the Arguments object.
+	 * This typically involves string manipulation.
+	 * @param args
+	 * @param flags
+	 */
+	protected abstract void addFlags(Arguments args, String flags);
 	
-	protected void addOption(Arguments args, String option) {
-		//skip the -- and split at =
-		String key = option.substring(2, option.indexOf('='));
-		String value = option.substring(option.indexOf('=')+1);
-		args.addOption(key, value);
-	}
+	/**
+	 * Sets the given string as a long flag on the Arguments object
+	 * This typically involves string manipulation.
+	 * @param args
+	 * @param longFlag
+	 */
+	protected abstract void addLongFlag(Arguments args, String longFlag);
 	
-	protected void addArgument(Arguments args, String arg) {
-		args.addArgument(arg);
-	}
+	/**
+	 * Sets the given string as an option on the Arguments object
+	 * This typically involves string manipulation.
+	 * @param args
+	 * @param option
+	 */
+	protected abstract void addOption(Arguments args, String option);
 	
+	/**
+	 * Creates a string representation of the Arguments object
+	 * @param args
+	 * @return
+	 */
 	public String toString(Arguments args) {
 		return toString(args, 0);
 	}
 	
+	/**
+	 * Creates a string representation of the Arguments object starting
+	 * from the given index (skipping the first tokens) 
+	 * @param args
+	 * @param startAt
+	 * @return
+	 */
 	public String toString(Arguments args, int startAt) {
 		return toString(args.getAllTokens(), startAt);
+	}
+	
+
+	/**
+	 * Creates a string representation of the list of all
+	 * tokens
+	 * @param tokens
+	 * @return
+	 */
+	public String toString(TokenList tokens) {
+		return toString(tokens, 0);
+	}
+	
+	/**
+	 * Creates a string representation of the list of all
+	 * tokens starting at the given index (skipping the 
+	 * first tokens)
+	 * @param tokens
+	 * @param startAt
+	 * @return
+	 */
+	public String toString(TokenList tokens, int startAt) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i=startAt; i<tokens.size(); i++) {
+			if (buffer.length()>0) buffer.append(" ");
+			Token t = (Token)tokens.get(i);
+			append(buffer, t);
+			
+		}
+		return buffer.toString();
 	}
 	
 	/**
@@ -210,32 +292,12 @@ public class CommandParser {
 		return result;
 	}
 	
-	public String toString(FlagSet flags) {
-		StringBuffer buffer = new StringBuffer();
-		Iterator iterator = flags.iterator();
-		
-		while (iterator.hasNext()) {
-			if (buffer.length()>0) buffer.append(" ");
 
-			Flag flag = (Flag) iterator.next();
-			append(buffer, flag);	
-		}
-		
-		return buffer.toString();
-	}
-	
-	public String toString(OptionMap options) {
-		StringBuffer buffer = new StringBuffer();
-		Iterator iterator = options.keySet().iterator();
-		while (iterator.hasNext()) {
-			if (buffer.length()>0) buffer.append(" ");
-			String key = (String) iterator.next();
-			Option option = (Option) options.get(key);
-			append(buffer, option);
-		}
-		return buffer.toString();
-	}
-	
+	/**
+	 * Creates a string representation of the list of arguments
+	 * @param args
+	 * @return
+	 */
 	public String toString(ArgumentList args) {
 		StringBuffer buffer = new StringBuffer();
 		Iterator iterator = args.iterator();
@@ -251,63 +313,69 @@ public class CommandParser {
 
 	}
 	
-	public String toString(TokenList tokens) {
-		return toString(tokens, 0);
-	}
-	
-	public String toString(TokenList tokens, int startAt) {
+	/**
+	 * Creates a string representation of the set of flags
+	 * @param flags
+	 * @return
+	 */
+	public String toString(FlagSet flags) {
 		StringBuffer buffer = new StringBuffer();
-		for (int i=startAt; i<tokens.size(); i++) {
+		Iterator iterator = flags.iterator();
+		
+		while (iterator.hasNext()) {
 			if (buffer.length()>0) buffer.append(" ");
-			Token t = (Token)tokens.get(i);
-			append(buffer, t);
-			
+
+			Flag flag = (Flag) iterator.next();
+			append(buffer, flag);	
 		}
+		
 		return buffer.toString();
 	}
 	
+	/**
+	 * Creates a string representation of the map of options
+	 * @param options
+	 * @return
+	 */
+	public String toString(OptionMap options) {
+		StringBuffer buffer = new StringBuffer();
+		Iterator iterator = options.keySet().iterator();
+		while (iterator.hasNext()) {
+			if (buffer.length()>0) buffer.append(" ");
+			String key = (String) iterator.next();
+			Option option = (Option) options.get(key);
+			append(buffer, option);
+		}
+		return buffer.toString();
+	}
 	
 	/**
 	 * Writes a command token to the buffer
 	 * @param buffer
 	 * @param cmd
 	 */
-	protected void append(StringBuffer buffer, Cmd cmd) {
-		buffer.append(cmd.getValue());
-	}
+	protected abstract void append(StringBuffer buffer, Cmd cmd);
 	
 	/**
 	 * Writes an argument token to the buffer
 	 * @param buffer
 	 * @param arg
 	 */
-	protected void append(StringBuffer buffer, Argument arg) {
-		buffer.append(escapeWhitespaceAndQuotes(arg.getValue()));
-	}
+	protected abstract void append(StringBuffer buffer, Argument arg);
 	
 	/**
-	 * Writes an flag token to the buffer as -f for short flags
-	 * and as --flag for long flags
+	 * Writes an flag token to the buffer 
 	 * @param buffer
 	 * @param flag
 	 */
-	protected void append(StringBuffer buffer, Flag flag) {
-		if (flag.getValue().length()==1){
-			buffer.append("-").append(escapeWhitespaceAndQuotes(flag.getValue()));
-		}
-		else {
-			buffer.append("--").append(escapeWhitespaceAndQuotes(flag.getValue()));
-		}
-	}
+	protected abstract void append(StringBuffer buffer, Flag flag);
 	
 	/**
-	 * Writes an option token to the buffer as --name=value
+	 * Writes an option token to the buffer
 	 * @param buffer
 	 * @param option
 	 */
-	protected void append(StringBuffer buffer, Option option) {
-		buffer.append("--").append(option.getName()).append("=").append(escapeWhitespaceAndQuotes(option.getValue())); 
-	}
+	protected abstract void append(StringBuffer buffer, Option option);
 	
 	/**
 	 * This method works as a dispatcher; since overloading does not work run-time a type inspection is done
@@ -316,13 +384,7 @@ public class CommandParser {
 	 * @param buffer
 	 * @param token
 	 */
-	protected void append(StringBuffer buffer, Token token) {
-		if (token instanceof Cmd) append(buffer, (Cmd)token);
-		else if (token instanceof Argument) append(buffer, (Argument) token);
-		else if (token instanceof Flag) append(buffer, (Flag) token);
-		else if (token instanceof Option) append(buffer, (Option) token);
-		else throw new IllegalArgumentException("Method append(StringBuffer, Token) should be extended to support class" + token.getClass());
-	}
+	protected abstract void append(StringBuffer buffer, Token token);
 	
 	/**
 	 * Escapes whitespace, single and double quotes by prepending a backslash
