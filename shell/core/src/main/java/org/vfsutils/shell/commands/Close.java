@@ -23,7 +23,7 @@ public class Close extends AbstractOpenClose {
 
 		if (args.hasFlag("a")) {
 			closeAll(engine);
-		} else if (args.getArguments().size() == 0) {
+		} else if (args.size() == 0) {
 			close(engine);
 		} else {
 			String path = args.getArgument(0);

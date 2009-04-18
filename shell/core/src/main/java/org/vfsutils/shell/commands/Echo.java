@@ -19,7 +19,8 @@ public class Echo extends AbstractCommand {
 	}
 	
 	public void echo(Arguments args, Engine engine) {
-		engine.println(args.asString(1));
+		String echo = engine.getCommandParser().toString(args, 1, true); 
+		engine.println(echo);
 	}
 
 }

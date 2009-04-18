@@ -345,6 +345,14 @@ public class Engine {
 	public void setMgr(FileSystemManager mgr) {
 		this.mgr = mgr;
 	}
+	
+	public CommandParser getCommandParser() {
+		return this.commandParser;
+	}
+	
+	public void setCommandParser(CommandParser commandParser) {
+		this.commandParser = commandParser;
+	}
 
 	public ConsoleInterface getConsole() {
 		return console;

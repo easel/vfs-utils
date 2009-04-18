@@ -15,7 +15,7 @@ public class Error extends AbstractCommand {
 	public void execute(Arguments args, Engine engine)
 			throws IllegalArgumentException, CommandException, FileSystemException {
 		
-		if (args.getFlags().contains("p")) {
+		if (args.hasFlag('p')) {
 			printError(engine);
 		}
 		else {

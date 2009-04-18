@@ -13,6 +13,9 @@ import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.Engine;
+import org.vfsutils.shell.Arguments.Argument;
+import org.vfsutils.shell.Arguments.Flag;
+import org.vfsutils.shell.Arguments.Option;
 
 import bsh.EvalError;
 import bsh.Interpreter;
@@ -29,13 +32,11 @@ public class Bsh extends AbstractCommand {
 		args.assertSize(1);
 		
 		if (args.hasFlag("e")) {
-			
-			//concat all arguments, except command and first flags
-			String script = args.asString(2);				
+			//concat all arguments, except command and first flags, unescape whitespace and quotes
+			String script = engine.getCommandParser().toString(args, 2, true);	
 			bsh(script, engine);			
 		}
 		else {
-			
 			FileObject file = engine.pathToExistingFile(args.getArgument(0));
 			
 			//copy the arguments
@@ -112,10 +113,10 @@ public class Bsh extends AbstractCommand {
 		ListIterator argsIterator = args.getArguments().listIterator();
 		while (argsIterator.hasNext()) {
 			int index = argsIterator.nextIndex();
-			String arg = (String) argsIterator.next();
+			Argument arg = (Argument) argsIterator.next();
 			if (index==0) {
 				//the name of the script
-				result.setCmd(args.getArgument(0));				
+				result.setCmd(arg.getValue());				
 			}
 			else {
 				result.addArgument(arg);
@@ -124,26 +125,24 @@ public class Bsh extends AbstractCommand {
 		
 		Iterator flagIterator = args.getFlags().iterator();
 		while (flagIterator.hasNext()) {
-			String flag = (String) flagIterator.next();
-			
-			if (flag.length()==1){
-				result.addFlags("-" + flag);
-			}
-			else {
-				result.addLongFlag("--" + flag);
-			}
+			Flag flag = (Flag) flagIterator.next();
+			result.addFlag(flag);
 		}
 		
 		Iterator optionIterator = args.getOptions().keySet().iterator();
 		while (optionIterator.hasNext()) {
 			String key = (String) optionIterator.next();
 			if (key.equals("flags")) {
-				String value = (String) args.getOptions().get(key);
-				result.addFlags("-" + value);
+				Option option = (Option) args.getOptions().get(key);
+				char[] flags = option.getValue().toCharArray();
+				//each flag should be added individually
+				for (int i=0; i<flags.length; i++) {
+					result.addFlag(String.valueOf(flags[i]));
+				}
 			}
 			else {
-				String value = (String) args.getOptions().get(key);
-				result.addOption("--" + key + "=" + value);
+				Option option = (Option) args.getOptions().get(key);
+				result.addOption(option);
 			}
 		}			
 		

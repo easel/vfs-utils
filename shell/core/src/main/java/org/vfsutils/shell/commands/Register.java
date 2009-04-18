@@ -11,6 +11,9 @@ import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
+import org.vfsutils.shell.Arguments.Argument;
+import org.vfsutils.shell.Arguments.Flag;
+import org.vfsutils.shell.Arguments.Option;
 
 public class Register extends AbstractCommand {
 
@@ -163,32 +166,30 @@ public class Register extends AbstractCommand {
 		
 		ListIterator argsIterator = args.getArguments().listIterator();
 		while (argsIterator.hasNext()) {
-			String arg = (String) argsIterator.next();
+			Argument arg = (Argument) argsIterator.next();
 			result.addArgument(arg);
 		}
 		
 		Iterator flagIterator = args.getFlags().iterator();
 		while (flagIterator.hasNext()) {
-			String flag = (String) flagIterator.next();
-			
-			if (flag.length()==1){
-				result.addFlags("-" + flag);
-			}
-			else {
-				result.addLongFlag("--" + flag);
-			}
+			Flag flag = (Flag) flagIterator.next();
+			result.addFlag(flag);
 		}
 		
 		Iterator optionIterator = args.getOptions().keySet().iterator();
 		while (optionIterator.hasNext()) {
 			String key = (String) optionIterator.next();
 			if (key.equals("flags")) {
-				String value = (String) args.getOptions().get(key);
-				result.addFlags("-" + value);
+				Option option = (Option) args.getOptions().get(key);
+				char[] flags = option.getValue().toCharArray();
+				//each flag should be added individually
+				for (int i=0; i<flags.length; i++) {
+					result.addFlag(String.valueOf(flags[i]));
+				}
 			}
 			else {
-				String value = (String) args.getOptions().get(key);
-				result.addOption("--" + key + "=" + value);
+				Option option = (Option) args.getOptions().get(key);
+				result.addOption(option);
 			}
 		}			
 		

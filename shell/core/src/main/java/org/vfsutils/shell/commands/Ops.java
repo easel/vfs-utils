@@ -32,13 +32,10 @@ public class Ops extends AbstractCommand implements CommandProvider {
 	public void execute(Arguments args, Engine engine)
 			throws IllegalArgumentException, CommandException,
 			FileSystemException {
-		List others = args.getArguments();
+		
+		args.assertSize(2);
 
-		if (others.size() < 2) {
-			throw new IllegalArgumentException("Not enough arguments");
-		}
-
-		String action = (String) others.get(0);
+		String action = args.getArgument(0);
 
 		if (action.equals(this.listAction)) {
 			listops(args, engine);
@@ -60,8 +57,8 @@ public class Ops extends AbstractCommand implements CommandProvider {
 			throw new IllegalArgumentException("Not enough arguments");
 		}
 
-		String op = (String) args.getArguments().get(1);
-		String path = (String) args.getArguments().get(2);
+		String op = args.getArgument(1);
+		String path = args.getArgument(2);
 
 		final FileObject[] files = engine.pathToFiles(path);
 
@@ -173,7 +170,7 @@ public class Ops extends AbstractCommand implements CommandProvider {
 			throw new IllegalArgumentException("Not enough arguments");
 		}
 
-		String path = (String) args.getArguments().get(1);
+		String path = args.getArgument(1);
 
 		final FileObject file = engine.pathToExistingFile(path);
 		
@@ -207,8 +204,8 @@ public class Ops extends AbstractCommand implements CommandProvider {
 			throw new IllegalArgumentException("Not enough arguments");
 		}
 
-		String op = (String) args.getArguments().get(1);
-		String path = (String) args.getArguments().get(2);
+		String op = args.getArgument(1);
+		String path = args.getArgument(2);
 
 		final FileObject file = engine.pathToExistingFile(path);
 

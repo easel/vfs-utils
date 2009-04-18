@@ -3,106 +3,166 @@ package org.vfsutils.shell;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 
 public class Arguments {
 	
-	public class TokenList extends ArrayList {
-		public String toString() {
-			return asString(0);
+	public abstract class Token {
+		private String value;
+		
+		public Token(String value) {
+			this.value = value;
 		}
 		
-		public String asString(int startAt) {
-			StringBuffer buffer = new StringBuffer();
-			for (int i=startAt; i<allTokens.size(); i++) {
-				if (buffer.length()>0) buffer.append(" ");
-				buffer.append(escapeWhitespaceAndQuotes((String)allTokens.get(i)));
+		public String getValue() {
+			return this.value;
+		}
+		
+		public boolean equals(Object o) {
+			if (o==null) return false;
+			if (o instanceof Token) {
+				Token other = (Token) o;
+				if (!this.getClass().equals(o.getClass())) return false;
+				if (value==null) return false;
+				return value.equals(other.value);
 			}
-			return buffer.toString();
+			return false;
 		}
 		
+		public String toString() {
+			return this.getValue();
+		}
+
+		public int hashCode() {
+			String base = toString();
+			return base.hashCode();
+		}
+		
+		
+	}
+	
+	public class Cmd extends Token {
+		public Cmd(String value) {
+			super(value);
+		}
+	}
+	
+	public class Argument extends Token {
+		public Argument(String value) {
+			super(value);
+		}
+	}
+	
+	public class Flag extends Token {
+		public Flag(String value) {
+			super(value);
+		}
+	}
+	
+	public class Option extends Token {
+		private String name;
+		
+		public Option(String name, String value) {
+			super(value);
+			this.name = name;
+		}
+		
+		public String getName() {
+			return this.name;
+		}
+		
+		public boolean equals(Object o) {
+			if (o==null) return false;
+			if (o instanceof Option) {
+				Option other = (Option) o;
+				if (!this.getClass().equals(o.getClass())) return false;
+				if (name==null || getValue()==null) return false;
+				 
+				return name.equals(other.name) && getValue().equals(other.getValue());
+			}
+			return false;
+		}
+		
+		public  String toString() {
+			return this.getName() + "=" + this.getValue();
+		}
+		
+		public int hashCode() {
+			String base = toString();
+			return base.hashCode();
+		}
+
+	}
+	
+	public class TokenList extends ArrayList {		
+	}
+	
+	public class ArgumentList extends ArrayList {
 	}
 	
 	public class FlagSet extends HashSet {
-		public String toString() {
-			StringBuffer buffer = new StringBuffer();
-			Iterator iterator = this.iterator();
-			
-			while (iterator.hasNext()) {
-				if (buffer.length()>0) buffer.append(" ");
-
-				String flag = (String) iterator.next();
-				
-				if (flag.length()==1){
-					buffer.append("-").append(flag);
-				}
-				else {
-					buffer.append("--").append(flag);
-				}
-			}
-			
-			return buffer.toString();
-		}
 	}
 	
-	public class OptionMap extends HashMap {
-		public String toString() {
-			StringBuffer buffer = new StringBuffer();
-			Iterator iterator = this.keySet().iterator();
-			while (iterator.hasNext()) {
-				if (buffer.length()>0) buffer.append(" ");
-				String key = (String) iterator.next();
-				buffer.append("--").append(key).append("=").append(escapeWhitespaceAndQuotes((String)this.get(key)));
-			}
-			return buffer.toString();
-		}
+	public class OptionMap extends HashMap {		
 	}
 
 	protected TokenList allTokens = new TokenList();
 	
-	protected String cmd = null;
+	protected Cmd cmd = null;
 	protected FlagSet flags = new FlagSet();
 	protected OptionMap options = new OptionMap();
-	protected TokenList arguments = new TokenList(); 
-	
-	public void addFlags(String flags) {
-		//skip the - and add each flag separately
-		for (int i=1; i<flags.length(); i++) {
-			this.flags.add(String.valueOf(flags.charAt(i)));
-		}
-		this.allTokens.add(flags);
-	}
+	protected ArgumentList arguments = new ArgumentList(); 
 	
 	public void setCmd(String cmd) {
+		setCmd(new Cmd(cmd));
+	}
+	
+	public void setCmd(Cmd cmd) {
+		
+		if (this.cmd==null || allTokens.isEmpty()) {
+			this.allTokens.add(0, cmd);
+		}
+		else {
+			//overwrite
+			this.allTokens.set(0, cmd);
+		}
+		
 		this.cmd = cmd;
-		this.allTokens.add(0, cmd);
 	}
 	
-	public void addLongFlag(String longFlag) {
-		//skip the --
-		this.flags.add(longFlag.substring(2));
-		this.allTokens.add(longFlag);
+	public void addFlag(String flag) {
+		addFlag(new Flag(flag));
 	}
 	
-	public void addOption(String option) {
-		//skip the -- and split at =
-		String key = option.substring(2, option.indexOf('='));
-		String value = option.substring(option.indexOf('=')+1);
-		this.options.put(key, value);
+	public void addFlag(Flag flag) {
+		if (this.flags.add(flag)) {
+			this.allTokens.add(flag);
+		}
+	}
+	
+	public void addOption(String option, String value) {
+		addOption(new Option(option, value));
+	}
+	
+	public void addOption(Option option) {
+		this.options.put(option.name, option);
 		this.allTokens.add(option);
 	}
 	
-	public void addArgument(String value) {
-		this.arguments.add(value);
-		this.allTokens.add(value);
+	public void addArgument(String arg) {
+		addArgument(new Argument(arg));
+	}
+	
+	public void addArgument(Argument arg) {
+		this.arguments.add(arg);
+		this.allTokens.add(arg);
 	}
 	
 	public boolean hasFlag(String flag) {
-		return this.flags.contains(flag);
+		return this.flags.contains(new Flag(flag));
 	}
 	
 	public boolean hasFlag(char flag) {
-		return this.flags.contains(Character.toString(flag));
+		return this.flags.contains(new Flag(Character.toString(flag)));
 	}
 	
 	public FlagSet getFlags() {
@@ -114,14 +174,20 @@ public class Arguments {
 	}
 	
 	public String getOption(String name) {
-		return (String) this.options.get(name);
+		Option option = (Option) this.options.get(name);
+		if (option==null) {
+			return null;
+		}
+		else {
+			return option.getValue();
+		}
 	}
 	
 	public OptionMap getOptions() {
 		return this.options;
 	}
 	
-	public TokenList getArguments() {
+	public ArgumentList getArguments() {
 		return this.arguments;
 	}
 	
@@ -136,7 +202,8 @@ public class Arguments {
 			return "";
 		}
 		else {
-			return (String) this.arguments.get(index);
+			Argument arg = (Argument) this.arguments.get(index);
+			return arg.getValue();
 		}
 	}
 	
@@ -159,37 +226,12 @@ public class Arguments {
 	}
 	
 	public String getCmd() {
-		return this.cmd;
-	}
-	
-	public String toString() {
-		return allTokens.toString();
-	}
-	
-	public String asString(int startAt) {
-		return allTokens.asString(startAt);
-	}
-	
-	
-	protected String escapeWhitespaceAndQuotes(String input) {
-		return escape(input, new char[] {' ', '\'', '"' });
-	}
-		
-	protected String escape(String input, char[] matches) {
-		StringBuffer buffer = new StringBuffer(input.length()+5);
-		char[] chars = input.toCharArray();
-		
-		for (int i=0; i < chars.length; i++) {
-			char c = chars[i];
-			for (int j=0; j<matches.length; j++) {
-				if (c==matches[j]) {
-					buffer.append('\\');
-				}
-			}			
-			buffer.append(c);
+		if (this.cmd==null) {
+			return null;
 		}
-		
-		return buffer.toString();
-
+		else {
+			return this.cmd.getValue();
+		}
 	}
+	
 }

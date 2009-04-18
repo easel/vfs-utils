@@ -20,7 +20,7 @@ public class Help extends AbstractCommand implements CommandProvider {
 	public void execute(Arguments args, Engine engine)
 			throws IllegalArgumentException, CommandException, FileSystemException {
 		
-		if (args.getArguments().size()==0) {
+		if (args.size()==0) {
 			help(engine);
 		}
 		else {

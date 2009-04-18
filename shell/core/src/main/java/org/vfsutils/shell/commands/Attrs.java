@@ -26,7 +26,7 @@ public class Attrs extends AbstractCommand implements CommandProvider {
 
 		args.assertSize(2);
 
-		String action = (String) args.getArguments().get(0);
+		String action = args.getArgument(0);
 		
 		if (action.equalsIgnoreCase("get")){
 			getAttr(args, engine);	        
@@ -46,8 +46,8 @@ public class Attrs extends AbstractCommand implements CommandProvider {
 		
 		args.assertSize(3);		
         
-		String attrName = (String)args.getArguments().get(1);
-		String path = (String) args.getArguments().get(2);
+		String attrName = args.getArgument(1);
+		String path = args.getArgument(2);
 		
 		final FileObject[] files = engine.pathToFiles(path);
         
@@ -82,9 +82,9 @@ public class Attrs extends AbstractCommand implements CommandProvider {
 		
 		args.assertSize(4);
         
-		String attrName = (String)args.getArguments().get(1);
-		String attrValue = (String)args.getArguments().get(2);
-		String path = (String) args.getArguments().get(3); 
+		String attrName = args.getArgument(1);
+		String attrValue = args.getArgument(2);
+		String path = args.getArgument(3); 
 		
 		final FileObject[] files = engine.pathToFiles(path);
         
@@ -114,7 +114,7 @@ public class Attrs extends AbstractCommand implements CommandProvider {
 		
 		args.assertSize(2);
         
-		String path = (String) args.getArguments().get(1);
+		String path = args.getArgument(1);
 		
 		final FileObject[] files = engine.pathToFiles(path);
         
