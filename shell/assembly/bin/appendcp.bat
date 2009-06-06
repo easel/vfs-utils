@@ -17,6 +17,6 @@ REM under the License.
 
 If %OS%'==Windows_NT' Set NTSwitch=/F "Tokens=*"
 If %OS%'==WINNT' Set NTSwitch=/F "Tokens=*"
-For %NTSwitch% %%V In (%1) Do set FTPD_CLASSPATH=%FTPD_CLASSPATH%;%%V
+For %NTSwitch% %%V In (%1) Do set VFSH_CLASSPATH=%VFSH_CLASSPATH%;%%V
 
 
