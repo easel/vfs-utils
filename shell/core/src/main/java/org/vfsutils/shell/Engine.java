@@ -489,13 +489,24 @@ public class Engine {
 	 * @throws FileSystemException
 	 */
 	public FileObject[] pathToFiles(String pathPattern) throws FileSystemException, IllegalArgumentException {		
+		return pathToFiles(pathPattern, false);
+	}
+	
+	/**
+	 * Resolves files. The returned files (or folders) are guaranteed to exist.
+	 * @param pathPattern
+	 * @param depthFirst
+	 * @return
+	 * @throws FileSystemException
+	 */
+	public FileObject[] pathToFiles(String pathPattern, boolean depthFirst) throws FileSystemException, IllegalArgumentException {		
 		
 		if (pathPattern.indexOf('*')>-1) {
 			FilenameSelector selector = new FilenameSelector();
 			selector.setName(pathPattern);
 			
 			List selected = new ArrayList();
-			getCwd().findFiles(selector, false, selected);
+			getCwd().findFiles(selector, depthFirst, selected);
 			
 			FileObject[] array = (FileObject[])selected.toArray(new FileObject[selected.size()]);
 			return array;
