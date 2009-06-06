@@ -36,7 +36,7 @@
    </parent>
 
    <build>
-     <finalName>apache-${project.artifactId}-${project.version}</finalName>
+     <finalName>${project.artifactId}-${project.version}</finalName>
   
    
      <plugins>
