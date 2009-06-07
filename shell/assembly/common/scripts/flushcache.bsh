@@ -1,0 +1,16 @@
+import org.apache.commons.vfs.*;
+import org.apache.commons.vfs.impl.*;
+
+FileSystemManager mgr = engine.getMgr();
+if (mgr instanceof DefaultFileSystemManager) {
+
+	args.assertSize(1);
+
+	FileObject[] files = engine.pathToFiles(args.getArgument(0));
+
+	for (file : files) {
+		((DefaultFileSystemManager) mgr).getFilesCache().removeFile(file.getFileSystem(), file.getName());
+		engine.println("Removed " + file.getName().getBaseName() + " from cache");
+	}
+	
+}

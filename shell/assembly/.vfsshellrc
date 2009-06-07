@@ -1,0 +1,2 @@
+register common/scripts/*
+register local/scripts/*

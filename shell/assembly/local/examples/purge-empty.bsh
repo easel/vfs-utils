@@ -1,0 +1,18 @@
+import org.apache.commons.vfs.*;
+import org.apache.commons.vfs.impl.*;
+
+FileSystemManager mgr = engine.getMgr();
+if (mgr instanceof DefaultFileSystemManager) {
+
+	args.assertSize(1);
+
+	FileObject[] files = engine.pathToFiles(args.getArgument(0), true);
+	
+	for (int i=0; i<files.length;i++) {
+		FileObject file = files[i];
+		if (file.exists() && file.getType().equals(FileType.FOLDER) && file.getChildren().length==0) {
+			file.delete(Selectors.SELECT_SELF);
+			engine.println("Purged empty " + file.getName().getBaseName());
+		}	
+	}
+}

@@ -29,7 +29,9 @@
             <includes>
                 <include>README.txt</include>
                 <include>LICENSE.*.txt</include>
+				<include>.vfsshellrc</include>
                 <include>common/**</include>
+				<include>local/**</include>
             </includes>
         </fileSet>
         <fileSet>
