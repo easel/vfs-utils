@@ -51,7 +51,12 @@ if "%OS%"=="WINNT" set DEFAULT_VFSH_HOME=%~dp0\..
 if "%VFSH_HOME%"=="" set VFSH_HOME=%DEFAULT_VFSH_HOME%
 
 rem ----- Create CLASSPATH --------------------------------------------
-set VFSH_CLASSPATH=%CLASSPATH%;%VFSH_HOME%\common\classes;
+set VFSH_CLASSPATH=%CLASSPATH%;%VFSH_HOME%\local\classes;%VFSH_HOME%\common\classes
+
+cd /d "%VFSH_HOME%\local\lib"
+for %%i in ("*.jar") do call "%VFSH_HOME%\bin\appendcp.bat" "%VFSH_HOME%\local\lib\%%i"
+cd /d %VFSH_HOME%
+
 cd /d "%VFSH_HOME%\common\lib"
 for %%i in ("*.jar") do call "%VFSH_HOME%\bin\appendcp.bat" "%VFSH_HOME%\common\lib\%%i"
 cd /d %VFSH_HOME%

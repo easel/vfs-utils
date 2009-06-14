@@ -107,10 +107,20 @@ fi
 # Build classpath
 #
 if [ "$cygwin" = "true" ] ; then
-    VFSH_CLASSPATH=$CLASSPATH$S`cygpath -w $VFSH_HOME/common/classes`
+    VFSH_CLASSPATH=$CLASSPATH$S`cygpath -w $VFSH_HOME/local/classes`$S`cygpath -w $VFSH_HOME/common/classes`
 else
-    VFSH_CLASSPATH=$CLASSPATH$S$VFSH_HOME/common/classes
+    VFSH_CLASSPATH=$CLASSPATH$S$VFSH_HOME/local/classes$S$VFSH_HOME/common/classes
 fi
+
+for i in $VFSH_HOME/local/lib/*.jar; do
+  if [ "$cygwin" = "true" ] ; then
+    LIB=`cygpath -w $i`
+  else
+    LIB=$i
+  fi
+
+  VFSH_CLASSPATH=$VFSH_CLASSPATH$S$LIB
+done
 
 for i in $VFSH_HOME/common/lib/*.jar; do
   if [ "$cygwin" = "true" ] ; then
