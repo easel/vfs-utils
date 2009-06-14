@@ -1,0 +1,4 @@
+VFS Shell
+Copyright 2008-2009 kleij@users.sourceforge.net
+
+
