@@ -75,7 +75,7 @@
             <outputDirectory>common/lib</outputDirectory>
             <scope>runtime</scope>
              <excludes>
-                <exclude>org.vfsutils.shell:vfsutils-shell-assembly</exclude>
+                <exclude>org.vfsutils.shell:vfsshell</exclude>
              </excludes>
         </dependencySet>
     </dependencySets>
