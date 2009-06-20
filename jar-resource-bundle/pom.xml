@@ -21,51 +21,54 @@
       xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	
    <modelVersion>4.0.0</modelVersion>
-   <packaging>pom</packaging>
+   <packaging>jar</packaging>
 	
-   <name>VFS Shell Root</name>
+   <name>VFS Utils Jar Resource Bundle</name>
    <groupId>org.vfsutils</groupId>
-   <artifactId>vfsutils-shell</artifactId>
+   <artifactId>vfsutils-jar-resource-bundle</artifactId>
    <version>0.1.0-SNAPSHOT</version>
-   <description>Shell for VFS</description>
+   <description>Resource bundle jar for VFS utils</description>
 	
    <parent>
       <groupId>org.vfsutils</groupId>
       <artifactId>vfsutils</artifactId>
       <version>0.1.0-SNAPSHOT</version>
    </parent>
-
-   <modules>
-    <module>core</module>
-	<module>jline</module>
-	<module>assembly</module>
-  </modules>
-   
-   <licenses>
-      <license>
-         <name>The Apache Software License, Version 2.0</name>
-         <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-         <distribution>repo</distribution>
-      </license>
-   </licenses>
- 
+    
    <build>
       <plugins>
-         <plugin>
-            <artifactId>maven-site-plugin</artifactId>
-            <configuration>
-               <locales>en</locales>
-            </configuration>
-         </plugin>
+	   <plugin>      
+        <artifactId>maven-remote-resources-plugin</artifactId>        
+        <executions>
+          <execution>
+            <goals>
+              <goal>bundle</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+		 <!--
 		 <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-compiler-plugin</artifactId>
-			<configuration>
-				<source>1.4</source>
-				<target>1.4</target>
-			</configuration>
-		 </plugin>
-		 	
+			<artifactId>maven-remote-resources-plugin</artifactId>
+			<version>1.0</version>
+			<executions>
+			  <execution>
+				<goals>
+				  <goal>process</goal>
+				</goals>
+				<configuration>
+				  <resourceBundles>
+					<resourceBundle>org.apache:apache-jar-resource-bundle:1.1</resourceBundle>
+				  </resourceBundles>
+				  <properties>
+					<addLicense>true</addLicense>
+				  </properties>
+				</configuration>
+			  </execution>
+			</executions>
+		  </plugin>
+-->
 		</plugins>
    </build>
    <reporting>

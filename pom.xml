@@ -28,6 +28,7 @@
   <inceptionYear>2008</inceptionYear>
 
   <modules>
+    <module>jar-resource-bundle</module>
     <module>ftpserver</module>
     <module>utils</module>
 	<module>shell</module>
@@ -65,7 +66,7 @@
 
   <contributors>
   </contributors>
-
+  
   <!--
   <repositories>
     <repository>

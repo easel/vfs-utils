@@ -31,7 +31,7 @@
 	
    <parent>
       <groupId>org.vfsutils</groupId>
-      <artifactId>shell</artifactId>
+      <artifactId>vfsutils-shell</artifactId>
       <version>0.1.0-SNAPSHOT</version>
    </parent>
 
