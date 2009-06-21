@@ -26,6 +26,12 @@
 		<copy todir="target/dist/site/shell">
 			<fileset dir="shell/target/site"/>
 		</copy>
+		<copy todir="target/dist/site/shell/core/apidocs">
+		    <fileset dir="shell/core/target/site/apidocs"/>
+		</copy>
+		<copy todir="target/dist/site/shell/jline/apidocs">
+		    <fileset dir="shell/jline/target/site/apidocs"/>
+		</copy>
 		<copy todir="target/dist/site/utils">
 			<fileset dir="utils/target/site"/>
 		</copy>

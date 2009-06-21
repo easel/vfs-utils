@@ -47,13 +47,15 @@ Other VFS clients
  
 News
 
+  * 21-06-2009: Added a binary distribution for VFS Shell.
+
   * 18-04-2009: Updated utils and shell snapshots for sysinfo and others
 
   * 22-03-2009: Updated shell snapshots for sync and md5 support
   
   * 12-03-2009: First release of snapshot of VFS Shell, JLine integration and Utils
   
-  * 01-03-2009: First release of VFS FTP Server bridge to work with Mina FTP 1.0
+  * 01-03-2009: First release of VFS FTP Server bridge to work with Mina FTP 1.0.x
 
   * 15-02-2009: Added JLine integration
 

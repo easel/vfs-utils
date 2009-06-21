@@ -23,6 +23,7 @@
 	  <item name="JLine" href="jline.html"/>
       <item name="Configuration" href="configuration.html"/>
 	  <item name="Commands" href="commands.html"/>
+	  <item name="Distribution" href="assembly.html"/>
     </menu>
 
     <menu ref="reports"/>

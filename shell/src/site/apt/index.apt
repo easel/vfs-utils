@@ -20,10 +20,14 @@ VFS Shell
  You can setup the environment using scripts that are loaded when the shell starts, see 
  {{{configuration.html} Configuration}}.
  
- Make sure to check out the integration with {{{http://jline.sourceforge.net}JLine}} using the
- {{{./jline.html}VFS JLine Shell}}.
+ You can use {{{http://jline.sourceforge.net}JLine}} with the
+ {{{./jline.html}VFS JLine Shell}} integration.
  It adds tab completion for commands and file names and does password masking on the open command. 
- This makes the Shell a whole lot more professional.
+ This makes the Shell a whole lot more professional. In the binary distribution JLine is enabled by default.
+ 
+* Download
+
+ You can download the binary distribution or the individual libraries at {{{https://sourceforge.net/project/showfiles.php?group_id=243452&package_id=310275}the SourceForge download page}}.
  
 * Commands 
  

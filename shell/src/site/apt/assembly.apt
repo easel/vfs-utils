@@ -1,0 +1,30 @@
+ -----
+ VFS Shell Assembly
+ -----
+ kleij - at - users.sourceforge.net
+ -----
+
+VFS Shell binary distribution
+
+ The binary distribution of the VFS Shell contains everything you need to start using the shell; it includes all the VFS Shell libraries but also all VFS core and sandbox libraries.
+ 
+ You can add your own VFS Plugin libraries easily and keep them separated from the main installation.
+ 
+ The distribution contains the following folder structure:
+ 
+------------
+
+ bin               : start-up scripts
+ common            : default libraries, scripts and configuration files
+    classes        : log4j properties
+	lib            : all libraries
+    scripts        : default vfsshell scripts
+ local             : put your own libraries, scripts and configuration files here
+    classes        : classes or configuration files
+	examples       : some example scripts
+    lib            : libraries
+	scripts        : scripts 
+
+------------
+
+ JLine integration is activated by default. If you don't want to use JLine you can change the startup script and start using org.vfsutils.shell.Shell.
