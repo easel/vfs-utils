@@ -17,13 +17,13 @@ VFS Shell binary distribution
  bin               : start-up scripts
  common            : default libraries, scripts and configuration files
     classes        : log4j properties
-	lib            : all libraries
+    lib            : all libraries
     scripts        : default vfsshell scripts
  local             : put your own libraries, scripts and configuration files here
     classes        : classes or configuration files
-	examples       : some example scripts
+    examples       : some example scripts
     lib            : libraries
-	scripts        : scripts 
+    scripts        : scripts 
 
 ------------
 
