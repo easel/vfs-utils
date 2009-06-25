@@ -24,7 +24,7 @@ public class Shell extends org.vfsutils.shell.Shell {
 		super();
 		this.engine = new Engine(this);
 		this.consoleReader = new MaskingConsoleReader(in, new PrintWriter(System.out));
-		ArgumentCompletor completor = new ArgumentCompletor(new Completor[] { new CommandCompletor(this.engine), new VfsFileNameCompletor(this.engine, true)});
+		ArgumentCompletor completor = new ArgumentCompletor(new Completor[] { new CommandCompletor(this.engine), new VfsFileNameCompletor(this.engine, true)}, new CustomArgumentDelimiter());
 		completor.setStrict(false);
 		this.consoleReader.addCompletor(completor);
 		this.reader = new InputStreamReader(new ConsoleReaderInputStream(consoleReader));
