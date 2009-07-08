@@ -1,79 +1,172 @@
 package org.vfsutils.shell.jline;
 
-import org.vfsutils.shell.CommandParser;
-import org.vfsutils.shell.DefaultCommandParser;
+import java.util.ArrayList;
+import java.util.List;
 
-import jline.ArgumentCompletor.WhitespaceArgumentDelimiter;
+import org.vfsutils.shell.StringSplitter;
+
 import jline.ArgumentCompletor.ArgumentDelimiter;
 import jline.ArgumentCompletor.ArgumentList;
 
-public class CustomArgumentDelimiter extends WhitespaceArgumentDelimiter
-		implements ArgumentDelimiter {
+public class CustomArgumentDelimiter 
+		extends StringSplitter implements ArgumentDelimiter {
 
-	public boolean isEscaped(String buffer, int pos) {
-		if (pos <= 0) {
-			return false;
-		}
-
-		for (int i = 0; (getEscapeChars() != null) && (i < getEscapeChars().length); i++) {
-			if (buffer.charAt(pos-1) == getEscapeChars()[i]) {
-				if (pos-2<0) {
-					return true;
-				}
-				else {
-					return !isEscaped(buffer, pos - 2); // escape escape
-				}
-			}
-		}
-
-		return false;
-	}
-
-	/*public boolean isQuoted(String buffer, int pos) {
+	
+	public ArgumentList delimit(String buffer, int pos) {
+		List parts = new ArrayList();
+		
+		char[] chars = buffer.toCharArray();
+		
+		int token = -1;
+		int posInToken = -1;
+		
+		StringBuffer part = new StringBuffer();
 		
 		boolean escaped = false;
-		boolean inGroup = false;
+		boolean quoted = false;
 		//initialized on dummy value
-		char groupingChar = '0';
+		char quoteChar = '0';
 		
 		char c;
-		for (int i=0; i < pos; i++) {
-			c = buffer.charAt(i);
-			//reset escape
-			escaped = false;
-			
-			//if escaped, skip escape character
-			if (c=='\\') {
-				escaped = true;
-				//skip to next
-				i++;
-				//stop if at end
-				if (i>=pos) break;
-				//reassign c
-				c = buffer.charAt(i);
+		for (int i=0; i < chars.length; i++) {
+			c = chars[i];
+
+			//check if position was reached
+			if (i==pos) {
+				//the current position is reached
+				token = parts.size();
+				posInToken = part.length();
 			}
+
 			
-			if (c=='"' || c=='\'') {
+			if (isEscape(c)) {
 				if (escaped) {
-					//do nothing
-				}
-				else if (inGroup && groupingChar==c) {
-					inGroup = false;
-				}
-				else if (inGroup) {
-					//do nothing
+					//escaped escape
+					escaped = false;
+					part.append(c);
 				}
 				else {
-					inGroup=true;
-					groupingChar=c;
+					escaped = true;
+					part.append(c);
 				}
 			}
+			else if (isQuote(c)) {
+				if (escaped) {
+					//reset escape
+					escaped = false;
+					part.append(c);					
+				}
+				else if (quoted && quoteChar==c) {
+					quoted = false;
+					part.append(c);
+				}
+				else if (quoted) {
+					part.append(c);
+				}
+				else {
+					quoted=true;
+					quoteChar=c;
+					part.append(c);
+				}
+			}
+			else if (isDelimiter(c)) {
+				if (escaped || quoted) {
+					escaped = false;
+					part.append(c);
+				}
+				else {
+					//when space (and not escaped) split
+					addPart(parts, part);
+				}
+			}
+			else {
+				escaped = false;
+				part.append(c);
+			}
 			
-			System.out.println(pos + " " + inGroup);
+			
 		}
 		
-		return inGroup;
+		//treat left-overs (even when empty)		
+		parts.add(part.toString());		
+		
+		if (chars.length==pos) {
+			//the last position matches
+			token = parts.size()-1;
+			posInToken = ((String)parts.get(parts.size()-1)).length();
+		}
+		
+		
+		String[] result = new String[parts.size()];
+		
+		return new ArgumentList((String[]) parts.toArray(result), token, posInToken, pos);
 	}
-	*/
+
+	public boolean isDelimiter(String buffer, int pos) {
+		
+		boolean isDelimiter = false;
+		
+		char[] chars = buffer.toCharArray();
+	
+		boolean escaped = false;
+		boolean quoted = false;
+		//initialized on dummy value
+		char quoteChar = '0';
+		
+		char c;
+		for (int i=0; i <= Math.min(chars.length-1, pos); i++) {
+			c = chars[i];
+
+			if (isEscape(c)) {
+				if (escaped) {
+					//escaped escape
+					escaped = false;
+					isDelimiter = false;
+				}
+				else {
+					escaped = true;
+					isDelimiter = false;
+				}
+			}
+			else if (isQuote(c)) {
+				if (escaped) {
+					//reset escape
+					escaped = false;
+					isDelimiter = false;					
+				}
+				else if (quoted && quoteChar==c) {
+					quoted = false;
+					isDelimiter = false;
+				}
+				else if (quoted) {
+					isDelimiter = false;
+				}
+				else {
+					quoted=true;
+					quoteChar=c;
+					isDelimiter = false;
+				}
+			}
+			else if (isDelimiter(c)) {
+				if (escaped || quoted) {
+					escaped = false;
+					isDelimiter = false;
+				}
+				else {
+					//when space (and not escaped) split
+					isDelimiter = true;
+				}
+			}
+			else {				
+				escaped = false;				
+				isDelimiter = false;
+			}
+			
+		}		
+		
+	    return isDelimiter;
+		
+	}
+
 
 }

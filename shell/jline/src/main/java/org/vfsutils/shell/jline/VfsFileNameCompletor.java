@@ -10,6 +10,7 @@ import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.vfsutils.shell.Engine;
+import org.vfsutils.shell.StringSplitter;
 
 /**
  * VFS FileName completion for JLine. It supports case sensitiveness and
@@ -42,36 +43,52 @@ public class VfsFileNameCompletor implements Completor {
 		
 		int replaceAt = 0;
 		try {
-				
+			
+			StringSplitter splitter = engine.getCommandParser();
+			
 			FileObject parent;
+			//should contain a normalized form (without non-significant quotes
+			//and with escaped whitespace and significant quotes)
 			String match;
 			
 			if (buffer==null || buffer.length()==0) {
 				//empty buffer
 				parent = engine.getCwd();
 				match="";
-				replaceAt = cursor;
-			}
-			else if (buffer.endsWith("/")) {
-				//directory
-				parent = engine.pathToFile(buffer);
-				match="";
-				replaceAt = cursor;
-			}
-			else if (buffer.indexOf("/")>-1) {
-				//multilevel partial path
-				FileObject selected = engine.pathToFile(buffer);
-				parent = selected.getParent();
-				match = selected.getName().getBaseName();
-				replaceAt = buffer.lastIndexOf('/')+1;
-			}
-			else {
-				//single level partial path
-				parent = engine.getCwd();
-				match = buffer;
 				replaceAt = 0;
 			}
-	
+			else {
+				String workBuffer = buffer;
+				//if the cursor comes before the end of the buffer then
+				//only work on the part until the cursor
+				if (cursor<buffer.length()) {
+					//reduce to the cursor
+					workBuffer = buffer.substring(0, cursor);
+				}
+				
+				if (workBuffer.endsWith("/")) {
+					//directory
+					String filePath = splitter.removeQuotesAndEscapes(workBuffer);
+					parent = engine.pathToFile(filePath);
+					match="";
+					replaceAt = cursor;
+				}
+				else if (workBuffer.indexOf("/")>-1) {
+					//multilevel partial path
+					String filePath = splitter.removeQuotesAndEscapes(workBuffer);
+					FileObject selected = engine.pathToFile(filePath);
+					parent = selected.getParent();
+					match = splitter.escapeWhitespaceAndQuotes(selected.getName().getBaseName());
+					replaceAt = workBuffer.lastIndexOf('/')+1;
+				}
+				else {
+					//single level partial path
+					parent = engine.getCwd();
+					match = splitter.escapeWhitespaceAndQuotes(splitter.removeQuotesAndEscapes(workBuffer));
+					replaceAt = 0;
+				}
+			}
+			
 			//if the parent does not exist there can be no completion
 			if (parent.exists()) {
 				
@@ -97,7 +114,7 @@ public class VfsFileNameCompletor implements Completor {
 						FileObject child = children[i];
 
 						String name = child.getName().getBaseName() + (child.getType().equals(FileType.FOLDER)?"/":"");
-						name = engine.escapeWhitespace(name);
+						name = splitter.escapeWhitespaceAndQuotes(name);
 						
 						//cache
 						if (cacheLast) this.lastChildren.add(name);

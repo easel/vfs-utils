@@ -20,10 +20,17 @@ public class CommandCompletor implements Completor {
 	public int complete(String buffer, int cursor, List candidates) {
 		Set commands = engine.getCommandRegistry().getAllCommands();
 		
+		String workBuffer = buffer;
+		//if the cursor is before the end of the buffer
+		//then only regard the part until the cursor
+		if (cursor<buffer.length()) {
+			workBuffer = buffer.substring(0, cursor);
+		}
+		
 		Iterator iterator = commands.iterator();
 		while (iterator.hasNext()) {
 			String cmd = (String) iterator.next();
-			if (cmd.startsWith(buffer)) {
+			if (cmd.startsWith(workBuffer)) {
 				candidates.add(cmd);
 			}
 		}
