@@ -544,38 +544,7 @@ public class Engine {
 		buffer.append(input.substring(from));
 		
 		return buffer.toString();
-	}
+	}	
 	
-	
-	/**
-	 * Escapes characters by adding a backslash before it
-	 * @param input
-	 * @param match
-	 * @return
-	 */
-	protected String escape(String input, char match) {
-		StringBuffer buffer = new StringBuffer(input.length()+5);
-		char[] chars = input.toCharArray();
-		
-		for (int i=0; i < chars.length; i++) {
-			char c = chars[i];
-			if (c==match) {
-				buffer.append('\\');
-			}
-			buffer.append(c);
-		}
-		
-		return buffer.toString();
-
-	}
-	
-	/**
-	 * Escapes whitespace in the input 
-	 * @param input
-	 * @return input string with escaped whitespace
-	 */
-	public String escapeWhitespace(String input) {		
-		return escape(input, ' ');
-	}
 
 }
