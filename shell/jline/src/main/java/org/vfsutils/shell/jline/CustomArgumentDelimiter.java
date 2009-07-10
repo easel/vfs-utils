@@ -12,6 +12,11 @@ public class CustomArgumentDelimiter
 		extends StringSplitter implements ArgumentDelimiter {
 
 	
+	/**
+	 * Splits the buffer and gives information about the position.
+	 * It differs from a normal split in that it keeps all characters
+	 * and does not remove control characters like quotes or escapes.
+	 */
 	public ArgumentList delimit(String buffer, int pos) {
 		List parts = new ArrayList();
 		
@@ -82,13 +87,11 @@ public class CustomArgumentDelimiter
 			else {
 				escaped = false;
 				part.append(c);
-			}
-			
-			
+			}			
 		}
 		
 		//treat left-overs (even when empty)		
-		parts.add(part.toString());		
+		addPart(parts, part, true);	
 		
 		if (chars.length==pos) {
 			//the last position matches
@@ -102,6 +105,11 @@ public class CustomArgumentDelimiter
 		return new ArgumentList((String[]) parts.toArray(result), token, posInToken, pos);
 	}
 
+	/**
+	 * Tells whether the character at the given position is a delimiter.
+	 * It analyzes all characters from the beginning of the buffer up until
+	 * the position because of possible quoting.
+	 */
 	public boolean isDelimiter(String buffer, int pos) {
 		
 		boolean isDelimiter = false;
