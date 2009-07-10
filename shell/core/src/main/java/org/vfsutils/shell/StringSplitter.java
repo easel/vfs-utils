@@ -50,26 +50,19 @@ public class StringSplitter {
 		char c;
 		for (int i=0; i < chars.length; i++) {
 			c = chars[i];
-			//reset escape
-			escaped = false;
 			
-			//if escaped, skip escape character
-			if (c=='\\') {
+			if (isEscape(c)) {
 				escaped = true;
-				//skip to next
-				i++;
-				//stop if at end
-				if (i>=chars.length) break;
-				//reassign c
-				c = chars[i];
+				//skip escape character
 			}
-			
-			if (c=='"' || c=='\'') {
+			else if (isQuote(c)) {
 				if (escaped) {
+					escaped = false;
 					part.append(c);
 				}
 				else if (quoted && quoteChar==c) {
 					quoted = false;
+					//skip quote
 				}
 				else if (quoted) {
 					part.append(c);
@@ -77,10 +70,12 @@ public class StringSplitter {
 				else {
 					quoted=true;
 					quoteChar=c;
+					//skip quote
 				}
 			}
-			else if (c==' ' || c=='\n') {
+			else if (isDelimiter(c)) {
 				if (escaped || quoted) {
+					escaped = false;
 					part.append(c);
 				}
 				else {
@@ -89,6 +84,7 @@ public class StringSplitter {
 				}
 			}
 			else {
+				escaped = false;
 				part.append(c);
 			}
 		}
@@ -171,13 +167,26 @@ public class StringSplitter {
 	
 	/**
 	 * Adds the content of the buffer to the list of parts
-	 * and empties the buffer. 
-	 * @param parts
-	 * @param part
+	 * and empties the buffer. If the buffer is empty it is
+	 * not added.
+	 * @param parts the list of strings to add the part to
+	 * @param part the buffer that will be added and emptied
 	 */
 	protected void addPart(List parts, StringBuffer part) {
+		addPart(parts, part, false);
+	}
+	
+	/**
+	 * Adds the content of the buffer to the list of parts
+	 * and empties the buffer. 
+	 * @param parts the list of strings to add the part to
+	 * @param part the buffer that will be added and emptied
+	 * @param addIfEmpty if true, the part will be added even
+	 * when it is empty
+	 */
+	protected void addPart(List parts, StringBuffer part, boolean addIfEmpty) {
 		
-		if (part.length()==0) return;
+		if (!addIfEmpty && part.length()==0) return;
 		
 		parts.add(part.toString());
 		part.delete(0, part.length());
