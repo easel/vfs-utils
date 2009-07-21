@@ -25,19 +25,19 @@ public class VfsShellFactory implements ShellFactory {
 	
 	
 	private FileSystemManager fsManager;
-	private String rootPath = null;
+	private String path = null;
 	
 	public VfsShellFactory(FileSystemManager fsManager) {
 		this.fsManager = fsManager;
 	}
 
-	public VfsShellFactory(FileSystemManager fsManager, String rootPath) {
+	public VfsShellFactory(FileSystemManager fsManager, String path) {
 		this.fsManager = fsManager;
-		this.rootPath = rootPath;
+		this.path = path;
 	}
 	
 	public Shell createShell() {
-		return new VfsShell(fsManager, rootPath);
+		return new VfsShell(fsManager, path);
 	}
 	
 	

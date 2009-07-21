@@ -75,15 +75,11 @@ public class VfsShell implements Shell, ConsoleInterface, Runnable {
 		
 		//TEMP: intialize session values
 		FileObject storedRoot = VfsShellFactory.vfsRoot.get();
-		//rest
-		VfsShellFactory.vfsRoot.set(null);
 		if (storedRoot != null) {
 			this.root = storedRoot;
 		}
 		
 		String storedPath = VfsShellFactory.vfsPath.get();
-		//reset
-		VfsShellFactory.vfsPath.set(null);
 		if (storedPath != null) {
 			this.path = storedPath;
 		}

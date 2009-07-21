@@ -74,12 +74,16 @@ public class ShellServer {
 			VfsShellFactory shellFactory = new VfsShellFactory(fsManager, path);
 			sshd.setShellFactory(shellFactory);
 			
+			VfsScpCommandFactory commandFactory = new VfsScpCommandFactory(fsManager, path);
+			sshd.setCommandFactory(commandFactory);
+			
 			VfsPasswordAuthenticator pwdAuth = new VfsPasswordAuthenticator(fsManager, root, virtual);
 			if (domain != null) {
 				pwdAuth.setDomain(domain);
 			}
 			
 			sshd.setPasswordAuthenticator(pwdAuth);
+			
 			sshd.start();
 		}
 		catch (Exception e) {
