@@ -99,5 +99,11 @@ public class StringSplitterTest extends TestCase {
 		assertEquals("\"hello world/don't/one\"", splitter.unescapeWhiteSpaceAndQuotes("\"hello world/don't/one\""));
 	}
 	
+	public void testNormalize() {
+		char[] input = new char[]{'h', 'a', 'l', '\b', '\b', 'e', 'l', 'l', 'o', '\t', 'w', 'o', 'r', 'l', 't', '\u007f', 'd'};
+		assertEquals("hello world", splitter.normalize(new String(input)));
+
+	}
+	
 
 }

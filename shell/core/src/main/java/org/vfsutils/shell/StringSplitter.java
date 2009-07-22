@@ -29,8 +29,36 @@ public class StringSplitter {
 	}
 	
 	/**
+	 * Applies backspaces and delete and transforms tabs to spaces
+	 * @param line
+	 * @return
+	 */
+	protected String normalize(String line) {
+		
+		char[] chars = line.toCharArray();
+		StringBuffer buffer = new StringBuffer(chars.length);
+		char c;
+		
+		for (int i=0; i< chars.length; i++) {
+			c = chars[i];
+			
+			//String hexCode = Integer.toHexString(Character.codePointAt(chars, i));
+            //hexCode = "\\u" + "0000".substring(0, 4-hexCode.length()) + hexCode;
+            
+			switch (c) {
+				case '\t': buffer.append(' '); break; //tab
+				case '\b': if (buffer.length()>0) buffer.deleteCharAt(buffer.length()-1); break; //backspace
+				case '\u007f': if (buffer.length()>0) buffer.deleteCharAt(buffer.length()-1); break; //delete
+				default  : buffer.append(c); 
+			}
+		}
+		return buffer.toString();
+	}
+	
+	/**
 	 * Splits a line in tokens at whitespace boundaries. Whitespace can be escaped by a backslash and 
 	 * quoted blocks (single or double quotes) to avoid a split.
+	 * Backspaces and deletes will be applied before splitting and tabs are converted to spaces.
 	 * @param line
 	 * @return the tokens after the split at whitespace
 	 */
@@ -38,7 +66,7 @@ public class StringSplitter {
 		
 		List parts = new ArrayList();
 		
-		char[] chars = line.toCharArray();
+		char[] chars = normalize(line).toCharArray();
 		
 		StringBuffer part = new StringBuffer();
 		
