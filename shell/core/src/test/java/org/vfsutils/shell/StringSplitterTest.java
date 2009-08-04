@@ -101,8 +101,14 @@ public class StringSplitterTest extends TestCase {
 	
 	public void testNormalize() {
 		char[] input = new char[]{'h', 'a', 'l', '\b', '\b', 'e', 'l', 'l', 'o', '\t', 'w', 'o', 'r', 'l', 't', '\u007f', 'd'};
-		assertEquals("hello world", splitter.normalize(new String(input)));
+		
+		String line = new String(input);
+		assertEquals("hello\tworld", splitter.normalize(line));
 
+		String[] result = splitter.split(line);
+		assertEquals(2, result.length);
+		assertEquals("hello", result[0]);
+		assertEquals("world", result[1]);
 	}
 	
 
