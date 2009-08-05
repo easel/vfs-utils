@@ -67,9 +67,26 @@ VFS Shell Commands
  * {{{#sysinfo}sysinfo}}
  
  * {{{#touch}touch}}  
+ 
+ * {{{#unregister}unregister}}
+ 
+ * {{{#xslt}xslt}}  
 
 []
 
+ <<Boxed commands:>>
+ 
+ Boxed commands are commands that are used in a boxed shell that confines the user to a specific file system and limits the configurability of the system. They are typically used in a server environment where you would want to avoid the user from accessing the local files or from adding harmful commands.
+ 
+ * {{{#boxed-open}boxed-open}}
+
+ * {{{#boxed-register}boxed-register}}
+ 
+ * {{{#boxed-unregister}boxed-unregister}}
+ 
+ * {{{#boxed-xslt}boxed-xslt}}
+ 
+[]
 
 * {assert}
 
@@ -543,4 +560,59 @@ VFS Shell Commands
 * {touch}
 
  Resets the modification date of a file (if supported by its filesystem). 
+ 
+* {unregister}
+
+ Unregisters commands. If flag --all is given then all commands are removed from the registry except register, unregister and help commands. These commands can be removed by explicitly calling a remove on them though. When you unregister the unregister command you can not unregister anymore (unless you register it again ;-)).
+
+----------
+ unregister md5 hash
+ unregister --all
+ unregister register help unregister 
+---------- 
+ 
+* {xslt}
+
+ Performs an XSL transformation. It supports different modes: sax, dom and stream which influences the way the
+ source xml and xsl files are read (the default mode is sax). Except for the stream mode a VFS enables entity 
+ resolver is used by the XML parser. The URI resolver used by the transformation is also VFS enabled. If you 
+ don't specify an output file the result is written to the console. 
+ 
+ You can cache the compiled XSL file using the -c flag.
+ 
+ All parameters that are given are forward to the XSL as parameters.
+ 
+ Examples :
+ 
+------------------
+ xslt in.xml transform.xsl
+ xslt in.xml transform.xsl result.html --param1=a --param2=b
+ xslt file://d:/in.xml smb://host/folder/transform.xsl ram://data/result.xml -c
+-----------------
+ 
+Boxed commands
+
+* {boxed-open}
+
+ Opens layered file systems but not external ones.
+ 
+ See: {{{#open}open}}
+
+* {boxed-register} 
+
+ Allows registering VFS scripts, but not Beanshell scripts or Java classes. Does not allow replacing a Beanshell script or Java class by a VFS script.
+ 
+ See: {{{#register}register}}
+
+* {boxed-unregister}
+
+ Allows unregistering VFS scripts, but not Beanshell scripts or Java classes.
+ 
+ See: {{{#unregister}unregister}}
+
+* {boxed-xslt}
+
+ Does not allow references to external filesystems in the entities and uris in the XML and XSL files
+ 
+ See: {{{#xslt}xslt}}
  
