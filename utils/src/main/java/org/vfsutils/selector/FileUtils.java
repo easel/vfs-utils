@@ -23,8 +23,12 @@ public class FileUtils {
      * @return an instance of FileUtils.
      * @since Ant 1.6.3
      */
-    public static FileUtils getFileUtils() {
+    protected static FileUtils getFileUtils() {
         return PRIMARY_INSTANCE;
+    }
+    
+    private FileUtils() {
+    	
     }
     
 	/**

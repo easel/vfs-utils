@@ -7,6 +7,12 @@
 VFS Utils
 
  This project provides some utilities for the Apache Commons VFS library.
+
+ * MD5
+ 
+ * XML and XSL utilities
+ 
+ []
  
  See the javadocs for more details.
  
