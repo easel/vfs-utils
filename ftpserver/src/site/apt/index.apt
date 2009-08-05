@@ -48,3 +48,9 @@ VFS FTPServer Bridge
  configuration is described 
  {{{http://dctmvfs.sourceforge.net/ftpserver-vfs/configuration.html} there too}}.
  
+* TTD
+
+ * Support for file system options
+ 
+ []
+ 
