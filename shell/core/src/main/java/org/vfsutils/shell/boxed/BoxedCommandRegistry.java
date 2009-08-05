@@ -4,6 +4,9 @@ import org.vfsutils.shell.CommandRegistry;
 import org.vfsutils.shell.commands.Assert;
 import org.vfsutils.shell.commands.Attrs;
 import org.vfsutils.shell.commands.BoxedOpen;
+import org.vfsutils.shell.commands.BoxedRegister;
+import org.vfsutils.shell.commands.BoxedUnregister;
+import org.vfsutils.shell.commands.BoxedXslt;
 import org.vfsutils.shell.commands.Cat;
 import org.vfsutils.shell.commands.Cd;
 import org.vfsutils.shell.commands.Cp;
@@ -54,7 +57,9 @@ public class BoxedCommandRegistry extends CommandRegistry {
 		new Touch().register(this);		
 		new Assert().register(this);
 		new Echo().register(this);
-		
+		new BoxedXslt().register(this);
+		new BoxedRegister().register(this);
+		new BoxedUnregister().register(this);
 		new BoxedOpen().register(this);
 	}
 

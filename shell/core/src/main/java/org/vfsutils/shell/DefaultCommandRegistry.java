@@ -36,10 +36,12 @@ public class DefaultCommandRegistry extends CommandRegistry {
 		new Assert().register(this);
 		new Echo().register(this);
 		new Register().register(this);
+		new Unregister().register(this);
 		new Md5().register(this);
 		new Sync().register(this);
 		new Hash().register(this);
 		new Sysinfo().register(this);
+		new Xslt().register(this);
 	}
 	
 }

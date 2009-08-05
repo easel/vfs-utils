@@ -90,15 +90,26 @@ public class Shell implements bsh.ConsoleInterface {
 			file = new File(initFile);
 		}
 		if (file.exists()) {
+			Reader freader = null;
 			try {
 				this.println("Loading " + initFile);
-				FileReader freader = new FileReader(file);
+				freader = new FileReader(file);
 				this.engine.load(freader);
 				this.println("Done loading");
 			}
 			catch(Exception e) {
 				this.error("Error in script " + initFile + ": " + e.getMessage());
 				e.printStackTrace();
+			}
+			finally {
+				if (freader!=null) {
+					try {
+						freader.close();
+					}
+					catch (IOException e) {
+						//ignore
+					}
+				}
 			}
 		}
 	}

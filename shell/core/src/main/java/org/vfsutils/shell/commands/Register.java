@@ -38,7 +38,7 @@ public class Register extends AbstractCommand {
 	}
 	
 	public Register() {
-		super("register", new CommandInfo("Registers a script", "[<path>|<class>] --type={class|vfs|bsh} --name=<name> --description=<descr> --usage=<usage>"));
+		super("register", new CommandInfo("Registers a script", "<path>|<class> [--type={class|vfs|bsh}] [--name=<name>] [--description=<descr>] [--usage=<usage>] [--unregister]"));
 	}
 
 	public void execute(Arguments args, Engine engine)
@@ -49,21 +49,26 @@ public class Register extends AbstractCommand {
 		
 		String type = args.getOption("type");
 		
+		String target = args.getArgument(0);
+		String name = args.getOption("name");
+		String description = args.getOption("description");
+		String usage = args.getOption("usage");
+		
 		if ((type !=null && type.equals("class"))
-			|| (type == null && isClassName(args.getArgument(0)))) {
-			registerClass(args.getArgument(0), args.getOption("name"), args.getOption("description"), args.getOption("usage"), engine);
+			|| (type == null && isClassName(target))) {
+			registerClass(target, name, description, usage, engine);
 		}
 		else {		
-			FileObject[] files = engine.pathToFiles(args.getArgument(0));
+			FileObject[] files = engine.pathToFiles(target);
 			
 			if (files.length==0) {
 				engine.println("No files selected");
 			}
 			else if (files.length==1) {
-				registerScript(files[0], args.getOption("name"), args.getOption("description"), args.getOption("usage"), args.getOption("type"), engine);
+				registerScript(files[0], name, description, usage, type, engine);
 			}
 			else {
-				registerScripts(files, args.getOption("type"), engine);
+				registerScripts(files, type, engine);
 			}
 		}
 	}
@@ -109,9 +114,10 @@ public class Register extends AbstractCommand {
 			//the default
 			script.type = "vfs";
 		}
-		
+				
 		script.register(engine.getCommandRegistry());
-		engine.println("Registered " + script.type + " script " + fileName.toString() + " as " + name);
+		engine.println("Registered " + script.type + " script " + fileName.toString() + " as " + name);	
+		
 	}
 
 	public void registerClass(String className, String name, String description, String usage, Engine engine) throws CommandException {
@@ -138,6 +144,7 @@ public class Register extends AbstractCommand {
 				
 				command.register(engine.getCommandRegistry());
 				engine.println("Registered class " + className + " as " + command.getCommand());
+			
 			}
 			else {
 				throw new CommandException("Class " + className + " is not a valid Command");

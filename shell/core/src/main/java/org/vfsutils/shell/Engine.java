@@ -17,6 +17,7 @@ import org.apache.commons.vfs.FileSystem;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
+import org.vfsutils.VfsUtils;
 import org.vfsutils.selector.FilenameSelector;
 import org.vfsutils.shell.events.EngineEventListener;
 import org.vfsutils.shell.events.EngineEventManager;
@@ -422,11 +423,7 @@ public class Engine {
 	 * @return
 	 */
 	public String toString(FileObject file) {
-		String result = "";
-		if (file!=null) {
-			result = toString(file.getName());
-		}
-		return result;
+		return VfsUtils.toString(file);
 	}
 	
 	/**
@@ -435,13 +432,7 @@ public class Engine {
 	 * @return
 	 */
 	public String toString(FileName filename) {
-		String result = "";
-		if (filename!=null) {
-			String nameString = filename.getFriendlyURI();
-			//strip the password hiding (:*****)
-			result = nameString.replaceAll(":\\*+", "");
-		}
-		return result;
+		return VfsUtils.toString(filename);
 	}
 	
 	/**

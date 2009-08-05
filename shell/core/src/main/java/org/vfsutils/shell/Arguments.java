@@ -183,6 +183,11 @@ public class Arguments {
 		}
 	}
 	
+	public String getOption(String name, String defaultValue) {
+		String option = getOption(name);
+		return (option==null?defaultValue:option);
+	}
+	
 	public OptionMap getOptions() {
 		return this.options;
 	}
