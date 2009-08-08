@@ -64,16 +64,31 @@ public abstract class CommandParser extends StringSplitter {
 	 * @param cmd list of input strings
 	 * @return a filled-in Argument object
 	 */
-	public Arguments parse(String[] cmd) {		
+	public Arguments parse(String[] cmd) {
+		return parse(cmd, true);
+	}
+	
+	
+	/**
+	 * Transforms the list of strings to an Arguments object.
+	 * @param cmd list of input strings
+	 * @param containsCmd if true, the cmd is assumed at position 0, if false cmd is not set
+	 * @return a filled-in Argument in, cmd might be empty
+	 */
+	public Arguments parse(String[] cmd, boolean containsCmd) {		
 		
 		Arguments args = new Arguments();
 		
 		if (cmd.length>0) { 
 
-			args.setCmd(cmd[0]);
+			int argsStartAt = 0;
+			if (containsCmd) {
+				args.setCmd(cmd[0]);
+				argsStartAt = 1;
+			}
 			
 			//ignore the first entry
-			for (int i=1; i<cmd.length; i++) {
+			for (int i=argsStartAt; i<cmd.length; i++) {
 				String token = cmd[i];
 				
 				if (isFlag(token)) {

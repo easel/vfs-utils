@@ -1,16 +1,10 @@
 package org.vfsutils.shell;
 
-import java.util.Iterator;
-
 import org.vfsutils.shell.Arguments.Argument;
-import org.vfsutils.shell.Arguments.ArgumentList;
 import org.vfsutils.shell.Arguments.Cmd;
 import org.vfsutils.shell.Arguments.Flag;
-import org.vfsutils.shell.Arguments.FlagSet;
 import org.vfsutils.shell.Arguments.Option;
-import org.vfsutils.shell.Arguments.OptionMap;
 import org.vfsutils.shell.Arguments.Token;
-import org.vfsutils.shell.Arguments.TokenList;
 
 /**
  * Flags are one character and can be stuck together -ls is equal to -l -s

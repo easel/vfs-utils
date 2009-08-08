@@ -21,14 +21,14 @@ import org.vfsutils.shell.Arguments.Option;
 public class Load extends AbstractCommand implements CommandProvider {
 
 	public Load() {
-		super("load", new CommandInfo("Load a script", "[-c] <path>"));
+		super("load", new CommandInfo("Load a script", "[-ce] <path>"));
 	}
 
 	public void execute(Arguments args, Engine engine)
 			throws IllegalArgumentException, CommandException, FileSystemException {
 		
 		args.assertSize(1);
-
+		
 		if (args.hasFlag("c")) {
 			call(args, engine);
 		}
@@ -44,17 +44,19 @@ public class Load extends AbstractCommand implements CommandProvider {
 		
 		final FileObject file = engine.pathToExistingFile(path);
 		
+		boolean echo = args.hasFlag('e');
+		
 		Arguments largs = copyArgs(args);
 		try {
 			setArgs(engine, largs, true);
-			load(file, engine, true);
+			load(file, engine, true, echo);
 		}
 		finally {
 			setArgs(engine, largs, false);
 		}
 	}
 
-	public void load(final FileObject file, Engine engine, boolean haltOnError)
+	public void load(final FileObject file, Engine engine, boolean haltOnError, boolean echo)
 			throws CommandException, FileSystemException {
 
 		final InputStream in = file.getContent().getInputStream();
@@ -63,7 +65,7 @@ public class Load extends AbstractCommand implements CommandProvider {
 		boolean prevEchoOn = engine.isEchoOn();
 		try {
 			engine.setHaltOnError(haltOnError);
-			engine.setEchoOn(true);
+			engine.setEchoOn(echo);
 			engine.load(new InputStreamReader(in));
 		} catch (Exception e) {
 			throw new CommandException(e);
@@ -87,10 +89,14 @@ public class Load extends AbstractCommand implements CommandProvider {
 		String path = args.getArgument(0);
 		final FileObject file = engine.pathToExistingFile(path);
 		
+		boolean echo = args.hasFlag('e');
+		
 		Arguments largs = copyArgs(args);
 		
 		Engine newEngine = new Engine(engine.getConsole(), engine
 					.getCommandRegistry(), engine.getMgr());
+		
+		newEngine.setEchoOn(echo);
 			
 		setArgs(newEngine, largs, true);
 		call(file, newEngine);
@@ -144,7 +150,7 @@ public class Load extends AbstractCommand implements CommandProvider {
 		Iterator flagIterator = args.getFlags().iterator();
 		while (flagIterator.hasNext()) {
 			Flag flag = (Flag) flagIterator.next();
-			if (flag.getValue().equals("c")) {
+			if (flag.getValue().equals("c") || flag.getValue().equals("e")) {
 				//ignore it
 			}
 			else {

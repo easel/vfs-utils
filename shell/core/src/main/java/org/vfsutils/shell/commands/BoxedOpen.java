@@ -17,8 +17,8 @@ public class BoxedOpen extends Open {
 			throws FileSystemException, CommandException {
 
 		FileObject file;
-		if (path.indexOf("://") == -1) {
-			FileObject layeredFile = engine.pathToFile(path);
+		if (path.indexOf(":") == -1) {
+			FileObject layeredFile = engine.pathToExistingFile(path);
 
 			if (virtual) {
 				file = engine.getMgr().createVirtualFileSystem(layeredFile);
@@ -27,7 +27,7 @@ public class BoxedOpen extends Open {
 			}
 
 		} else {
-			throw new CommandException("Only relative paths are allowed");
+			throw new CommandException("Only local paths are allowed");
 		}
 
 		return file;

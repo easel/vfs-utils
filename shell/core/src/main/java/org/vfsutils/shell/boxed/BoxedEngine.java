@@ -45,26 +45,42 @@ public class BoxedEngine extends Engine {
 	}
 
 	public FileObject pathToFile(String path) throws FileSystemException {
-		if (path.indexOf("://")!=-1) {
-			throw new FileSystemException("Only relative paths are allowed");
+		//avoid c:/, ftp:// etc.
+		if (path.indexOf(":")!=-1) {
+			//check the path more profoundly
+			if (path.startsWith(getCwd().getName().getRootURI())) {
+				return super.pathToFile(path);
+			} else {
+				throw new FileSystemException("Only local paths are allowed");
+			}			
 		}
 		else {
 			return super.pathToFile(path);
 		}
 	}
 
-	public FileObject[] pathToFiles(String pathPattern)
+	public FileObject[] pathToFiles(String pathPattern, boolean depthFirst)
 			throws FileSystemException, IllegalArgumentException {
-		if (pathPattern.indexOf("://")!=-1) {
-			throw new FileSystemException("Only relative paths are allowed");
+		//avoid c:/, ftp:// etc
+		if (pathPattern.indexOf(":")!=-1) {
+			if (pathPattern.startsWith(getCwd().getName().getRootURI())) {
+				return super.pathToFiles(pathPattern, depthFirst);
+			} else {
+				throw new FileSystemException("Only local paths are allowed");
+			}	
 		}
 		else {
-			return super.pathToFiles(pathPattern);
+			return super.pathToFiles(pathPattern, depthFirst);
 		}
 	}
 
+	public String toString(FileObject file) {
+		return this.toString(file.getName());
+	}
+	
 	public String toString(FileName filename) {
 		try {
+			//only show paths starting from the root of the fs
 			return filename.getPathDecoded();
 		} catch (FileSystemException e) {
 			return "n/a";

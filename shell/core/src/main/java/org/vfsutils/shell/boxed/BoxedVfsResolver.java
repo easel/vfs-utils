@@ -16,7 +16,7 @@ public class BoxedVfsResolver extends VfsResolver {
 	public FileObject resolveFile(String name) throws FileSystemException {
 
 		FileObject root = getRoot();
-		int index = name.indexOf("://");
+		int index = name.indexOf(":");
 		if (index != -1) {
 			// absolute, only allow within same file system - when it starts
 			// with the same root URI
