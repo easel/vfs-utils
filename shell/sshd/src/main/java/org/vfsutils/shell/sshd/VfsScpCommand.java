@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.FileType;
 import org.apache.sshd.server.CommandFactory;
@@ -83,21 +82,11 @@ public class VfsScpCommand implements CommandFactory.Command, Runnable, SessionA
     }
 
     public void setSession(ServerSession session) {
-		// TODO: retrieve root from session when PasswordAuthenticator has access to it
-    	/*FileObject storedRoot = session.getAttribute(VfsShellFactory.VFS_ROOT);
+		FileObject storedRoot = session.getAttribute(VfsShellFactory.VFS_ROOT);
 		if (storedRoot != null) {
 			this.root = storedRoot;
 		}
-		
-		For now use threadlocal
-		*/
-    	FileObject storedRoot = VfsShellFactory.vfsRoot.get();
-		if (storedRoot != null) {
-			this.root = storedRoot;		
-		}
 	}
-
-
 
 	public void setInputStream(InputStream in) {
         this.in = in;

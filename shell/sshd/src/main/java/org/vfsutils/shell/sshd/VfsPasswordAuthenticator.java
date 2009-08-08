@@ -7,6 +7,7 @@ import org.apache.commons.vfs.FileSystemOptions;
 import org.apache.commons.vfs.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs.impl.DefaultFileSystemConfigBuilder;
 import org.apache.sshd.server.PasswordAuthenticator;
+import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public class VfsPasswordAuthenticator implements PasswordAuthenticator {
 		this.virtual = virtual;
 	}
 
-	public Object authenticate(String username, String password) {
+	public Object authenticate(String username, String password, ServerSession session) {
 		
 		FileObject file = null;
 
@@ -50,8 +51,7 @@ public class VfsPasswordAuthenticator implements PasswordAuthenticator {
 				file = fileSystemManager.createVirtualFileSystem(file);
 			}
 			
-			//session.setAttribute(VfsShellFactory.VFS_ROOT, file);
-			VfsShellFactory.vfsRoot.set(file);
+			session.setAttribute(VfsShellFactory.VFS_ROOT, file);
 				
 		} catch (FileSystemException e) {
 			log.debug("Error while authenticating user " + username, e);
@@ -67,8 +67,6 @@ public class VfsPasswordAuthenticator implements PasswordAuthenticator {
 	public void setDomain(String domain) {
 		this.domain = domain;
 	}
-	
-	
 	
 
 }

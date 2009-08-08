@@ -66,7 +66,6 @@ public class Ssh extends AbstractCommand {
 	
 	public void ssh(String login, String host, int port, String[] command, Engine engine) throws CommandException {
 		
-		engine.print("User: " + login);
 		SshClient client = SshClient.setUpDefaultClient();
         client.start();
         try {
@@ -74,7 +73,7 @@ public class Ssh extends AbstractCommand {
 
             int ret = ClientSession.WAIT_AUTH;
             while ((ret & ClientSession.WAIT_AUTH) != 0) {
-                engine.print("Password:");
+                engine.print(login + "@" + host + "'s password: ");
                 BufferedReader r = new BufferedReader(engine.getConsole().getIn());
                 String password = r.readLine();
                 if (password.length()==0) {

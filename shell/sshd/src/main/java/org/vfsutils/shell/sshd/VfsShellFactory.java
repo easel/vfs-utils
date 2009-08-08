@@ -16,14 +16,6 @@ public class VfsShellFactory implements ShellFactory {
 	 */
 	protected static final AttributeKey<String> VFS_PATH = new AttributeKey<String>();
 	
-	/**
-	 * Since there isn't any communication between VfsPasswordAuthentication and the VfsShell yet
-	 * use a ThreadLocal to pass values
-	 */
-	protected static ThreadLocal<FileObject> vfsRoot = new ThreadLocal<FileObject>();
-	protected static ThreadLocal<String> vfsPath = new ThreadLocal<String>();
-	
-	
 	private FileSystemManager fsManager;
 	private String path = null;
 	
