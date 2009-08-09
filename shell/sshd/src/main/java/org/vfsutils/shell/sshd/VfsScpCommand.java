@@ -75,9 +75,10 @@ public class VfsScpCommand implements CommandFactory.Command, Runnable, SessionA
             } else if (i == args.length - 1) {                
 				targetPath = args[args.length - 1];
             }
-            if (!optF && !optT) {
-                error = new IOException("Either -f or -t option should be set");
-            }
+            
+        }
+        if (!optF && !optT) {
+            error = new IOException("Either -f or -t option should be set");
         }
     }
 
@@ -344,7 +345,7 @@ public class VfsScpCommand implements CommandFactory.Command, Runnable, SessionA
             case 0:
                 break;
             case 1:
-                System.out.println("Received warning: " + readLine());
+                log.warn("Received warning: " + readLine());
                 break;
             case 2:
                 throw new IOException("Received nack: " + readLine());

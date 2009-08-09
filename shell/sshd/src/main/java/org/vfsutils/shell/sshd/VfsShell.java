@@ -162,16 +162,23 @@ public class VfsShell implements Shell, ConsoleInterface, Runnable, SessionAware
 		try {
 			engine = new BoxedEngine(this, new BoxedCommandRegistry(), this.fsManager);	
 			
+			//userDir is where the server is started
+			FileObject userDir = engine.getCwd();
+			
 			customizeEngine(engine);
-			loadGlobalRc(engine);
+			
+			loadGlobalRc(engine, userDir);
+			
+			//set to VFS start dir
+			engine.setStartDir(this.root);
+			
 			loadUserRc(engine, this.root);
 			
-			engine.setStartDir(this.root);
 			//engine.setEchoOn(true);
 			engine.go();
 		} catch (Exception e) {
-			//TODO: handle errors
-			e.printStackTrace();
+			log.warn("Exception in shell", e);
+			getErr().println(e.getMessage());
 		}
 		finally {
 			callback.onExit(0);
@@ -242,7 +249,7 @@ public class VfsShell implements Shell, ConsoleInterface, Runnable, SessionAware
 	}
 	
 	
-	protected void loadGlobalRc(Engine engine) {
+	protected void loadGlobalRc(Engine engine, FileObject userDir) {
 		//look in working folder
 		String initFile = ".vfsserverrc";
 		File file = new File(initFile);
@@ -257,7 +264,7 @@ public class VfsShell implements Shell, ConsoleInterface, Runnable, SessionAware
 			tmpRegister.register(engine.getCommandRegistry());
 			CommandProvider tmpUnregister = new Unregister();
 			tmpUnregister.register(engine.getCommandRegistry());
-			
+						
 			try {
 				this.println("Loading " + initFile);
 				FileReader freader = new FileReader(file);
