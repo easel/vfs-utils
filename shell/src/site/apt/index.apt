@@ -25,6 +25,10 @@ VFS Shell
  It adds tab completion for commands and file names and does password masking on the open command. 
  This makes the Shell a whole lot more professional. In the binary distribution JLine is enabled by default.
  
+ Using the {{{http://mina.apache.org/sshd}Apache Mina SSHD Server}} as core you can setup a secure server shell application with the
+ {{{./sshd.html}VFS SSHD Server}} integration. Users can connect with a normal ssh client and perform
+ shell operations on your remote virtual filesystem. By default the shell only offers limited operations to avoid users from 'escaping' from the preconfigured file system. Of course you can easily change or add commands to make your own shell environment.
+ 
 * Download
 
  You can download the binary distribution or the individual libraries at {{{https://sourceforge.net/project/showfiles.php?group_id=243452&package_id=310275}the SourceForge download page}}.
@@ -47,7 +51,7 @@ VFS Shell
  
  * attrs:  meta data (attribute) manipulation (get, set, info)
  
- * ops: operation interaction (list, do, usage)
+ * ops: vfs operation interaction (list, do, usage)
  
  * cat: dumps the content of a file
  
@@ -61,11 +65,13 @@ VFS Shell
  
  * bsh: executes a beanshell script file or expression
   
- * register: registers a new class or script as a command
+ * register, unregister: (un)registers a new class or script as a command
  
  * md5: calculates and compares md5 checksums
  
  * hash: calculates Java hash codes
+ 
+ * xslt: does an XSL transformation
  
  * rem: does nothing
  
@@ -159,6 +165,8 @@ VFS Shell
  
  * {{{jline/apidocs/index.html}JLine}}
  
+ * {{{sshd/apidocs/index.html}SSHD}}
+ 
  []
  
 * TTD
@@ -170,15 +178,15 @@ VFS Shell
  
  * Piping of output to files, chaining commands
  
- * Remote shell based on RMI or Mina
- 
  * Starting commands in the background
  
  * A java command to run any Java application (Though you can already do this using the 'bsh -e' command)
  
  * Dynamic classpath extension (so you can load a jar from any VFS provider)
  
- * Additional commands: tranform, grep, tail, ...
+ * Additional commands: grep, tail, ...
+ 
+ * Support for file system options
  
  * Starting and managing other processes: ps, kill, ...
  
@@ -187,6 +195,8 @@ VFS Shell
  * Scoping of commands to VFS provider schemes
  
  * A solution for man pages
+ 
+ * A better support for documentation of options and flags
  
  []
  

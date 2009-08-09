@@ -233,12 +233,17 @@ VFS Shell Commands
 
 * {echo}
 
- Prints the arguments to the output. Use it to print variables. 
+ Prints the arguments to the output. Use it to print variables. You can activate, desactivate and show the 
+ current status using flags --on, --off and --status. When you use one of these flags the other arguments
+ will not be echoed.
  
  Examples:
  
 ------------
  echo current dir: $cwd
+ echo --status
+ echo --on
+ echo --off
 ------------
  
  
@@ -276,22 +281,21 @@ VFS Shell Commands
 
 * {load}
 
- Loads a file with shell command. The commands are executed in the current context. If you dont 
- want to change the current context you can use the -c flag.
+ Loads a file with shell command. The commands are executed in the current context. If you don't 
+ want to change the current context you can use the -c flag. By default it does not echo the read 
+ commands, you can activate echoing using the -e flag.
  
  The script has access to all of the arguments that were specified together with the file. You can
  use $args to get all arguments or $arg1, $arg2, etc. for individual arguments. You can use $cmd 
  for the name of the script, $flags for the flags and $options for the options. To get around the
- -c flag being caught while calling the script you can pass the --flags option, all values will 
+ -c en -e flags being caught while calling the script you can pass the --flags option, all values will 
  passed as additional flags.
- 
- Whitespace in the arguments will be esaped by backslash.
  
  Examples:
  
 --------------------
  load incontext.vfs hello --world 
- load -c newcontext.vfs hello world --flags=cde 
+ load -ce newcontext.vfs hello world --flags=cde 
 --------------------
 
  See: {{{#bsh}bsh}}, {{{#register}register}}
@@ -458,7 +462,7 @@ VFS Shell Commands
   register scripts/*.bsh
 ----------------
  
-  See: {{{#bsh}bsh}}, {{{#load}load}}
+  See: {{{#bsh}bsh}}, {{{#load}load}}, {{{#unregister}unregister}}
   
 * {rem}
 
@@ -545,7 +549,7 @@ VFS Shell Commands
  will show threads and properties. Use the 'm' flag to also show memory information and the 'a' flag to show all
  information.
  
- To trigger garbage collection use long flag 'gc' and to trigger finalization use long flag 'finalize'.
+ To trigger garbage collection use flag 'gc' and to trigger finalization use flag 'finalize'.
  
  Examples:
 
@@ -563,13 +567,18 @@ VFS Shell Commands
  
 * {unregister}
 
- Unregisters commands. If flag --all is given then all commands are removed from the registry except register, unregister and help commands. These commands can be removed by explicitly calling a remove on them though. When you unregister the unregister command you can not unregister anymore (unless you register it again ;-)).
+ Unregisters commands. If flag --all is given then all commands are removed from the registry except register, unregister and help commands. These commands can be removed by explicitly calling a remove on them though. When you unregister the unregister command you can not unregister anymore. 
+ 
+ You can also unregister all commands except those explicitly specified using the --keep flag. Note that this will still keep register, unregister and help even though you didn't specify them.
 
 ----------
- unregister md5 hash
+ unregister sysinfo hash
+ unregister cd ls md5 --keep
  unregister --all
- unregister register help unregister 
+ unregister register help unregister
 ---------- 
+
+ See: {{{#register}register}}
  
 * {xslt}
 

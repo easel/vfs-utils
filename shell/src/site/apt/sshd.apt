@@ -1,0 +1,82 @@
+ -----
+ VFS Shell SSHD
+ -----
+ kleij - at - users.sourceforge.net
+ -----
+
+VFS Shell SSHD
+
+ This module delivers integration of the VFS Shell with {{{http://mina.apache.org/sshd}Apache MINA SSHD}}. Apache MINA SSHD provides a Java implementation for an SSH Server and Client.
+ 
+ This combination allows secure remote access to a VFS Shell using for example PuTTY. 
+ 
+ <<Warning: the code is not yet tested enough to use in a production environment!>>
+ 
+ To use it, the mina sshd jars and all dependecies, the vfs jar and all its dependencies and all the vfs shell and vfs utils jars must be added to your classpath. You can start the shell server using:
+
+-----------
+ java org.vfsutils.shell.sshd.Server [--port=<port>] [--domain=<domain>] [--path=<path>] [--virtual] root 
+
+ java org.vfsutils.shell.sshd.Server --port=2222 --path=/$USER dctm://mydocbase 
+-----------
+ 
+ You can use the domain option if you need to specify the domain to login into your VFS. 
+ The path is the path within the root that you want the user to start in. You can use the $USER variable in the path; it will be replaced by the user name.
+ If you specify the virtual flag then the root will act as the root of the file system even when it is not the real root; e.g. 
+file:///d:/vfswork/root as virtual root would mean that the root the users see it as / and can not see file:///d:/vfswork or file:///d:/.
+ 
+ The VFS Shell that is started is a Boxed Shell which means that it does not allow the user to escape the configured file system. To achieve this not all commands are supported and some commands behave a little different. E.g. the 'open' command will not allow opening another VFS and the 'register' command only allows registering VFS scripts.
+ 
+ You can customize the engine in several ways. First of all, you can make changes on the Java level using a beanshell script that has access to the engine. See the documentation for the VFS Shell for this. The file that is read is called 
+
+-------------- 
+ vfs-server-custom-init.bsh
+--------------
+ 
+ You can change the name of the script using an envionment variable:  
+ 
+--------------
+ -Dorg.dctmvfs.vfs.server.customscript=my-custom-init.bsh
+--------------
+
+ If you set the environment variable to none then the script will be ignored.
+
+-------------------
+ -Dorg.dctmvfs.vfs.server.customscript=none
+-------------------
+ 
+ On a more functional level you can use a VFS script to set variables, to register additional commands or to unregister existing commands. 
+ 
+ There are two of such scripts, the first one is read from the startup dir of the VFS Server and has access to the fully functional register command, this script is called 
+
+---------
+ .vfsserverrc 
+--------
+
+  The users working folder has not been set yet when this script is called, the working folder is the servers startup folder.
+  
+  After the script has been executed the working directory will be set to the user root within the virtual file system.
+
+ Note: there is a small problem for the moment. Local scripts can be registered, but not executed because within the 
+ shell the local files are not accessible anymore. You can register classes though.
+
+ The second script is read from within the users start directory in the virtual file system. Depending on your file system and startup options this script can be user specific, much like .bashrc etc. Since the idea is that users can change this script it has access to the 'boxed' register command that only allows registering VFS scripts, and no classes or Beanshell scripts. This script is called 
+ 
+--------
+ .vfsshellrc
+--------
+ 
+ (Note: if you added a register command yourself in the engine customization script then it will be available for the second script, but the first script will temporarily use the default register command.)
+ 
+ You can change the name of the second script or avoid loading it by providing the environment variable:
+ 
+------------
+ -Dorg.dctmvfs.vfs.server.userscript=.vfsuserrc
+------------
+ 
+ If you set it to none then no script will be loaded.
+
+------------
+ -Dorg.dctmvfs.vfs.server.userscript=none
+------------
+ 

@@ -32,6 +32,9 @@
 		<copy todir="target/dist/site/shell/jline/apidocs">
 		    <fileset dir="shell/jline/target/site/apidocs"/>
 		</copy>
+		<copy todir="target/dist/site/shell/sshd/apidocs">
+		    <fileset dir="shell/sshd/target/site/apidocs"/>
+		</copy>
 		<copy todir="target/dist/site/utils">
 			<fileset dir="utils/target/site"/>
 		</copy>

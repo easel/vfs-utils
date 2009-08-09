@@ -27,4 +27,4 @@ VFS Shell binary distribution
 
 ------------
 
- JLine integration is activated by default. If you don't want to use JLine you can change the startup script and start using org.vfsutils.shell.Shell.
+ JLine integration is activated by default. If you don't want to use JLine you can change the startup script and start with org.vfsutils.shell.Shell.

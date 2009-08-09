@@ -21,6 +21,7 @@
     <menu name="VFS Shell">
       <item name="About" href="index.html"/>
 	  <item name="JLine" href="jline.html"/>
+	  <item name="SSHD" href="sshd.html"/>
       <item name="Configuration" href="configuration.html"/>
 	  <item name="Commands" href="commands.html"/>
 	  <item name="Distribution" href="assembly.html"/>

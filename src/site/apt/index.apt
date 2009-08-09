@@ -29,6 +29,9 @@ VFS Utils
  You can enhance the shell by using the {{{shell/jline.html}JLine integration }} which adds password masking 
  and tab completion for commands and file names.
  
+ You can also run the shell as a {{{shell/sshd.html}SSHD server application}} that can be accessed with ssh 
+ clients. Every user will have its own independent remote shell.
+ 
  Additional VFS utilities can be found in the {{{utils/index.html}Utils project}}.
  
 Other VFS clients
@@ -47,6 +50,8 @@ Other VFS clients
  
 News
 
+  * 09-08-2009: Added integration with Apache MINA SSHD for Shell, improved JLine integration and added xslt and unregister commands for Shell, added xml and xsl related Utils
+
   * 21-06-2009: Added a binary distribution for VFS Shell.
 
   * 18-04-2009: Updated utils and shell snapshots for sysinfo and others
@@ -61,3 +66,4 @@ News
 
   * 14-12-2008: Moved sources from {{{http://dctmvfs.sourceforge.net} Dctm VFS project}} 
  
+[]

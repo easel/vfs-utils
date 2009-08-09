@@ -38,6 +38,7 @@
    <modules>
     <module>core</module>
 	<module>jline</module>
+	<module>sshd</module>
 	<module>assembly</module>
   </modules>
    
