@@ -29,9 +29,9 @@
             <includes>
                 <include>README.txt</include>
                 <include>LICENSE.*.txt</include>
-				<include>.vfsshellrc</include>
+		<include>.vfsshellrc</include>
                 <include>common/**</include>
-				<include>local/**</include>
+		<include>local/**</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -54,7 +54,7 @@
             <directory>bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>*.sh</include>
+                <include>vfsshell.sh</include>
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
@@ -74,9 +74,15 @@
         <dependencySet>
             <outputDirectory>common/lib</outputDirectory>
             <scope>runtime</scope>
-             <excludes>
-                <exclude>org.vfsutils.shell:vfsshell</exclude>
-             </excludes>
+            <!-- exclude the server dependencies -->
+            <excludes>
+              <exclude>org.vfsutils.shell:vfsshell</exclude>
+              <exclude>org.apache.sshd:sshd-core</exclude>
+              <exclude>org.apache.mina:mina-core</exclude>
+              <exclude>com.jcraft:jzlib</exclude>
+              <exclude>bouncycastle:bcprov-jdk15</exclude>
+              <exclude>org.slf4j:slf4j-log4j12</exclude>     
+            </excludes>
         </dependencySet>
     </dependencySets>
 </assembly>
