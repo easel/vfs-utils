@@ -77,6 +77,19 @@
               <tarLongFileMode>gnu</tarLongFileMode>
             </configuration>
           </execution>
+          <execution>
+            <id>server-bin</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/server-bin.xml</descriptor>
+              </descriptors>
+              <tarLongFileMode>gnu</tarLongFileMode>
+            </configuration>
+          </execution>
          </executions>
         </plugin>
      </plugins>
@@ -93,15 +106,20 @@
       <artifactId>vfsutils-shell-jline</artifactId>
       <version>0.1.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.vfsutils.shell</groupId>
+      <artifactId>vfsutils-shell-sshd</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
 	 
-	<dependency>
-       <groupId>log4j</groupId>
-       <artifactId>log4j</artifactId>
-       <version>1.2.13</version>
-     </dependency>
-	 
-	 <!-- optionals from vfs -->
-	<dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.13</version>
+    </dependency>
+    	 
+    <!-- optionals from vfs -->
+    <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
       <version>1.4.1</version>
@@ -116,16 +134,18 @@
       <artifactId>jdom</artifactId>
       <version>1.0</version>
     </dependency>
-	<dependency>
+    <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-webdav</artifactId>
       <version>1.5.2</version>
     </dependency>
+    <!-- duplicate - v0.1.41 is in sshd
     <dependency>
       <groupId>com.jcraft</groupId>
       <artifactId>jsch</artifactId>
       <version>0.1.31</version>
     </dependency>
+    -->
     <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
@@ -137,14 +157,13 @@
       <version>2.0.8</version>
     </dependency>
 
-	 <!-- vfs sandbox -->
-	<dependency>
+    <!-- vfs sandbox -->
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-vfs-sandbox</artifactId>
       <version>2.0-SNAPSHOT</version>
-	  <scope>runtime</scope>
      </dependency>
-	 <!-- optionals from vfs sandbox -->
+    <!-- optionals from vfs sandbox -->
     <dependency>
       <groupId>jcifs</groupId>
       <artifactId>jcifs</artifactId>
@@ -160,6 +179,43 @@
       <artifactId>mail</artifactId>
       <version>1.4</version>
     </dependency>
+
+    <!-- sshd -->
+    <dependency>
+      <groupId>org.apache.sshd</groupId>
+      <artifactId>sshd-core</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
+      <version>2.0.0-M6</version>
+    </dependency>
+    <dependency>
+      <groupId>com.jcraft</groupId> 
+      <artifactId>jzlib</artifactId>
+      <version>1.0.7</version>
+    </dependency>
+    <dependency>
+      <groupId>bouncycastle</groupId>
+      <artifactId>bcprov-jdk15</artifactId>
+      <version>140</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.4.3</version>
+     </dependency>
+     <dependency>
+       <groupId>com.jcraft</groupId>
+       <artifactId>jsch</artifactId>
+       <version>0.1.41</version>
+      </dependency>
+      <dependency>
+       <groupId>commons-logging</groupId>
+       <artifactId>commons-logging</artifactId>
+       <version>1.1.1</version>
+      </dependency>
   </dependencies>
 
 </project>
