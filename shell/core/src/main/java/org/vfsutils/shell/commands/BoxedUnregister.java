@@ -16,7 +16,7 @@ public class BoxedUnregister extends Unregister {
 	 */
 	protected void unregister(String cmd, CommandProvider command, Engine engine) {
 		if (command instanceof Register.Script) {
-			if ("vfs".equals(((Register.Script)command).type)) {
+			if ("vfs".equals(((Register.Script)command).getType())) {
 				super.unregister(cmd, command, engine);
 			}
 			else {
