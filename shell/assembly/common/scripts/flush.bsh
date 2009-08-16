@@ -1,6 +1,10 @@
 import org.apache.commons.vfs.*;
 import org.apache.commons.vfs.impl.*;
 
+//Removes a file from the cache. The attributes of a file
+//are not updated on attach(), so to refresh them you must
+//flush the file.
+
 FileSystemManager mgr = engine.getMgr();
 if (mgr instanceof DefaultFileSystemManager) {
 
