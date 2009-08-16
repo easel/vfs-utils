@@ -88,7 +88,7 @@ public class VfsShell implements Shell, ConsoleInterface, Runnable, SessionAware
 		String term = env.getEnv().get("TERM");
 		log.debug("Client terminal: " + term);
 		
-		if (term != null && term.toLowerCase().startsWith("xterm")) {
+		if (term != null && (term.toLowerCase().startsWith("xterm") || term.toLowerCase().equals("cygwin"))) {
 			this.in = new EchoReader(this.in, this);
 			log.debug("Activated echo");
 		}
