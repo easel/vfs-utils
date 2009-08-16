@@ -8,11 +8,19 @@ VFS Shell SSHD
 
  This module delivers integration of the VFS Shell with {{{http://mina.apache.org/sshd}Apache MINA SSHD}}. Apache MINA SSHD provides a Java implementation for an SSH Server and Client.
  
- This combination allows secure remote access to a VFS Shell using for example PuTTY. 
+ This combination allows secure remote access to a VFS Shell using for example Cygwin or a *nix based ssh client. (PuTTY does not work; it hangs when receiving more then 16K.)
  
  <<Warning: the code is not yet tested enough to use in a production environment!>>
  
- To use it, the mina sshd jars and all dependecies, the vfs jar and all its dependencies and all the vfs shell and vfs utils jars must be added to your classpath. You can start the shell server using:
+ The VFS SSHD server also supports SCP.
+ 
+ To use it, the mina sshd jars and all dependecies, the vfs jar and all its dependencies and all the vfs shell and vfs utils jars must be added to your classpath. 
+ 
+ If you download the VFS SSHD server distribution you will have all you need to run the server. Additional VFS plugins and custom commands or scripts are easily added.
+ 
+ You can also just use the VFS enabled shell and SCP command in your own custom server, see {{{#components}Components}}. 
+ 
+ You can start the shell server using:
 
 -----------
  java org.vfsutils.shell.sshd.Server [--port=<port>] [--domain=<domain>] [--path=<path>] [--virtual] root 
@@ -26,6 +34,9 @@ VFS Shell SSHD
 file:///d:/vfswork/root as virtual root would mean that the root the users see it as / and can not see file:///d:/vfswork or file:///d:/.
  
  The VFS Shell that is started is a Boxed Shell which means that it does not allow the user to escape the configured file system. To achieve this not all commands are supported and some commands behave a little different. E.g. the 'open' command will not allow opening another VFS and the 'register' command only allows registering VFS scripts.
+ 
+ 
+{Configuration} 
  
  You can customize the engine in several ways. First of all, you can make changes on the Java level using a beanshell script that has access to the engine. See the documentation for the VFS Shell for this. The file that is read is called 
 
@@ -53,12 +64,11 @@ file:///d:/vfswork/root as virtual root would mean that the root the users see i
  .vfsserverrc 
 --------
 
-  The users working folder has not been set yet when this script is called, the working folder is the servers startup folder.
+ The users working folder has not been set yet when this script is called, the working folder is the servers startup folder.
   
-  After the script has been executed the working directory will be set to the user root within the virtual file system.
+ After the script has been executed the working directory will be set to the user root within the virtual file system.
 
- Note: there is a small problem for the moment. Local scripts can be registered, but not executed because within the 
- shell the local files are not accessible anymore. You can register classes though.
+ Note: Scripts from another filesystem than the filesystem of the user must be registered as cached because these files can not be resolved within the session of the user.
 
  The second script is read from within the users start directory in the virtual file system. Depending on your file system and startup options this script can be user specific, much like .bashrc etc. Since the idea is that users can change this script it has access to the 'boxed' register command that only allows registering VFS scripts, and no classes or Beanshell scripts. This script is called 
  
@@ -79,4 +89,46 @@ file:///d:/vfswork/root as virtual root would mean that the root the users see i
 ------------
  -Dorg.dctmvfs.vfs.server.userscript=none
 ------------
+
+
+{Components}
  
+ The different components of the project can be used independently.
+
+* VfsPasswordAuthenticator 
+ 
+ The VfsPasswordAuthenticator will delegate authentication to a VFS provider. 
+ To create it you need to give it a VFS FileSystemManager, a root path (typically absolute, with scheme but without user name; e.g. ftp:///ftpservername or dctm://docbase) and a flag indicating whether the root must be a seen as a new virtual filesystem (typically for mounting a part of a local filesystem). If you want to have authentication the root path must point to a provider that supports it; if you pass file://d:/temp then any user name or password will do to login!
+ 
+* VfsShellFactory
+ 
+ The VfsShellFactory creates shells based on the VFS Shell. To initialize it you must pass a VFS FileSystemManager.
+ Optionally you can give a path as well. The behaviour will depend on whether a root and/or path are passed through the session attributes as well. If you pass a session attribute for the path then it will overwrite the path given to the VfsShellFactory. If you pass a session attribute for the root then the path will be resolved relative to the root; otherwise it will be interpreted as an absolute path. 
+ 
+ In other words, when there is no root passed in the session, the path you give must be absolute (e.g. file://sshd_root; otherwise it must be relative.
+ 
+ If you create your own PasswordAuthenticator you can choose whether you want to pass these session attributes or not.
+ You can then also specify the username and password in the rootpath if you want to run the shell under a fixed account.
+
+ The VfsPasswordAuthenticator will insert only the root attribute in the session. If you want the user to start in a certain directory other than the root then you should pass the relative path in the constructor.
+ 
+ The path that is given can contain a $USER token which will be replaced by the user name. With this you can make users start in their own home folder.
+ 
+* VfsScpCommandFactory
+ 
+ The VfsScpCommandFactory creates VfsScpCommands when "scp" is the requested command. You must pass it a VFS FileSystemManager. Just as the VfsShellFactory it will look for the root attribute in the session. If your PasswordAuthenticator does not set it then you must give a path to the ScpCommandFactory that indicates the root
+ from where the requested files will be resolved; it should be absolute including the scheme (e.g. file:///sshd_root)
+ 
+
+ 
+
+Possible clients
+
+ * Cygwin
+ 
+ * Linux/Unix/OSX ssh
+ 
+ * PuTTY does not work; it hangs when receiving more then 16K
+ 
+  []
+

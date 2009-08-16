@@ -15,6 +15,11 @@ import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Copy of the normal ScpCommand, but session aware and VFS enabled
+ * @author kleij - at - users.sourceforge.net
+ *
+ */
 public class VfsScpCommand implements CommandFactory.Command, Runnable, SessionAware {
 	
     private static final Logger log = LoggerFactory.getLogger(VfsScpCommand.class);
@@ -27,7 +32,7 @@ public class VfsScpCommand implements CommandFactory.Command, Runnable, SessionA
     //the root can be set via the session
     private FileObject root;
     private FileSystemManager fsManager;
-    //the basepath is resolved within the root if the root has been set
+    //the basepath is resolved within the root if the root has been set,
     //otherwise it serves as the root
     private String basePath;
     //the target file, it is resolved within the root using the targetPath
@@ -117,9 +122,6 @@ public class VfsScpCommand implements CommandFactory.Command, Runnable, SessionA
         
         if (this.root == null) {
         	this.target = this.fsManager.resolveFile(this.basePath).resolveFile(this.targetPath);
-        }
-        else if (this.basePath != null){
-        	this.target = this.root.resolveFile(this.basePath).resolveFile(this.targetPath);
         }
         else {
         	this.target = this.root.resolveFile(this.targetPath);

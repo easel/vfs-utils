@@ -1,18 +1,25 @@
 package org.vfsutils.shell.sshd;
 
-import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.sshd.server.CommandFactory;
-import org.apache.sshd.server.CommandFactory.Command;
-import org.apache.sshd.server.command.ScpCommand;
 import org.apache.sshd.server.command.UnknownCommand;
 
+/**
+ * VfsScpCommand factory
+ * @author kleij - at - users.sourceforge.net
+ *
+ */
 public class VfsScpCommandFactory implements CommandFactory {
 
     private CommandFactory delegate;
     private FileSystemManager fsManager;
     private String basePath;
 
+    public VfsScpCommandFactory(FileSystemManager fsManager) {
+    	this.fsManager = fsManager;
+    	this.basePath = null;
+    }
+    
     public VfsScpCommandFactory(FileSystemManager fsManager, String basePath) {
     	this.fsManager = fsManager;
     	this.basePath = basePath;

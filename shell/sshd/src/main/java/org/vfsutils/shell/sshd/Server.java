@@ -60,7 +60,7 @@ public class Server {
 			VfsShellFactory shellFactory = new VfsShellFactory(fsManager, path);
 			sshd.setShellFactory(shellFactory);
 			
-			VfsScpCommandFactory commandFactory = new VfsScpCommandFactory(fsManager, path);
+			VfsScpCommandFactory commandFactory = new VfsScpCommandFactory(fsManager);
 			sshd.setCommandFactory(commandFactory);
 			
 			VfsPasswordAuthenticator pwdAuth = new VfsPasswordAuthenticator(fsManager, root, virtual);

@@ -17,10 +17,11 @@ public class VfsShellFactory implements ShellFactory {
 	protected static final AttributeKey<String> VFS_PATH = new AttributeKey<String>();
 	
 	private FileSystemManager fsManager;
-	private String path = null;
+	private String path;
 	
 	public VfsShellFactory(FileSystemManager fsManager) {
 		this.fsManager = fsManager;
+		this.path = null;
 	}
 
 	public VfsShellFactory(FileSystemManager fsManager, String path) {
