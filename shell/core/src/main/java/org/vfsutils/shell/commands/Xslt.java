@@ -54,8 +54,9 @@ public class Xslt extends AbstractCommand {
 		super(
 				"xslt",
 				"Performs an XSL transformation. If [out] is not set the result will be printed to the console. "
-						+ "All options are set as parameters. Activate cache with c. Default mode is sax.",
-				"<in> <xsl> [<out>] [-c] [--param1=x --param2=y] [--dom|--stream]");
+						+ "All options are set as parameters. Activate xsl caching with c. Default mode is sax. Mode stream " 
+						+ "does not allow VFS enabled entity resolving. ",
+				"<in> <xsl> [<out>] [-c] [--param1=x --param2=y] [--sax|--dom|--stream]");
 	}
 
 	public void execute(Arguments args, Engine engine)
