@@ -196,7 +196,9 @@ VFS Shell
  
  * A solution for man pages
  
- * A better support for documentation of options and flags
+ * Better support for documentation of options and flags
+ 
+ * JLine autocompletion of variables (starting with $)
  
  []
  
