@@ -47,26 +47,36 @@ public class Load extends AbstractCommand implements CommandProvider {
 		boolean echo = args.hasFlag('e');
 		
 		Arguments largs = copyArgs(args);
-		try {
-			setArgs(engine, largs, true);
-			load(file, engine, true, echo);
-		}
-		finally {
-			setArgs(engine, largs, false);
-		}
+		load(file, largs, engine, true, echo);
 	}
 
-	public void load(final FileObject file, Engine engine, boolean haltOnError, boolean echo)
+	public void load(final FileObject file, Arguments args, Engine engine, boolean haltOnError, boolean echo)
 			throws CommandException, FileSystemException {
 
 		final InputStream in = file.getContent().getInputStream();
+
+		load(in, args, engine, haltOnError, echo);
+	}
+	
+	public void load(final InputStream in, Arguments args, Engine engine, boolean haltOnError, boolean echo)
+		throws CommandException, FileSystemException {
 
 		boolean prevHaltOnError = engine.isHaltOnError();
 		boolean prevEchoOn = engine.isEchoOn();
 		try {
 			engine.setHaltOnError(haltOnError);
 			engine.setEchoOn(echo);
-			engine.load(new InputStreamReader(in));
+			
+			try {
+				//make the arguments in the context
+				setArgs(engine, args, true);
+				//load
+				engine.load(new InputStreamReader(in));
+			}
+			finally {
+				//remove the arguments
+				setArgs(engine, args, false);
+			}
 		} catch (Exception e) {
 			throw new CommandException(e);
 		} finally {
@@ -83,6 +93,8 @@ public class Load extends AbstractCommand implements CommandProvider {
 
 	}
 
+
+	
 	public void call(Arguments args, Engine engine)
 			throws IllegalArgumentException, CommandException, FileSystemException {
 		

@@ -1,6 +1,7 @@
 package org.vfsutils.shell.commands;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Iterator;
@@ -60,7 +61,35 @@ public class Bsh extends AbstractCommand {
 		}
 	}
 
+	
 	protected void bsh(FileObject file, Arguments args, Engine engine) throws CommandException, FileSystemException {
+		InputStream input = null;
+		try {
+			input = file.getContent().getInputStream();
+			bsh(input, args, engine);
+		}
+		catch (CommandException e) {
+			throw e;
+		}
+		catch (FileSystemException e) {
+			throw e;
+		}
+		catch (Exception e) {
+			throw new CommandException(e);
+		}
+		finally {
+			if (input!=null) { 
+				try {
+					input.close();
+				}
+				catch (IOException e) {
+					//ignore
+				}	
+			}
+		}
+	}
+	
+	protected void bsh(InputStream input, Arguments args, Engine engine) throws CommandException, FileSystemException {
 		Reader reader = null;
 		try {
 			Interpreter interpreter = new Interpreter(engine.getConsole());
@@ -69,11 +98,8 @@ public class Bsh extends AbstractCommand {
 			
 			interpreter.set("args", args);				
 			
-			reader = new InputStreamReader(file.getContent().getInputStream());
+			reader = new InputStreamReader(input);
 			interpreter.eval(reader);
-		}
-		catch (FileSystemException e) {
-			throw e;
 		}
 		catch (Exception e) {
 			throw new CommandException(e);
@@ -85,10 +111,8 @@ public class Bsh extends AbstractCommand {
 				}
 				catch (IOException e) {
 					//ignore
-				}
-				
+				}			
 			}
-			
 		}
 	}
 

@@ -449,14 +449,16 @@ VFS Shell Commands
   
   You can override the name that should be used for the command, and also the description and usage information, but not when you use a wildcard to find multiple scripts.
   For classes this will only work when your class is a subclass of AbstractCommand.
-    
+
   Note that the registered command will replace an existing command with the same name; be careful with what you do.
 
+  Normally the content of the script is read each time it is executed. You can also store the script in memory using the --cache flag; changes in the script will then not be activated until you register the script again.
+  
   Examples :
   
 ----------------
   register org.vfsutils.shell.commands.Ls --name=dir --type=class
-  register org.vfsutils.shell.commands.Cp --name=copy 
+  register org.vfsutils.shell.commands.Cp --name=copy --cache 
   register d:/temp/test.vfs --description="test script" --usage="<path>"
   register d:/temp/test --type=bsh --name=mycommand
   register scripts/*.bsh
