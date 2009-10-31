@@ -73,7 +73,9 @@ public class Ssh extends AbstractCommand {
 
             int ret = ClientSession.WAIT_AUTH;
             while ((ret & ClientSession.WAIT_AUTH) != 0) {
-                engine.print(login + "@" + host + "'s password: ");
+                //engine.print(login + "@" + host + "'s password: ");
+            	//better for jline integration:
+            	engine.print("password > ");
                 BufferedReader r = new BufferedReader(engine.getConsole().getIn());
                 String password = r.readLine();
                 if (password.length()==0) {
