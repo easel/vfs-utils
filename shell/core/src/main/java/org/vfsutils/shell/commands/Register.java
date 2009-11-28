@@ -305,7 +305,7 @@ public class Register extends AbstractCommand {
 			bsh.bsh(new ByteArrayInputStream(buffer), args, engine);
 		} else {
 			Load load = (Load) cpr;
-			load.load(new ByteArrayInputStream(buffer), args, engine, true, false);
+			load.load(new ByteArrayInputStream(buffer), null, args, engine, true, false);
 		}
 	}
 	

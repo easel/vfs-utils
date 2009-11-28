@@ -21,7 +21,7 @@ import org.vfsutils.shell.Arguments.Option;
 public class Load extends AbstractCommand implements CommandProvider {
 
 	public Load() {
-		super("load", new CommandInfo("Load a script", "[-ce] <path>"));
+		super("load", new CommandInfo("Load a script", "[-ce] [--encoding=<enc>] <path>"));
 	}
 
 	public void execute(Arguments args, Engine engine)
@@ -46,19 +46,21 @@ public class Load extends AbstractCommand implements CommandProvider {
 		
 		boolean echo = args.hasFlag('e');
 		
+		String encoding = args.getOption("encoding");
+		
 		Arguments largs = copyArgs(args);
-		load(file, largs, engine, true, echo);
+		load(file, encoding, largs, engine, true, echo);
 	}
 
-	public void load(final FileObject file, Arguments args, Engine engine, boolean haltOnError, boolean echo)
+	public void load(final FileObject file, String encoding, Arguments args, Engine engine, boolean haltOnError, boolean echo)
 			throws CommandException, FileSystemException {
 
 		final InputStream in = file.getContent().getInputStream();
 
-		load(in, args, engine, haltOnError, echo);
+		load(in, encoding, args, engine, haltOnError, echo);
 	}
 	
-	public void load(final InputStream in, Arguments args, Engine engine, boolean haltOnError, boolean echo)
+	public void load(final InputStream in, String encoding, Arguments args, Engine engine, boolean haltOnError, boolean echo)
 		throws CommandException, FileSystemException {
 
 		boolean prevHaltOnError = engine.isHaltOnError();
@@ -71,7 +73,12 @@ public class Load extends AbstractCommand implements CommandProvider {
 				//make the arguments in the context
 				setArgs(engine, args, true);
 				//load
-				engine.load(new InputStreamReader(in));
+				if (encoding == null) {
+					engine.load(new InputStreamReader(in));
+				}
+				else {
+					engine.load(new InputStreamReader(in, encoding));
+				}
 			}
 			finally {
 				//remove the arguments
@@ -103,6 +110,8 @@ public class Load extends AbstractCommand implements CommandProvider {
 		
 		boolean echo = args.hasFlag('e');
 		
+		String encoding = args.getOption("encoding");
+		
 		Arguments largs = copyArgs(args);
 		
 		Engine newEngine = new Engine(engine.getConsole(), engine
@@ -111,7 +120,7 @@ public class Load extends AbstractCommand implements CommandProvider {
 		newEngine.setEchoOn(echo);
 			
 		setArgs(newEngine, largs, true);
-		call(file, newEngine);
+		call(file, encoding, newEngine);
 		
 		//no need to unset the arguments		
 	}
@@ -120,16 +129,23 @@ public class Load extends AbstractCommand implements CommandProvider {
 	 * Executes the given script but does not change the current context
 	 * 
 	 * @param file
+	 * @param encoding
 	 * @param newEngine
 	 * @throws FileSystemException
 	 */
-	public void call(final FileObject file, Engine newEngine)
+	public void call(final FileObject file, String encoding, Engine newEngine)
 			throws CommandException, FileSystemException {
 
 		final InputStream in = file.getContent().getInputStream();
 
 		try {			
-			newEngine.load(new InputStreamReader(in));
+			if (encoding==null) {
+				newEngine.load(new InputStreamReader(in));
+			}
+			else {
+				newEngine.load(new InputStreamReader(in, encoding));
+			}
+			
 		} catch (Exception e) {
 			throw new CommandException(e);
 		} finally {
@@ -180,6 +196,9 @@ public class Load extends AbstractCommand implements CommandProvider {
 				for (int i=0; i<flags.length; i++) {
 					result.addFlag(String.valueOf(flags[i]));
 				}
+			}
+			else if (key.equals("encoding")) {
+				//ignore
 			}
 			else {
 				Option option = (Option) args.getOptions().get(key);
