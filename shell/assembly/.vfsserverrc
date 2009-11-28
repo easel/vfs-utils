@@ -1,0 +1,2 @@
+register common/scripts/* --cache
+register local/scripts/* --cache
