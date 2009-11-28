@@ -9,25 +9,33 @@ import org.vfsutils.shell.Engine;
 public class Error extends AbstractCommand {
 
 	public Error() {
-		super("error", new CommandInfo("Error on last error", "[-p]"));
+		super("error", new CommandInfo("Info on last error", "[-p]"));
 	}
-	
+
 	public void execute(Arguments args, Engine engine)
-			throws IllegalArgumentException, CommandException, FileSystemException {
-		
+			throws IllegalArgumentException, CommandException,
+			FileSystemException {
+
 		if (args.hasFlag('p')) {
 			printError(engine);
-		}
-		else {
+		} else {
 			lastError(engine);
 		}
 	}
 
 	public void lastError(Engine engine) {
-		engine.println(engine.getLastError().getMessage());
+		if (engine.getLastError() != null) {
+			engine.println(engine.getLastError().getMessage());
+		} else {
+			engine.println("no error");
+		}
 	}
-	
+
 	public void printError(Engine engine) {
-		engine.getLastError().printStackTrace(engine.getConsole().getOut());
+		if (engine.getLastError() != null) {
+			engine.getLastError().printStackTrace(engine.getConsole().getOut());
+		} else {
+			engine.println("no error");
+		}
 	}
 }
