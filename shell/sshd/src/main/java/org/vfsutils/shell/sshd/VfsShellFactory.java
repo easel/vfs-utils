@@ -2,10 +2,12 @@ package org.vfsutils.shell.sshd;
 
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemManager;
-import org.apache.sshd.common.session.AttributeKey;
-import org.apache.sshd.server.ShellFactory;
+import org.apache.sshd.common.Factory;
+import org.apache.sshd.common.Session.AttributeKey;
+import org.apache.sshd.server.Command;
 
-public class VfsShellFactory implements ShellFactory {
+
+public class VfsShellFactory implements Factory<Command> {
 	
 	/**
 	 * The root of the file system used by the shell
@@ -28,10 +30,12 @@ public class VfsShellFactory implements ShellFactory {
 		this.fsManager = fsManager;
 		this.path = path;
 	}
-	
-	public Shell createShell() {
+
+	public Command create() {
 		return new VfsShell(fsManager, path);
 	}
+	
+	
 	
 	
 

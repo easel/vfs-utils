@@ -14,10 +14,10 @@ import java.net.URL;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
-import org.apache.sshd.server.ShellFactory.Environment;
-import org.apache.sshd.server.ShellFactory.ExitCallback;
-import org.apache.sshd.server.ShellFactory.SessionAware;
-import org.apache.sshd.server.ShellFactory.Shell;
+import org.apache.sshd.server.Command;
+import org.apache.sshd.server.Environment;
+import org.apache.sshd.server.ExitCallback;
+import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ import bsh.ConsoleInterface;
 import bsh.EvalError;
 import bsh.Interpreter;
 
-public class VfsShell implements Shell, ConsoleInterface, Runnable, SessionAware {
+public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAware {
 	
 	protected static final Logger log = LoggerFactory.getLogger(VfsShell.class);
 

@@ -1,6 +1,7 @@
 package org.vfsutils.shell.sshd;
 
 import org.apache.commons.vfs.FileSystemManager;
+import org.apache.sshd.server.Command;
 import org.apache.sshd.server.CommandFactory;
 import org.apache.sshd.server.command.UnknownCommand;
 

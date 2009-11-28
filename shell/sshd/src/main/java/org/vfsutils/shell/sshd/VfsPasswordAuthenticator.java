@@ -27,7 +27,7 @@ public class VfsPasswordAuthenticator implements PasswordAuthenticator {
 		this.virtual = virtual;
 	}
 
-	public Object authenticate(String username, String password, ServerSession session) {
+	public boolean authenticate(String username, String password, ServerSession session) {
 		
 		FileObject file = null;
 
@@ -52,12 +52,14 @@ public class VfsPasswordAuthenticator implements PasswordAuthenticator {
 			}
 			
 			session.setAttribute(VfsShellFactory.VFS_ROOT, file);
-				
+		
+			return true;
 		} catch (FileSystemException e) {
 			log.debug("Error while authenticating user " + username, e);
+			return false;
 		}
 			
-		return file;
+		
 	}
 
 	public String getDomain() {
