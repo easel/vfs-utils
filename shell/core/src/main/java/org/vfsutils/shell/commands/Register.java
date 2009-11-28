@@ -83,7 +83,7 @@ public class Register extends AbstractCommand {
 				"register",
 				new CommandInfo(
 						"Registers a command",
-						"<path>|<class> [--type={class|vfs|bsh}] [--name=<name>] [--description=<descr>] [--usage=<usage>] [--unregister]"));
+						"<path>|<class> [--type={class|vfs|bsh}] [--name=<name>] [--description=<descr>] [--usage=<usage>] [--cache] [--unregister]"));
 	}
 
 	public void execute(Arguments args, Engine engine)
