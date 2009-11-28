@@ -12,9 +12,11 @@ import org.vfsutils.shell.commands.Cd;
 import org.vfsutils.shell.commands.Cp;
 import org.vfsutils.shell.commands.Dirs;
 import org.vfsutils.shell.commands.Echo;
+import org.vfsutils.shell.commands.Hash;
 import org.vfsutils.shell.commands.Help;
 import org.vfsutils.shell.commands.Load;
 import org.vfsutils.shell.commands.Ls;
+import org.vfsutils.shell.commands.Md5;
 import org.vfsutils.shell.commands.MkDir;
 import org.vfsutils.shell.commands.Mv;
 import org.vfsutils.shell.commands.Ops;
@@ -25,6 +27,7 @@ import org.vfsutils.shell.commands.Pwd;
 import org.vfsutils.shell.commands.Rem;
 import org.vfsutils.shell.commands.Rm;
 import org.vfsutils.shell.commands.Set;
+import org.vfsutils.shell.commands.Sync;
 import org.vfsutils.shell.commands.Touch;
 
 public class BoxedCommandRegistry extends CommandRegistry {
@@ -57,6 +60,8 @@ public class BoxedCommandRegistry extends CommandRegistry {
 		new Touch().register(this);		
 		new Assert().register(this);
 		new Echo().register(this);
+		new Md5().register(this);
+		new Hash().register(this);
 		new BoxedXslt().register(this);
 		new BoxedRegister().register(this);
 		new BoxedUnregister().register(this);
