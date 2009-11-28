@@ -128,7 +128,7 @@ Possible clients
  
  * Linux/Unix/OSX ssh
  
- * PuTTY does not work; it hangs when receiving more then 16K
+ * PuTTY
  
   []
 
