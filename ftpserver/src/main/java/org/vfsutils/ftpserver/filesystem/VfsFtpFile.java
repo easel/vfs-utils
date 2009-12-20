@@ -113,7 +113,10 @@ public class VfsFtpFile implements FtpFile {
 	public long getSize() {
 		long result = 0;
 		try {
-			result = this.vfsFile.getContent().getSize();
+			// VFS throws an exception when retrieving size from a directory
+			if (this.isFile()) {
+				result = this.vfsFile.getContent().getSize();
+			}
 		} catch (FileSystemException e) {
 			log.error("Error getting size of " + this.vfsFile.getName(), e);
 		}
