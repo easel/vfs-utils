@@ -109,7 +109,7 @@ public class Ops extends AbstractCommand implements CommandProvider {
 				doop(file, op, args, engine);
 			}
 		} catch (Exception e) {
-			throw new CommandException("Error in operation " + displayname, e);
+			throw new CommandException("Error: " + e.getMessage(), e);
 		}
 	}
 
