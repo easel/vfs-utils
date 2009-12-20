@@ -63,7 +63,7 @@ public class Cp extends AbstractCommand implements CommandProvider {
 				FileObject imaginaryDest = dest.resolveFile(src.getName().getBaseName());
 				//copyFrom is too aggressive and will destroy a folder to put a file; not very user-friendly imo - I've lost some data this way
 				if (imaginaryDest.getType().equals(FileType.FOLDER)) {
-					throw new CommandException("You cannot copy a file as folder " + engine.toString(imaginaryDest));
+					throw new CommandException("A folder exists with the same name " + engine.toString(imaginaryDest));
 				}
 				cpFiles(src, imaginaryDest, options, engine);
 			}
@@ -72,8 +72,19 @@ public class Cp extends AbstractCommand implements CommandProvider {
 			}
 		}
 		else if (src.getType().equals(FileType.FOLDER)) {
-			if (dest.getType().equals(FileType.FILE)) {
-				throw new IllegalArgumentException("You cannot copy a folder with to file");
+			if (dest.getType().equals(FileType.FOLDER)) {
+				FileObject imaginaryDest = dest.resolveFile(src.getName().getBaseName());
+				//copyFrom is too aggressive and will destroy a folder to put a file; not very user-friendly imo - I've lost some data this way
+				if (imaginaryDest.getType().equals(FileType.FILE)) {
+					throw new IllegalArgumentException("A file exists with the same name: " + engine.toString(dest));
+				}
+				else if (imaginaryDest.getType().equals(FileType.FOLDER)) {
+					throw new CommandException("Folder " + engine.toString(imaginaryDest) + " already exists");
+				}
+				cpDirs(src, imaginaryDest, options, engine);
+			}
+			else if (dest.getType().equals(FileType.FILE)) {
+				throw new IllegalArgumentException("A file exists with the same name: " + engine.toString(dest));
 			}
 			else {
 				cpDirs(src, dest, options, engine);

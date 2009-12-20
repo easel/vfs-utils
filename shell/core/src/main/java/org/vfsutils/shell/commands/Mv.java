@@ -26,20 +26,53 @@ public class Mv extends AbstractCommand implements CommandProvider {
         move (srcPath, destPath, engine);
 	}
 	
-	protected void move(String srcPath, String destPath, Engine engine) throws FileSystemException {
+	protected void move(String srcPath, String destPath, Engine engine) throws FileSystemException, CommandException {
 		final FileObject src = engine.pathToFile(srcPath);
         FileObject dest = engine.pathToFile(destPath);
         
         move(src, dest, engine);
 	}
 	
-	protected void move(FileObject src, FileObject dest, Engine engine) throws FileSystemException {
-		if (dest.exists() && dest.getType() == FileType.FOLDER) {
-            dest = dest.resolveFile(src.getName().getBaseName());
-        }
-
-        dest.moveTo(src);
-
+	protected void move(FileObject src, FileObject dest, Engine engine) throws FileSystemException, CommandException {
+		
+		if (!src.exists()) {
+			throw new CommandException("Source " + engine.toString(src) + " does not exist");
+		}
+		
+		// when the object does not exist yet, its type will be IMAGINARY
+		if (src.getType().equals(FileType.FILE)) {
+			if (dest.getType().equals(FileType.FOLDER)) {
+				FileObject imaginaryDest = dest.resolveFile(src.getName().getBaseName());
+				//moveTo is too aggressive and will destroy a folder to put a file
+				if (imaginaryDest.getType().equals(FileType.FOLDER)) {
+					throw new CommandException("A folder exists with the same name: " + engine.toString(imaginaryDest));
+				}
+				src.moveTo(imaginaryDest);
+			}
+			else {				
+				src.moveTo(dest);
+			}
+		}
+		else if (src.getType().equals(FileType.FOLDER)) {
+			if (dest.getType().equals(FileType.FOLDER)) {
+				FileObject imaginaryDest = dest.resolveFile(src.getName().getBaseName());
+				//moveTo is too aggressive and will destroy the target folder if it exists
+				if (imaginaryDest.getType().equals(FileType.FILE)) {
+					throw new CommandException("A file exists with the same name: " + engine.toString(imaginaryDest));
+				}
+				else if (imaginaryDest.getType().equals(FileType.FOLDER)) {
+					throw new CommandException("A folder exists with the same name: " + engine.toString(imaginaryDest));
+				}
+				src.moveTo(imaginaryDest);
+			}
+			else if (dest.getType().equals(FileType.FILE)) {
+				throw new CommandException("A file exists with the same name: " + engine.toString(dest));
+			}
+			else {
+				src.moveTo(dest);
+			}
+		}
+		
 	}
 
 }
