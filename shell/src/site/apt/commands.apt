@@ -334,8 +334,15 @@ VFS Shell Commands
  
 * {mkdir}
 
- Create a directory.
- 
+ Create a directory. If the directory already exists, a message will be printed, but it will not be considered an
+ error, but an existing file with the same a name is considered an error. You can add multiple levels at once. 
+  
+-----------
+  mkdir tmp
+  mkdir tmp/subdir
+  mkdir new/subdir
+-----------  
+  
 * {mv}
 
  Move the file or directory to the specified location. You can use this too to rename files and 
@@ -487,7 +494,7 @@ VFS Shell Commands
  Sets environment variables that you can later use by prefixing a $ sign to the name. To unset a
  variable just give the name.
 
- You have access to the cwd and cwp variables; the first contains the full name of the current 
+ You have access to the $cwd and $cwp variables; the first contains the full name of the current 
  working directory, the second the path within the filesystem. Note that changing them has no 
  effect; the next cd command will reset them. 
  
@@ -513,7 +520,7 @@ VFS Shell Commands
  By default the date is used; if the source is newer it will overwrite the target; this behaviour can also
  be triggered by flag 'd'. If flag 's' is given the size will be used; if there is a difference in size then 
  the target will be overwritten. If flag 'm' is given the md5 codes are calculated and compared; note that this
- is costly. When you combine flags than the comparisons are combined; e.g. -sd means that the size and the date 
+ is costly. When you combine flags then the comparisons are combined; e.g. -sd means that the size and the date 
  are compared; it does not make much sense to combine 'm' with the other flags though.
  
  If you specify flag '--delete' then superfluous files in the target directory are removed.
