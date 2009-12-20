@@ -26,7 +26,7 @@ public class MkDir extends AbstractCommand implements CommandProvider {
 		if (file.exists()) {
 			
 			if (file.getType().equals(FileType.FILE)) {
-				engine.println("File already exists " + path);
+				throw new CommandException("File already exists " + path);
 			}
 			else {
 				engine.println("Folder already exists " + path);
