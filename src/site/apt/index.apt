@@ -50,6 +50,10 @@ Other VFS clients
  
 News
 
+  * 20-12-2009: Fix for Shell cp and mv commands, FTP avoids getting size on folders
+
+  * 28-11-2009: Upgraded to MINA SSHD 0.3.0
+
   * 09-08-2009: Added integration with Apache MINA SSHD for Shell, improved JLine integration and added xslt and unregister commands for Shell, added xml and xsl related Utils
 
   * 21-06-2009: Added a binary distribution for VFS Shell.
