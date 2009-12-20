@@ -139,7 +139,7 @@ done
 CURR_DIR=`pwd`
 cd $VFSH_HOME
 MAIN_CLASS=org.vfsutils.shell.sshd.Server
-"$JAVACMD" -classpath "$VFSH_CLASSPATH" $MAIN_CLASS $@
+"$JAVACMD" -classpath "$VFSH_CLASSPATH:$VFSH_EXT_CLASSPATH" $VFSH_EXT_OPTS $MAIN_CLASS $@
 RESULT=$?
 cd $CURR_DIR
 exit $RESULT

@@ -65,4 +65,5 @@ rem ----- call java.. ---------------------------------------------------
 set MAIN_CLASS=org.vfsutils.shell.jline.Shell
 set JAVA_CMD=%JAVA_HOME%\bin\java
 
-"%JAVA_CMD%" -classpath "%VFSH_CLASSPATH%" %MAIN_CLASS% %*
+"%JAVA_CMD%" -classpath "%VFSH_CLASSPATH%;%VFSH_EXT_CLASSPATH%" %VFSH_EXT_OPTS% %MAIN_CLASS% %*
+
