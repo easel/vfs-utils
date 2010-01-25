@@ -106,8 +106,7 @@ public class Engine {
 	            }
 	            catch (final Exception e) {
 	            	//keep the error info and stop if needed
-	                error(e.getMessage());
-	                lastError = e;
+	                handleException(e);
 	                if (haltOnError) {
 	                	return;
 	                }
@@ -166,8 +165,7 @@ public class Engine {
                 }
             }
             catch (final Exception e) {
-                console.error(e.getMessage());
-                lastError = e;
+                handleException(e);
                 if (haltOnError) {
                 	return;
                 }
@@ -227,7 +225,9 @@ public class Engine {
         
         //resolve variables
         String resolvedLine = resolveVariables(line); 
-        return commandParser.parse(resolvedLine);
+        Arguments args =  commandParser.parse(resolvedLine);
+        
+        return args;
     }
     
     /**
@@ -258,23 +258,8 @@ public class Engine {
 					eventManager.fireCommandStarted(args);
 					command.execute(args, this);
 				}
-	    		catch (IllegalArgumentException e) {
-	    			error(e.getMessage());
-	    			lastError = e;
-	    			if (haltOnError) {
-	    				return false;
-	    			}
-	    		}
-	    		catch (CommandException e) {
-	    			error(e.getMessage());
-	    			lastError = e;
-	    			if (haltOnError) {
-	    				return false;
-	    			}
-	    		}
-	    		catch (FileSystemException e) {
-	    			error(e.getMessage());
-	    			lastError = e;
+	    		catch (Exception e) {
+	    			handleException(e);
 	    			if (haltOnError) {
 	    				return false;
 	    			}
@@ -284,7 +269,7 @@ public class Engine {
 	    		}
 			} 
 			else {
-				error("Unknown command " + cmd);
+				handleException(new IllegalArgumentException("Unknown command " + cmd));
 				if (haltOnError) {
 					return false;
 				}
@@ -293,6 +278,12 @@ public class Engine {
     	return true;
     }
 
+    protected void handleException(Exception e) {
+    	error(e.getMessage());
+    	this.lastError = e;
+    }
+    
+    
     public void addEngineEventListener(EngineEventListener listener) {    	
     	this.eventManager.addEngineEventListener(listener);
     }
@@ -385,6 +376,10 @@ public class Engine {
 
 	public Exception getLastError() {
 		return this.lastError;
+	}
+	
+	public void clearLastError() {
+		this.lastError=null;
 	}
 	
 	public void println(Object o) {
@@ -492,7 +487,7 @@ public class Engine {
 	 */
 	public FileObject[] pathToFiles(String pathPattern, boolean depthFirst) throws FileSystemException, IllegalArgumentException {		
 		
-		if (pathPattern.indexOf('*')>-1) {
+		if (pathIsPattern(pathPattern)) {
 			FilenameSelector selector = new FilenameSelector();
 			selector.setName(pathPattern);
 			
@@ -506,7 +501,15 @@ public class Engine {
 			FileObject file = this.pathToExistingFile(pathPattern);
 			return new FileObject[]{file};
 		}
-		
+	}
+	
+	/**
+	 * Tells whether the given path has wild cards
+	 * @param pathPattern
+	 * @return
+	 */
+	public boolean pathIsPattern(String pathPattern) {
+		return pathPattern.indexOf('*')>-1;
 	}
 	
 	/**

@@ -54,6 +54,10 @@ public class Context {
 		map.remove(name);
 	}
 	
+	public boolean isSet(String name) {
+		return map.containsKey(name);
+	}
+	
 	public Map getAll() {
 		return Collections.unmodifiableMap(map);
 	}
