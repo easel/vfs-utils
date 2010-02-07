@@ -71,6 +71,10 @@ public class Cp extends AbstractCommand implements CommandProvider {
 			}
 		} else if (src.getType().equals(FileType.FOLDER)) {
 			if (dest.getType().equals(FileType.FOLDER)) {
+				if (src.equals(dest)) {
+					throw new CommandException("Can not copy "
+							+ engine.toString(src) + " into itself");
+				}
 				// resolve the target name
 				FileObject imaginaryDest = resolve(src, baseDir, dest);
 				// cpFolder will not allow replacing a file by a folder
@@ -89,7 +93,7 @@ public class Cp extends AbstractCommand implements CommandProvider {
 
 		if (srcFiles.length > 1 && !destDir.getType().equals(FileType.FOLDER)) {
 			throw new IllegalArgumentException("Copying multiple file but "
-					+ destDir + " is not an existing folder");
+					+ engine.toString(destDir) + " is not an existing folder");
 		}
 
 		for (int i = 0; i < srcFiles.length; i++) {
@@ -112,10 +116,16 @@ public class Cp extends AbstractCommand implements CommandProvider {
 			CpOptions options, Engine engine) throws FileSystemException,
 			CommandException {
 
+		if (srcFile.equals(destFile)) {
+			throw new CommandException("Can not copy "
+					+ engine.toString(srcFile) + " onto itself");
+		}
+
 		if (!srcFile.getType().equals(FileType.FILE)) {
 			// Conflict
-			throw new CommandException("Can not copy " + srcFile + " to "
-					+ destFile);
+			throw new CommandException("Can not copy "
+					+ engine.toString(srcFile) + " to "
+					+ engine.toString(destFile));
 		}
 
 		// copyFrom is too aggressive and will destroy a folder to put a
@@ -123,8 +133,9 @@ public class Cp extends AbstractCommand implements CommandProvider {
 		// way
 		if (destFile.getType().equals(FileType.FOLDER)) {
 			// Conflict
-			throw new CommandException("Can not overwrite folder " + destFile
-					+ " with file " + srcFile);
+			throw new CommandException("Can not overwrite folder "
+					+ engine.toString(destFile) + " with file "
+					+ engine.toString(srcFile));
 		}
 
 		destFile.copyFrom(srcFile, Selectors.SELECT_SELF);
@@ -158,16 +169,28 @@ public class Cp extends AbstractCommand implements CommandProvider {
 			CpOptions options, Engine engine) throws FileSystemException,
 			CommandException {
 
+		if (srcDir.equals(destDir)) {
+			throw new CommandException("Can not copy "
+					+ engine.toString(srcDir) + " into itself");
+		}
+
+		if (srcDir.getName().isDescendent(destDir.getName())) {
+			throw new CommandException("Can not copy "
+					+ engine.toString(srcDir) + " into its descendent");
+		}
+
 		if (!srcDir.getType().equals(FileType.FOLDER)) {
 			// Conflict
-			throw new CommandException("Can not copy " + srcDir + " to "
-					+ destDir);
+			throw new CommandException("Can not copy "
+					+ engine.toString(srcDir) + " to "
+					+ engine.toString(destDir));
 		}
 
 		if (destDir.getType().equals(FileType.FILE)) {
 			// Conflict
-			throw new CommandException("Can not overwrite file " + destDir
-					+ " with folder " + srcDir);
+			throw new CommandException("Can not overwrite file "
+					+ engine.toString(destDir) + " with folder "
+					+ engine.toString(srcDir));
 		}
 
 		// copy the destDir
