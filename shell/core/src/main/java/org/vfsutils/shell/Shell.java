@@ -37,7 +37,7 @@ public class Shell implements bsh.ConsoleInterface {
 	
 	protected void customizeEngine(Engine engine) {
 				
-		String configScriptLocation = System.getProperty("org.dctmvfs.vfs.shell.customscript", "vfs-shell-custom-init.bsh");
+		String configScriptLocation = System.getProperty("org.vfsutils.shell.customscript", "vfs-shell-custom-init.bsh");
 
 		//escape mode
 		if (configScriptLocation.equals("none")) {
