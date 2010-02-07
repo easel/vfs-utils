@@ -5,10 +5,13 @@ import org.vfsutils.shell.Arguments;
 public abstract class AbstractEngineEventListener implements
 		EngineEventListener {
 
+	public void commandFailed(Arguments args, Exception e) {
+	}
+
 	public void commandFinished(Arguments args) {
 	}
 
-	public void commandStarted(Arguments args) {		
+	public void commandStarted(Arguments args) {
 	}
 
 	public void engineStarted() {
