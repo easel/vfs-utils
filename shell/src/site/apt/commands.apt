@@ -90,7 +90,7 @@ VFS Shell Commands
 
 * {assert}
 
- Asserts whether a file or folder exists. With the -n flag you can assert the inverse: that it does not exist. Use the -f flag if you want to assert it is an existing file; use -d to assert it is a directory.
+ Asserts whether a file or folder exists. With the -n flag you can assert the inverse: that it does not exist. Use the -f flag if you want to assert it is an existing file; use -d to assert it is a directory. To verify the current working directory you can give option --cwd=<path>; if the given path does not resolve to the current working directory an error is issued. 
 
  Examples:
   
@@ -100,6 +100,8 @@ VFS Shell Commands
   assert -n nonexisting
   assert -f myexistingfile.txt
   assert -d subdir/myexistingdir  
+  assert . --cwd=file:///etc/tmp
+  assert . --cwd=/etc/tmp
 ------------
  
 
@@ -183,8 +185,8 @@ VFS Shell Commands
 
 * {cp}
 
- Copy the file or directory to the specified location. If you specify the 'P' flag then it will not try to
- preserver the modification date; by default it will try to keep it. Flag 'v' will do the copy in verbose 
+ Copy the file or directory to the specified location. If you specify the -P flag then it will not try to
+ preserve the modification date; by default it will try to keep it. Flag -v will do the copy in verbose 
  mode.
  
  Note that the cp command will always overwrite the files; you can use the sync command if you do not want to
@@ -250,7 +252,26 @@ VFS Shell Commands
 * {error}
 
  Prints the last occurred error. If you specify the -p flag the stacktrace related to the error
- is printed.
+ is printed. Giving the --halt flag will print the status of the 'halt on error' behaviour; if you 
+ give a value you can change this behaviour. You can clear the current error using the --clear flag.
+ In some testing scenarios you want to force an exception when there is no error, you can use the 
+ --assert flag for this. This mainly functions as a delayed error activation mechanism.
+ 
+ Examples:
+ 
+------------
+ error
+ error -p
+ error --halt
+ error --halt=yes
+ error --clear
+ 
+ error --halt=no
+ ... <do something>
+ error --halt=yes
+ error --assert="my message" 
+------------
+ 
  
 * {exit}, bye, quit
 
@@ -487,7 +508,20 @@ VFS Shell Commands
 
 * {rm}
 
- Remove the specified file. It does not remove non empty directories.
+ Remove the specified file or folder. It does not remove non-empty directories. You have more 
+ verbose output when you specify the -v flag. The -F flag indicates that the command should 
+ not fail if the remove does not work. For safety you can not remove everything in a filesystem 
+ using rm /**/*; however, if you are in the root and do rm **/* no warning will be issued.
+ The rm command does a depth first transversal using the pattern which means that folders
+ are removed after their children.
+ 
+ Examples:
+ 
+---------------
+ rm myfile.txt
+ rm folder/**/* -v
+ rm nonexisting*.txt -Fv
+---------------
 
 * {set}
 

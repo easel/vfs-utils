@@ -44,13 +44,13 @@ VFS Shell Configuration
  If you want to use another script you can use an environment variable:
 
 ----------- 
- -Dorg.dctmvfs.vfs.shell.customscript=my-custom-init.bsh
+ -Dorg.vfsutils.shell.customscript=my-custom-init.bsh
 -----------
  
  If you want to avoid the script to load you should set the value of environment variable to 'none':
  
 ----------- 
- -Dorg.dctmvfs.vfs.shell.customscript=none
+ -Dorg.vfsutils.shell.customscript=none
 -----------
  
  The script is a Beanshell script which has access to the variable 'engine'.
@@ -58,7 +58,7 @@ VFS Shell Configuration
  Example:
  
 --------------
- import org.dctmvfs.vfs.shell.commands.Ls;
+ import org.vfsutils.shell.commands.Ls;
 
  Ls dir = new Ls();
  dir.setCommand("dir");
