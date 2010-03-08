@@ -13,8 +13,7 @@ public class FilenameSelector implements FileSelector {
     private boolean negated = false;
     
     private int maxDepth = -1;
-	
-    
+	private boolean includeBaseFolder = false;    
     
     
     /**
@@ -83,10 +82,24 @@ public class FilenameSelector implements FileSelector {
         this.negated = negated;
     }
     
+    /**
+     * By default the base folder is excluded from the selection, but you can choose
+     * to include it. When the base folder is included the negate option is applied
+     * to the result; when it is excluded not.
+     * @param excluded
+     */
+    public void setIncludeBaseFolder(boolean included) {
+    	this.includeBaseFolder = included;
+    }
+    
 	public boolean includeFile(FileSelectInfo fileInfo) throws Exception {
-		return (SelectorUtils.matchPath(pattern, fileInfo.getBaseFolder().getName().getRelativeName(fileInfo.getFile().getName()),
+		if (fileInfo.getDepth()==0 && !includeBaseFolder && fileInfo.getBaseFolder().equals(fileInfo.getFile())) {
+			return false;
+		}
+		else {
+			return (SelectorUtils.matchPath(pattern, fileInfo.getBaseFolder().getName().getRelativeName(fileInfo.getFile().getName()),
                 casesensitive) == !(negated));
-		
+		}
 	}
 	public boolean traverseDescendents(FileSelectInfo fileInfo) throws Exception {
 		if (this.maxDepth==-1) {
