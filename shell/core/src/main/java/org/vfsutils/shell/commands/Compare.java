@@ -3,7 +3,6 @@ package org.vfsutils.shell.commands;
 import java.math.BigInteger;
 import java.util.LinkedList;
 
-import org.apache.commons.vfs.Capability;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
@@ -13,28 +12,31 @@ import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.Engine;
 
-public class Sync extends AbstractCommand {
+public class Compare extends AbstractCommand {
 	
-	public class SyncOptions {
+	public class CompareOptions {
 		public boolean compareDate = true;
 		public boolean compareSize = false;
 		public boolean compareMd5 = false;
-		public boolean delete = false;
-		public boolean preserveLastModified = true;
 		public boolean verbose = false;
-		public boolean dryRun = false;
+		public boolean processRemaining = true;
+		
+		public FileObject srcBase = null;
+		public FileObject destBase = null;
+		
 		
 		protected int cntFiles = 0;
 		protected int cntSyncFiles = 0;
 		protected int cntDirs = 0;
 		protected int cntSyncDirs = 0;
 		protected int cntRemoved = 0;
+		
 	}
 
 	protected org.vfsutils.Md5 md5Helper;
 	
-	public Sync() {
-		super("sync", "Synchronize two locations", "<fromPath> <toPath> [--delete] [--dry-run] [-sdmPv]");
+	public Compare() {
+		super("compare", "Compares two locations", "<fromPath> <toPath> [-sdmv]");
 		this.md5Helper = new org.vfsutils.Md5();
 	}
 
@@ -44,23 +46,23 @@ public class Sync extends AbstractCommand {
 		
 		args.assertSize(2);
 		
-		FileObject srcFileObject = engine.pathToFile(args.getArgument(0));
-		FileObject destFileObject = engine.pathToFile(args.getArgument(1));
+		FileObject srcFileObject = engine.pathToExistingFile(args.getArgument(0));
+		FileObject destFileObject = engine.pathToExistingFile(args.getArgument(1));
 		
-		SyncOptions options = new SyncOptions();
+		CompareOptions options = new CompareOptions();
 		
-		options.delete = args.hasFlag("delete");
 		options.compareSize = args.hasFlag('s');
 		options.compareMd5 = args.hasFlag('m');
 		options.compareDate = args.hasFlag('d') || !(options.compareSize || options.compareMd5);
-		options.preserveLastModified = !args.hasFlag('P');
 		options.verbose = args.hasFlag('v');
-		options.dryRun = args.hasFlag("dry-run");
+		
+		options.srcBase = srcFileObject;
+		options.destBase = destFileObject;
 		
 		sync(srcFileObject, destFileObject, options, engine);
 		
-		engine.println((options.dryRun?"[Dry run] ":"") + "Synchronized " + options.cntSyncDirs + " of " + options.cntDirs + " Folder(s), " 
-				+ options.cntSyncFiles + " of " + options.cntFiles + " File(s), Removed " + options.cntRemoved + " items");
+		engine.println("Difference: " + options.cntSyncDirs + " of " + options.cntDirs + " Folder(s), " 
+				+ options.cntSyncFiles + " of " + options.cntFiles + " File(s), " + options.cntRemoved + " conflicting or superfluous items");
 		
 	}
 	
@@ -73,7 +75,7 @@ public class Sync extends AbstractCommand {
 	 * @throws CommandException
 	 * @throws FileSystemException
 	 */
-	public void sync(FileObject src, FileObject dest, SyncOptions options, Engine engine) throws IllegalArgumentException, CommandException, FileSystemException {
+	public void sync(FileObject src, FileObject dest, CompareOptions options, Engine engine) throws IllegalArgumentException, CommandException, FileSystemException {
 		if (src.getType().equals(FileType.FILE)) {
 			if (dest.getType().equals(FileType.FOLDER)) {
 				FileObject imaginaryDest = dest.resolveFile(src.getName().getBaseName());
@@ -93,45 +95,26 @@ public class Sync extends AbstractCommand {
 		}
 	}
 	
-	protected void syncFiles(FileObject srcFile, FileObject destFile, SyncOptions options, Engine engine) throws CommandException, FileSystemException {
+	protected void syncFiles(FileObject srcFile, FileObject destFile, CompareOptions options, Engine engine) throws CommandException, FileSystemException {
 		
 		options.cntFiles++;
 		if (!areSame(srcFile, destFile, options)) {
-			if (!options.dryRun) {
-				destFile.copyFrom(srcFile, Selectors.SELECT_SELF);
+			syncFileAction(srcFile, destFile, options, engine);
+			
 				
-				if (options.preserveLastModified  && 
-			                srcFile.getFileSystem().hasCapability(Capability.GET_LAST_MODIFIED) &&
-			                destFile.getFileSystem().hasCapability(Capability.SET_LAST_MODIFIED_FILE)) {
-					 destFile.getContent().setLastModifiedTime(srcFile.getContent().getLastModifiedTime());
-			    }
-			}
-			if (options.verbose) {
-				 engine.println("Copied file " + engine.toString(srcFile) + " to " + engine.toString(destFile));
-			}
 			options.cntSyncFiles++;
 		}
 	}
 	
-	protected void syncDirs(FileObject srcDir, FileObject destDir, SyncOptions options, Engine engine) throws CommandException, FileSystemException {
+	
+
+	protected void syncDirs(FileObject srcDir, FileObject destDir, CompareOptions options, Engine engine) throws CommandException, FileSystemException {
 		
 		java.util.List destChildren = new LinkedList();
 		options.cntDirs++;
 		if (!destDir.exists()) {
-
-			if (!options.dryRun) {
-				//create the destDir
-				destDir.copyFrom(srcDir, Selectors.SELECT_SELF);
-				
-				if (options.preserveLastModified  && 
-						srcDir.getFileSystem().hasCapability(Capability.GET_LAST_MODIFIED) &&
-						destDir.getFileSystem().hasCapability(Capability.SET_LAST_MODIFIED_FOLDER)) {
-					destDir.getContent().setLastModifiedTime(srcDir.getContent().getLastModifiedTime());
-				}
-			}
-			if (options.verbose) {
-				engine.println("Copied directory " + engine.toString(srcDir) + " to " + engine.toString(destDir));
-			}
+			syncDirAction(srcDir, destDir, options, engine);
+			
 			options.cntSyncDirs++;
 		}
 		else {
@@ -152,20 +135,15 @@ public class Sync extends AbstractCommand {
 				destChildren.remove(destChild);
 			
 				//if delete, remove destChild in case of type conflict
-				if (options.delete) {
+				if (options.processRemaining) {
 					if (srcChild.getType().equals(FileType.FILE) & destChild.getType().equals(FileType.FOLDER)) {
-						if (!options.dryRun) destChild.delete(Selectors.SELECT_SELF_AND_CHILDREN);
+						typeConflictAction(srcChild, destChild, options, engine);						
 						options.cntRemoved++;
-						if (options.verbose) {
-							engine.println("Removed " + engine.toString(destChild) + "because of a type conflict");
-						}
+						
 					}
 					else if (srcChild.getType().equals(FileType.FOLDER) && destChild.getType().equals(FileType.FILE)) {
-						if (!options.dryRun) destChild.delete();
+						typeConflictAction(srcChild, destChild, options, engine);
 						options.cntRemoved++;
-						if (options.verbose) {
-							engine.println("Removed " + engine.toString(destChild) + "because of a type conflict");
-						}
 					}
 				}				
 				
@@ -184,18 +162,12 @@ public class Sync extends AbstractCommand {
 				
 			}
 			
-			if (options.delete) {
+			if (options.processRemaining) {
 				for (int i=0; i<destChildren.size(); i++) {
 					FileObject remainingChild = (FileObject) destChildren.get(i);
-					if (!options.dryRun) {
-						options.cntRemoved += remainingChild.delete(Selectors.SELECT_SELF_AND_CHILDREN);
-					}
-					else {
-						options.cntRemoved += remainingChild.findFiles(Selectors.SELECT_SELF_AND_CHILDREN).length;
-					}
-					if (options.verbose){
-						engine.println("Removed " + engine.toString(remainingChild));
-					}
+					options.cntRemoved += remainingChildAction(remainingChild, options, engine);
+					
+					
 				}
 			}
 			
@@ -203,7 +175,48 @@ public class Sync extends AbstractCommand {
 	}
 
 	
-	protected boolean areSame(FileObject fileA, FileObject fileB, SyncOptions options) throws FileSystemException {
+	private int remainingChildAction(FileObject remainingChild,
+			CompareOptions options, Engine engine) throws FileSystemException {
+		
+		int remaining = remainingChild.findFiles(Selectors.SELECT_SELF_AND_CHILDREN).length;
+		
+		if (options.verbose){
+			engine.println("Superfluous " + engine.toString(remainingChild));
+		}
+		
+		return remaining;
+	}
+
+	private void typeConflictAction(FileObject srcChild, FileObject destChild,
+			CompareOptions options, Engine engine) throws FileSystemException {
+		
+		if (options.verbose) {
+			engine.println("Type conflict between " + engine.toString(srcChild) + " and " + engine.toString(destChild));
+		}
+	}
+
+	protected void syncDirAction(FileObject srcDir, FileObject destDir,
+			CompareOptions options, Engine engine) throws FileSystemException {
+		if (options.verbose) {
+			engine.println("Directory " + engine.toString(destDir) + " does not exist");
+		}
+	}
+
+	protected void syncFileAction(FileObject srcFile, FileObject destFile,
+			CompareOptions options, Engine engine) throws FileSystemException {
+		
+		if (options.verbose) {
+			if (!destFile.exists()) {
+				engine.println("File " + engine.toString(destFile) + " does not exist");
+			}
+			else {
+				engine.println("Difference between " + engine.toString(srcFile) + " and " + engine.toString(destFile));
+			}
+		}
+	
+	}
+	
+	protected boolean areSame(FileObject fileA, FileObject fileB, CompareOptions options) throws FileSystemException {
 		
 		if (!fileB.exists()) {
 			return false;
