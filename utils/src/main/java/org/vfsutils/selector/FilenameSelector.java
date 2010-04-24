@@ -4,16 +4,20 @@ import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileSelectInfo;
 import org.apache.commons.vfs.FileSelector;
 import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.provider.UriParser;
 
 public class FilenameSelector implements FileSelector {
 	
 	private String pattern = null;
     private boolean casesensitive = true;
-    private boolean negated = false;
+    protected boolean negated = false;
     
     private int maxDepth = -1;
-	private boolean includeBaseFolder = false;    
+	private boolean includeBaseFolder = false;
+	
+	private boolean includeFiles = true;
+	private boolean includeFolders = true;
     
     
     /**
@@ -35,7 +39,9 @@ public class FilenameSelector implements FileSelector {
         this.pattern = pattern;
         
         //count the depth 
-		this.maxDepth = calculateDepth(pattern);
+        if (this.maxDepth<0){
+        	this.maxDepth = calculateDepth(pattern);
+        }
         
     }
     
@@ -92,15 +98,57 @@ public class FilenameSelector implements FileSelector {
     	this.includeBaseFolder = included;
     }
     
+    /**
+     * By default the maximum depth is related to the name pattern that is given. It 
+     * can be constrained further by this method
+     * @param maxDepth
+     */
+    public void setMaxDepth(int maxDepth) {
+    	this.maxDepth = maxDepth;
+    }
+    
+    public void setIncludeFiles(boolean includeFiles) {
+    	this.includeFiles = includeFiles;
+    }
+    
+    public void setIncludeFolders(boolean includeFolders) {
+    	this.includeFolders = includeFolders;
+    }
+    
 	public boolean includeFile(FileSelectInfo fileInfo) throws Exception {
+		boolean result = true;
 		if (fileInfo.getDepth()==0 && !includeBaseFolder && fileInfo.getBaseFolder().equals(fileInfo.getFile())) {
-			return false;
+			result = false;
 		}
-		else {
-			return (SelectorUtils.matchPath(pattern, fileInfo.getBaseFolder().getName().getRelativeName(fileInfo.getFile().getName()),
-                casesensitive) == !(negated));
+		
+		if (result) {
+			result = (includeType(fileInfo.getFile().getType(), this.includeFiles, this.includeFolders) == !negated);
 		}
+		
+		if (result) {
+			result = (includeName(fileInfo.getBaseFolder().getName().getRelativeName(fileInfo.getFile().getName()), this.pattern, this.casesensitive) == !negated);
+		}
+		return result;
 	}
+	
+	protected boolean includeType(FileType type, boolean includeFiles, boolean includeFolders) {
+		boolean result = false;
+		if (includeFiles && includeFolders) {
+			result = true;
+		}
+		else if (includeFiles){
+			result = type.equals(FileType.FILE) || type.equals(FileType.FILE_OR_FOLDER);
+		}
+		else if (includeFolders){
+			result = type.equals(FileType.FOLDER) || type.equals(FileType.FILE_OR_FOLDER);
+		}
+		return result;
+	}
+	
+	protected boolean includeName(String relativeName, String constraint, boolean caseSensitive) {
+		return SelectorUtils.matchPath(pattern, relativeName, caseSensitive) ;
+	}
+	
 	public boolean traverseDescendents(FileSelectInfo fileInfo) throws Exception {
 		if (this.maxDepth==-1) {
 			return true;
