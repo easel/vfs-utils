@@ -18,12 +18,11 @@ public class Compare extends AbstractCommand {
 		public boolean compareDate = true;
 		public boolean compareSize = false;
 		public boolean compareMd5 = false;
-		public boolean verbose = false;
-		public boolean processRemaining = true;
+		public boolean purge = true;
+		public boolean verbose = false;		
 		
 		public FileObject srcBase = null;
-		public FileObject destBase = null;
-		
+		public FileObject destBase = null;		
 		
 		protected int cntFiles = 0;
 		protected int cntSyncFiles = 0;
@@ -59,6 +58,10 @@ public class Compare extends AbstractCommand {
 		options.srcBase = srcFileObject;
 		options.destBase = destFileObject;
 		
+		if (options.verbose) {
+			engine.println("Comparing using " + (options.compareSize?"size ":"") + (options.compareDate?"date ":"") + (options.compareMd5?"md5 ":""));
+		}
+		
 		sync(srcFileObject, destFileObject, options, engine);
 		
 		engine.println("Difference: " + options.cntSyncDirs + " of " + options.cntDirs + " Folder(s), " 
@@ -87,7 +90,7 @@ public class Compare extends AbstractCommand {
 		}
 		else if (src.getType().equals(FileType.FOLDER)) {
 			if (dest.getType().equals(FileType.FILE)) {
-				throw new IllegalArgumentException("You cannot synchronize a folder with a file");
+				throw new IllegalArgumentException("You cannot compare a folder with a file");
 			}
 			else {
 				syncDirs(src, dest, options, engine);
@@ -99,9 +102,7 @@ public class Compare extends AbstractCommand {
 		
 		options.cntFiles++;
 		if (!areSame(srcFile, destFile, options)) {
-			syncFileAction(srcFile, destFile, options, engine);
-			
-				
+			syncFileAction(srcFile, destFile, options, engine);				
 			options.cntSyncFiles++;
 		}
 	}
@@ -113,8 +114,7 @@ public class Compare extends AbstractCommand {
 		java.util.List destChildren = new LinkedList();
 		options.cntDirs++;
 		if (!destDir.exists()) {
-			syncDirAction(srcDir, destDir, options, engine);
-			
+			syncDirAction(srcDir, destDir, options, engine);			
 			options.cntSyncDirs++;
 		}
 		else {
@@ -134,16 +134,10 @@ public class Compare extends AbstractCommand {
 				FileObject destChild = destDir.resolveFile(srcChild.getName().getBaseName(), NameScope.CHILD);
 				destChildren.remove(destChild);
 			
-				//if delete, remove destChild in case of type conflict
-				if (options.processRemaining) {
-					if (srcChild.getType().equals(FileType.FILE) & destChild.getType().equals(FileType.FOLDER)) {
-						typeConflictAction(srcChild, destChild, options, engine);						
-						options.cntRemoved++;
-						
-					}
-					else if (srcChild.getType().equals(FileType.FOLDER) && destChild.getType().equals(FileType.FILE)) {
-						typeConflictAction(srcChild, destChild, options, engine);
-						options.cntRemoved++;
+				//if purge is allowed, remove destChild in case of type conflict
+				if (options.purge) {
+					if (destChild.exists() && !srcChild.getType().equals(destChild.getType())) {
+						options.cntRemoved += typeConflictAction(srcChild, destChild, options, engine);						
 					}
 				}				
 				
@@ -162,12 +156,10 @@ public class Compare extends AbstractCommand {
 				
 			}
 			
-			if (options.processRemaining) {
+			if (options.purge) {
 				for (int i=0; i<destChildren.size(); i++) {
 					FileObject remainingChild = (FileObject) destChildren.get(i);
 					options.cntRemoved += remainingChildAction(remainingChild, options, engine);
-					
-					
 				}
 			}
 			
@@ -175,7 +167,7 @@ public class Compare extends AbstractCommand {
 	}
 
 	
-	private int remainingChildAction(FileObject remainingChild,
+	protected int remainingChildAction(FileObject remainingChild,
 			CompareOptions options, Engine engine) throws FileSystemException {
 		
 		int remaining = remainingChild.findFiles(Selectors.SELECT_SELF_AND_CHILDREN).length;
@@ -187,12 +179,16 @@ public class Compare extends AbstractCommand {
 		return remaining;
 	}
 
-	private void typeConflictAction(FileObject srcChild, FileObject destChild,
+	protected int typeConflictAction(FileObject srcChild, FileObject destChild,
 			CompareOptions options, Engine engine) throws FileSystemException {
+		
+		int conflicting = destChild.findFiles(Selectors.SELECT_SELF_AND_CHILDREN).length;
 		
 		if (options.verbose) {
 			engine.println("Type conflict between " + engine.toString(srcChild) + " and " + engine.toString(destChild));
 		}
+		
+		return conflicting;
 	}
 
 	protected void syncDirAction(FileObject srcDir, FileObject destDir,

@@ -19,10 +19,13 @@ public class Sync extends AbstractCommand {
 		public boolean compareDate = true;
 		public boolean compareSize = false;
 		public boolean compareMd5 = false;
-		public boolean delete = false;
+		public boolean purge = false;
 		public boolean preserveLastModified = true;
 		public boolean verbose = false;
 		public boolean dryRun = false;
+		
+		public FileObject srcBase = null;
+		public FileObject destBase = null;
 		
 		protected int cntFiles = 0;
 		protected int cntSyncFiles = 0;
@@ -44,18 +47,26 @@ public class Sync extends AbstractCommand {
 		
 		args.assertSize(2);
 		
-		FileObject srcFileObject = engine.pathToFile(args.getArgument(0));
+		FileObject srcFileObject = engine.pathToExistingFile(args.getArgument(0));
 		FileObject destFileObject = engine.pathToFile(args.getArgument(1));
 		
 		SyncOptions options = new SyncOptions();
 		
-		options.delete = args.hasFlag("delete");
+		options.purge = args.hasFlag("delete");
 		options.compareSize = args.hasFlag('s');
 		options.compareMd5 = args.hasFlag('m');
 		options.compareDate = args.hasFlag('d') || !(options.compareSize || options.compareMd5);
 		options.preserveLastModified = !args.hasFlag('P');
 		options.verbose = args.hasFlag('v');
 		options.dryRun = args.hasFlag("dry-run");
+		
+		options.srcBase = srcFileObject;
+		options.destBase = destFileObject;
+		
+		if (options.verbose) {
+			engine.println("Comparing using " + (options.compareSize?"size ":"") + (options.compareDate?"date ":"") + (options.compareMd5?"md5 ":""));
+			engine.println((options.dryRun?"Doing a dry-run ":"") + (options.purge?"Allowing delete ":"") + (options.preserveLastModified?"Preserving last modified date ":""));
+		}
 		
 		sync(srcFileObject, destFileObject, options, engine);
 		
@@ -97,18 +108,7 @@ public class Sync extends AbstractCommand {
 		
 		options.cntFiles++;
 		if (!areSame(srcFile, destFile, options)) {
-			if (!options.dryRun) {
-				destFile.copyFrom(srcFile, Selectors.SELECT_SELF);
-				
-				if (options.preserveLastModified  && 
-			                srcFile.getFileSystem().hasCapability(Capability.GET_LAST_MODIFIED) &&
-			                destFile.getFileSystem().hasCapability(Capability.SET_LAST_MODIFIED_FILE)) {
-					 destFile.getContent().setLastModifiedTime(srcFile.getContent().getLastModifiedTime());
-			    }
-			}
-			if (options.verbose) {
-				 engine.println("Copied file " + engine.toString(srcFile) + " to " + engine.toString(destFile));
-			}
+			syncFileAction(srcFile, destFile, options, engine);
 			options.cntSyncFiles++;
 		}
 	}
@@ -118,20 +118,7 @@ public class Sync extends AbstractCommand {
 		java.util.List destChildren = new LinkedList();
 		options.cntDirs++;
 		if (!destDir.exists()) {
-
-			if (!options.dryRun) {
-				//create the destDir
-				destDir.copyFrom(srcDir, Selectors.SELECT_SELF);
-				
-				if (options.preserveLastModified  && 
-						srcDir.getFileSystem().hasCapability(Capability.GET_LAST_MODIFIED) &&
-						destDir.getFileSystem().hasCapability(Capability.SET_LAST_MODIFIED_FOLDER)) {
-					destDir.getContent().setLastModifiedTime(srcDir.getContent().getLastModifiedTime());
-				}
-			}
-			if (options.verbose) {
-				engine.println("Copied directory " + engine.toString(srcDir) + " to " + engine.toString(destDir));
-			}
+			syncDirAction(srcDir, destDir, options, engine);
 			options.cntSyncDirs++;
 		}
 		else {
@@ -152,20 +139,9 @@ public class Sync extends AbstractCommand {
 				destChildren.remove(destChild);
 			
 				//if delete, remove destChild in case of type conflict
-				if (options.delete) {
-					if (srcChild.getType().equals(FileType.FILE) & destChild.getType().equals(FileType.FOLDER)) {
-						if (!options.dryRun) destChild.delete(Selectors.SELECT_SELF_AND_CHILDREN);
-						options.cntRemoved++;
-						if (options.verbose) {
-							engine.println("Removed " + engine.toString(destChild) + "because of a type conflict");
-						}
-					}
-					else if (srcChild.getType().equals(FileType.FOLDER) && destChild.getType().equals(FileType.FILE)) {
-						if (!options.dryRun) destChild.delete();
-						options.cntRemoved++;
-						if (options.verbose) {
-							engine.println("Removed " + engine.toString(destChild) + "because of a type conflict");
-						}
+				if (options.purge) {
+					if (destChild.exists() && !srcChild.getType().equals(destChild.getType())) {
+						options.cntRemoved += typeConflictAction(srcChild, destChild, options, engine);
 					}
 				}				
 				
@@ -184,24 +160,95 @@ public class Sync extends AbstractCommand {
 				
 			}
 			
-			if (options.delete) {
+			if (options.purge) {
 				for (int i=0; i<destChildren.size(); i++) {
 					FileObject remainingChild = (FileObject) destChildren.get(i);
-					if (!options.dryRun) {
-						options.cntRemoved += remainingChild.delete(Selectors.SELECT_SELF_AND_CHILDREN);
-					}
-					else {
-						options.cntRemoved += remainingChild.findFiles(Selectors.SELECT_SELF_AND_CHILDREN).length;
-					}
-					if (options.verbose){
-						engine.println("Removed " + engine.toString(remainingChild));
-					}
+					options.cntRemoved += remainingChildAction(remainingChild, options, engine);
 				}
 			}
 			
 		}
 	}
 
+	
+	protected int remainingChildAction(FileObject remainingChild,
+			SyncOptions options, Engine engine) throws FileSystemException {
+		
+		int remaining = 0;
+		if (!options.dryRun) {
+			remaining = remainingChild.delete(Selectors.SELECT_SELF_AND_CHILDREN);
+		}
+		else {
+			remaining = remainingChild.findFiles(Selectors.SELECT_SELF_AND_CHILDREN).length;
+		}
+		if (options.verbose){
+			engine.println("Removed " + engine.toString(remainingChild));
+		}
+		
+		return remaining;
+	}
+	
+	protected int typeConflictAction(FileObject srcChild, FileObject destChild,
+			SyncOptions options, Engine engine) throws FileSystemException {
+		
+		int removed = 0;
+		
+		if (srcChild.getType().equals(FileType.FILE) & destChild.getType().equals(FileType.FOLDER)) {
+			if (!options.dryRun) {
+				removed = destChild.delete(Selectors.SELECT_SELF_AND_CHILDREN);
+			}
+			else {
+				removed = destChild.findFiles(Selectors.SELECT_SELF_AND_CHILDREN).length;
+			}
+			if (options.verbose) {
+				engine.println("Removed folder " + engine.toString(destChild) + " because of a type conflict");
+			}
+		}
+		else if (srcChild.getType().equals(FileType.FOLDER) && destChild.getType().equals(FileType.FILE)) {
+			if (!options.dryRun) {
+				destChild.delete();
+			}
+			removed = 1;
+
+			if (options.verbose) {
+				engine.println("Removed file " + engine.toString(destChild) + " because of a type conflict");
+			}
+		}
+		return removed;
+	}
+	
+	protected void syncDirAction(FileObject srcDir, FileObject destDir,
+			SyncOptions options, Engine engine) throws FileSystemException {
+		if (!options.dryRun) {
+			//create the destDir
+			destDir.copyFrom(srcDir, Selectors.SELECT_SELF);
+			
+			if (options.preserveLastModified  && 
+					srcDir.getFileSystem().hasCapability(Capability.GET_LAST_MODIFIED) &&
+					destDir.getFileSystem().hasCapability(Capability.SET_LAST_MODIFIED_FOLDER)) {
+				destDir.getContent().setLastModifiedTime(srcDir.getContent().getLastModifiedTime());
+			}
+		}
+		if (options.verbose) {
+			engine.println("Copied directory " + engine.toString(srcDir) + " to " + engine.toString(destDir));
+		}
+	}
+	
+	protected void syncFileAction(FileObject srcFile, FileObject destFile,
+			SyncOptions options, Engine engine) throws FileSystemException {
+		if (!options.dryRun) {
+			destFile.copyFrom(srcFile, Selectors.SELECT_SELF);
+			
+			if (options.preserveLastModified  && 
+		                srcFile.getFileSystem().hasCapability(Capability.GET_LAST_MODIFIED) &&
+		                destFile.getFileSystem().hasCapability(Capability.SET_LAST_MODIFIED_FILE)) {
+				 destFile.getContent().setLastModifiedTime(srcFile.getContent().getLastModifiedTime());
+		    }
+		}
+		if (options.verbose) {
+			 engine.println("Copied file " + engine.toString(srcFile) + " to " + engine.toString(destFile));
+		}
+	}
 	
 	protected boolean areSame(FileObject fileA, FileObject fileB, SyncOptions options) throws FileSystemException {
 		
