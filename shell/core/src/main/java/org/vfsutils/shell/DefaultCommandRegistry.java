@@ -43,6 +43,7 @@ public class DefaultCommandRegistry extends CommandRegistry {
 		new Hash().register(this);
 		new Sysinfo().register(this);
 		new Xslt().register(this);
+		new Find().register(this);
 	}
 	
 }
