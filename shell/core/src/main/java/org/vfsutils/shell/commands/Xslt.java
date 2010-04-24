@@ -53,20 +53,25 @@ public class Xslt extends AbstractCommand {
 	public Xslt() {
 		super(
 				"xslt",
-				"Performs an XSL transformation. If [out] is not set the result will be printed to the console. "
+				"Performs an XSL transformation. If xsl is not set then a standard identity transformation will be performed on the xml. "
+						+ "If [out] is not set the result will be printed to the console. "
 						+ "All options are set as parameters. Activate xsl caching with c. Default mode is sax. Mode stream " 
 						+ "does not allow VFS enabled entity resolving. ",
-				"<in> <xsl> [<out>] [-c] [--param1=x --param2=y] [--sax|--dom|--stream]");
+				"<in> [<xsl>] [<out>] [-c] [--param1=x --param2=y] [--sax|--dom|--stream]");
 	}
 
 	public void execute(Arguments args, Engine engine)
 			throws IllegalArgumentException, CommandException,
 			FileSystemException {
 
-		args.assertSize(2);
+		args.assertSize(1);
 
 		FileObject in = engine.pathToExistingFile(args.getArgument(0));
-		FileObject xsl = engine.pathToExistingFile(args.getArgument(1));
+		 
+		FileObject xsl = null;
+		if (args.size()>1) {
+			xsl = engine.pathToExistingFile(args.getArgument(1));
+		}		
 		FileObject result = null;
 		if (args.size() > 2) {
 			result = engine.pathToFile(args.getArgument(2));
@@ -108,7 +113,10 @@ public class Xslt extends AbstractCommand {
 
 			// generate a Transformer.
 			Transformer transformer;
-			if (cache) {
+			if (xsl==null) {
+				transformer = TransformerFactory.newInstance().newTransformer();
+			}
+			else if (cache) {
 				Map xslCache = getTemplateCache(engine);
 				String key = engine.toString(xsl);
 				CacheEntry cacheEntry = (CacheEntry) xslCache.get(key);
