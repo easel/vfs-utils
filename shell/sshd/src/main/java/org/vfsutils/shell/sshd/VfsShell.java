@@ -49,14 +49,12 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 	private String path;
 		
 	/**
-	 * Initialize with an optional path. This path can be overridden by the session if it contains
-	 * a value for VfsShellFactory.VFS_PATH.
-	 * If there is no root set in the session with VfsShellFactory.VFS_ROOT then the path will be 
-	 * resolved as an absolute path; if the root has been set then the path will be resolved 
-	 * within that root.
+	 * The root is the root of the file system. With path you can influence the start directory.
+	 * The root can be overriden by the session with attribute VfsShellFactory.VFS_ROOT, the
+	 * path with attribute VfsShellFactory.VFS_PATH.
 	 * The path can contain the alias $USER which will be replaced by the user name. 
 	 * @param fsManager
-	 * @param rootPath the path to resolve, it can contain the $USER token and can be null
+	 * @param path the path to start in, it can contain the $USER token and can be null
 	 */
 	public VfsShell(FileSystemManager fsManager, String path) {
 		this.fsManager = fsManager;
@@ -93,20 +91,20 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 			log.debug("Activated echo");
 		}
 		
-		String name;
+		String startPath;
 		if (this.path!=null && this.path.contains("$USER")) {
-			name = this.path.replaceAll("\\$USER", env.getEnv().get("USER"));
+			startPath = this.path.replaceAll("\\$USER", env.getEnv().get("USER"));
 		}
 		else {
-			name = this.path;
+			startPath = this.path;
 		}
 		
 		//update the root
-		if (this.root == null && name!=null) {
-			this.root = fsManager.resolveFile(name);
+		if (this.root == null && startPath!=null) {
+			this.root = fsManager.resolveFile(startPath);
 		}
-		else if (this.root!=null && name!=null) {
-			FileObject startDir = this.root.resolveFile(name);
+		else if (this.root!=null && startPath!=null) {
+			FileObject startDir = this.root.resolveFile(startPath);
 			if (startDir.exists()) {
 				this.root = startDir;
 			}
