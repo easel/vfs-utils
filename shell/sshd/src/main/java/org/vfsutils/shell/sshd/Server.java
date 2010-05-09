@@ -1,9 +1,16 @@
 package org.vfsutils.shell.sshd;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
 import org.apache.sshd.SshServer;
+import org.apache.sshd.common.NamedFactory;
+import org.apache.sshd.server.Command;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.apache.sshd.server.sftp.SftpSubsystem;
 import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandParser;
 import org.vfsutils.shell.DefaultCommandParser;
@@ -57,11 +64,18 @@ public class Server {
     		
 			FileSystemManager fsManager = VFS.getManager();
 			
+			
 			VfsShellFactory shellFactory = new VfsShellFactory(fsManager, path);
 			sshd.setShellFactory(shellFactory);
 			
 			VfsScpCommandFactory commandFactory = new VfsScpCommandFactory(fsManager);
 			sshd.setCommandFactory(commandFactory);
+			
+			
+			List<NamedFactory<Command>> subsystemFactories = new ArrayList<NamedFactory<Command>>();
+			subsystemFactories.add(new VfsSftpSubsystem.Factory(fsManager, root)); 
+			//subsystemFactories.add(new SftpSubsystem.Factory());
+			sshd.setSubsystemFactories(subsystemFactories);
 			
 			VfsPasswordAuthenticator pwdAuth = new VfsPasswordAuthenticator(fsManager, root, virtual);
 			if (domain != null) {
