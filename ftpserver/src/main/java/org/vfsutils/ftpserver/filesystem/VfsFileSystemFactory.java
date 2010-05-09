@@ -1,8 +1,6 @@
 package org.vfsutils.ftpserver.filesystem;
 
-import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.FileType;
 import org.apache.ftpserver.ftplet.FileSystemFactory;
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
@@ -39,29 +37,28 @@ public class VfsFileSystemFactory implements FileSystemFactory {
 		
 		try {
 			
-			FileObject vfsHomeDir;
+			VfsInfo vfsInfo;
 			
 			if (user instanceof VfsUser) {
 				//use the vfs file object from the user
 				VfsUser vfsUser = (VfsUser) user;
-				vfsHomeDir = vfsUser.getVfsHomeDir();
+				vfsInfo = vfsUser.getVfsInfo();
 			}
 			else {
 				//do authentication
-				vfsHomeDir = this.authenticator.authenticate(user.getName(), user.getPassword(), user.getHomeDirectory());
+				vfsInfo = this.authenticator.authenticate(user.getName(), user.getPassword(), user.getHomeDirectory());
 			}
 			
 			//test for proper configuration
-			if (!vfsHomeDir.exists()) {
-				throw new FtpException("Home directory " + vfsHomeDir + " of user " + user.getName() + " does not exist");
+			if (!vfsInfo.getHomeDir().exists()) {
+				throw new FtpException("Home directory " + vfsInfo.getHomeDir() + " of user " + user.getName() + " does not exist");
 			}
 			
-			if (!vfsHomeDir.getType().equals(FileType.FOLDER) && 
-					!vfsHomeDir.getType().equals(FileType.FILE_OR_FOLDER)) {
-				throw new FtpException("Home directory " + vfsHomeDir + " of user " + user.getName() + " is not a folder");
+			if (!vfsInfo.getHomeDir().getType().hasChildren()) {
+				throw new FtpException("Home directory " + vfsInfo.getHomeDir() + " of user " + user.getName() + " is not a folder");
 			}
 			
-			return new VfsFileSystemView(vfsHomeDir, user);			
+			return new VfsFileSystemView(vfsInfo, user);			
 			
 		} catch (FileSystemException e) {
 			throw new FtpException("Error resolving home directory " + homePath + " of user " + user.getName(), e);

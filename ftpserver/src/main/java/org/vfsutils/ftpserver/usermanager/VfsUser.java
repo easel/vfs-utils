@@ -1,7 +1,7 @@
 package org.vfsutils.ftpserver.usermanager;
 
-import org.apache.commons.vfs.FileObject;
 import org.apache.ftpserver.usermanager.impl.BaseUser;
+import org.vfsutils.ftpserver.filesystem.VfsInfo;
 
 /**
  * User that encapsulates a VFS File object representing its home dir.
@@ -14,15 +14,17 @@ public class VfsUser extends BaseUser {
 	
 	private static final long serialVersionUID = -799346491877716615L;
 	
-	private FileObject vfsHomeDir = null;
+	private VfsInfo vfsInfo = null;
 
-	public FileObject getVfsHomeDir() {
-		return this.vfsHomeDir;
+	public VfsInfo getVfsInfo() {
+		return vfsInfo;
 	}
 
-	public void getVfsHomeDir(FileObject vfsHomeDir) {
-		this.vfsHomeDir = vfsHomeDir;
+	public void setVfsInfo(VfsInfo vfsInfo) {
+		this.vfsInfo = vfsInfo;
 	}
+	
+	
 	
 	
 

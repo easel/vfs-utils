@@ -3,7 +3,6 @@ package org.vfsutils.ftpserver.usermanager;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.ftpserver.ftplet.Authentication;
 import org.apache.ftpserver.ftplet.AuthenticationFailedException;
@@ -12,13 +11,14 @@ import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.User;
 import org.apache.ftpserver.ftplet.UserManager;
 import org.apache.ftpserver.usermanager.AnonymousAuthentication;
+import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
 import org.apache.ftpserver.usermanager.impl.ConcurrentLoginPermission;
 import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
-import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
-import org.vfsutils.ftpserver.filesystem.VfsAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vfsutils.ftpserver.filesystem.VfsAuthenticator;
+import org.vfsutils.ftpserver.filesystem.VfsInfo;
 
 /**
  * Apache VFS implementation of the UserManager. There is no 
@@ -105,14 +105,13 @@ public class VfsUserManager extends UserProps implements UserManager {
             	throw new AuthenticationFailedException("No authenticator set");
             }
             
-            FileObject homeDir = null;
             try {
             	String adaptedHomePath = vfsHomePath.replaceAll("\\$\\{user\\}", String.valueOf(user));
-            	homeDir = this.authenticator.authenticate(user, password, adaptedHomePath);
+            	VfsInfo info = this.authenticator.authenticate(user, password, adaptedHomePath);
             	
             	VfsUser userObject = (VfsUser) getUserByName(user);
-            	userObject.setHomeDirectory(homeDir.getName().getURI());
-                userObject.getVfsHomeDir(homeDir);                
+            	userObject.setHomeDirectory(info.getHomeDir().getName().getURI());
+                userObject.setVfsInfo(info);                
                 
                 return userObject;
             	

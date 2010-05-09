@@ -2,12 +2,19 @@ package org.vfsutils.ftpserver.filesystem;
 
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.FileSystemOptions;
-import org.apache.commons.vfs.VFS;
 import org.apache.commons.vfs.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs.impl.DefaultFileSystemConfigBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.vfsutils.factory.FileSystemManagerFactory;
 
 public class VfsAuthenticator {
+	
+	private final Logger log = LoggerFactory.getLogger(VfsAuthenticator.class);
+	
+	private FileSystemManagerFactory factory = new FileSystemManagerFactory(); 
 	
 	private String vfsRoot = null;
 	private String vfsType = "normal";
@@ -77,6 +84,24 @@ public class VfsAuthenticator {
 		this.vfsDomain = vfsDomain;
 	}
 	
+	
+	
+	/**
+	 * Returns the factory used to make FileSystemManager instances
+	 * @return factory
+	 */
+	public FileSystemManagerFactory getFactory() {
+		return factory;
+	}
+
+	/**
+	 * Sets the factory used to make FileSystemManager instances
+	 * @param factory
+	 */
+	public void setFactory(FileSystemManagerFactory factory) {
+		this.factory = factory;
+	}
+
 	/**
 	 * Authenticates the user. If the vfs root is unset, the given home path 
 	 * should contain a full VFS URI. If the vfs root is set, the root is 
@@ -89,30 +114,36 @@ public class VfsAuthenticator {
 	 * @return a FileObject representing the home folder of the user
 	 * @throws FileSystemException
 	 */
-	public FileObject authenticate(String user, String password, String homePath) throws FileSystemException {
+	public VfsInfo authenticate(String user, String password, String homePath) throws FileSystemException {
 		
 		StaticUserAuthenticator auth = new StaticUserAuthenticator(this.vfsDomain, user, password); 
         FileSystemOptions opts = new FileSystemOptions(); 
         DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
-            
+
+        log.info("Authenticating using " + (getFactory().isShare()?"shared":"dedicacted") + " file system manager");
+        
+        FileSystemManager manager = getFactory().getManager();        
+        
+        FileObject rootDir;
         FileObject homeDir;
         
         if (this.vfsRoot==null) {
         	if (homePath!=null) {
-        		homeDir = VFS.getManager().resolveFile(homePath, opts);
+        		homeDir = manager.resolveFile(homePath, opts);
+        		rootDir = homeDir;
         	}
         	else {
         		throw new FileSystemException("homePath can not be null when there is no vfs root configured");
         	}
         }
         else {
-        	FileObject virtualRootDir = VFS.getManager().resolveFile(this.vfsRoot, opts);
-        	FileObject rootDir;
+        	FileObject virtualRootDir = manager.resolveFile(this.vfsRoot, opts);
+        	
         	if (vfsType.equals("virtual")) {				
-				rootDir = VFS.getManager().createVirtualFileSystem(virtualRootDir);
+				rootDir = manager.createVirtualFileSystem(virtualRootDir);
 			}
 			else if (vfsType.equals("layered")){
-				rootDir = VFS.getManager().createFileSystem(virtualRootDir);
+				rootDir = manager.createFileSystem(virtualRootDir);
 			}
 			else {
 				rootDir = virtualRootDir;
@@ -130,7 +161,9 @@ public class VfsAuthenticator {
         		}
         	}
         }		
-        return homeDir;
+        
+        VfsInfo info = new VfsInfo(manager, getFactory().isShare(), rootDir, homeDir);
+        return info;
 	}
 
 }
