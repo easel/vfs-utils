@@ -1,12 +1,16 @@
 package org.vfsutils.shell.sshd;
 
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.FileType;
 import org.apache.sshd.server.Command;
@@ -16,6 +20,7 @@ import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vfsutils.selector.FilenameSelector;
 
 /**
  * Copy of the normal ScpCommand, but session aware and VFS enabled
@@ -25,24 +30,26 @@ import org.slf4j.LoggerFactory;
  */
 public class VfsScpCommand implements Command, Runnable, SessionAware {
 
-	private static final Logger log = LoggerFactory
-			.getLogger(VfsScpCommand.class);
+	protected static final Logger log = LoggerFactory.getLogger(VfsScpCommand.class);
 	protected static final int OK = 0;
+    protected static final int WARNING = 1;
 	protected static final int ERROR = 2;
 
+    protected String name;
 	protected boolean optR;
 	protected boolean optT;
 	protected boolean optF;
 	protected boolean optV;
+    protected boolean optD;
 	protected boolean optP;
+
 	// the root can be set via the session
 	protected FileObject root;
 	protected FileSystemManager fsManager;
 	// the basepath is resolved within the root if the root has been set,
 	// otherwise it serves as the root
 	protected String basePath;
-	// the target file, it is resolved within the root using the targetPath
-	protected FileObject target;
+	
 	// the path of the target file as communicated to the command
 	protected String targetPath;
 	protected InputStream in;
@@ -51,14 +58,14 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 	protected ExitCallback callback;
 	protected IOException error;
 
-	public VfsScpCommand(FileSystemManager fsManager, String basePath,
-			String[] args) {
+	public VfsScpCommand(FileSystemManager fsManager, String basePath, String[] args) {
+		name = Arrays.asList(args).toString();
 		if (log.isDebugEnabled()) {
-			log.debug("Executing command {}", Arrays.asList(args));
+			log.debug("Executing command {}", name);
 		}
-
+		this.targetPath = ".";		
 		this.fsManager = fsManager;
-		this.basePath = basePath;
+		this.basePath = basePath;		
 
 		for (int i = 1; i < args.length; i++) {
 			if (args[i].charAt(0) == '-') {
@@ -79,10 +86,12 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 					case 'v':
 						optV = true;
 						break;
-					// default:
-					// error = new IOException("Unsupported option: " +
-					// args[i].charAt(j));
-					// return;
+                    case 'd':
+                        optD = true;
+                        break;
+//                  default:
+//                     error = new IOException("Unsupported option: " + args[i].charAt(j));
+//                     return;
 					}
 				}
 			} else if (i == args.length - 1) {
@@ -128,15 +137,12 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 		}
 
 		if (this.root == null) {
-			this.target = this.fsManager.resolveFile(this.basePath)
-					.resolveFile(this.targetPath);
-		} else {
-			this.target = this.root.resolveFile(this.targetPath);
-		}
+			this.root = this.fsManager.resolveFile(this.basePath);
+		} 
 
-		new Thread(this).start();
+		new Thread(this, "VfsScpCommand: " + name).start();
 	}
-
+	
 	public void destroy() {
 	}
 
@@ -145,27 +151,94 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 		String exitMessage = null;
 
 		try {
-			if (optT && !optR) {
+            if (optT)
+            {
 				ack();
-				writeFile(readLine(), target);
-			} else if (optT && optR) {
-				ack();
-				writeDir(readLine(), target);
+                for (; ;)
+                {
+                    String line;
+                    boolean isDir = false;
+                    int c = readAck(true);
+                    switch (c)
+                    {
+                        case -1:
+                            return;
+                        case 'D':
+                            isDir = true;
+                        case 'C':
+                        case 'E':
+                            line = ((char) c) + readLine();
+                            break;
+                        default:
+                            //a real ack that has been acted upon already
+                            continue;
+                    }
+
+                    if (optR && isDir)
+                    {
+                        writeDir(line, resolveFile(targetPath));
+                    }
+                    else
+                    {
+                        writeFile(line, resolveFile(targetPath));
+                    }
+                }
 			} else if (optF) {
-				if (!target.exists()) {
-					throw new IOException(target
-							+ ": no such file or directory");
+
+				String pattern = targetPath;
+                int idx = pattern.indexOf('*');
+                if (idx >= 0) {
+                	String basedir = "";
+                    int lastSep = pattern.substring(0, idx).lastIndexOf('/');
+                    if (lastSep >= 0) {
+                        basedir = pattern.substring(0, lastSep);
+                        pattern = pattern.substring(lastSep + 1);
+                    }
+                    
+                	FilenameSelector selector = new FilenameSelector();
+        			selector.setName(pattern);
+
+        			List<FileObject> selected = new ArrayList<FileObject>();
+        			//TODO: what if root not initialized
+        			resolveFile(basedir).findFiles(selector, false, selected);
+
+        			for (FileObject file : selected) {
+                        if (file.getType().hasContent()) {
+                            readFile(file);
+                        } else if (file.getType().hasChildren()) {
+                            if (!optR) {
+                                out.write(WARNING);
+                                out.write((file.getName().getBaseName() + " not a regular file\n").getBytes());
+                            } else {
+                                readDir(file);
+                            }
+                        } else {
+                            out.write(WARNING);
+                            out.write((file.getName().getBaseName() + " unknown file type\n").getBytes());
+                        }
+                    }
+                } else {
+                    String basedir = "";
+                    int lastSep = pattern.lastIndexOf('/');
+                    if (lastSep >= 0) {
+                        basedir = pattern.substring(0, lastSep);
+                        pattern = pattern.substring(lastSep + 1);
+                    }
+                    FileObject file = resolveFile(basedir).resolveFile(pattern);
+				if (!file.exists()) {
+                        throw new IOException(toString(file) + ": no such file or directory");
 				}
-				if (target.getType().equals(FileType.FILE)) {
-					readFile(target);
-				} else if (target.getType().equals(FileType.FOLDER)) {
+				if (file.getType().equals(FileType.FILE)) {
+					readFile(file);
+				} else if (file.getType().equals(FileType.FOLDER)) {
 					if (!optR) {
-						throw new IOException(target + " not a regular file");
+                            throw new IOException(toString(file) + " not a regular file");
 					} else {
-						readDir(target);
+                            readDir(file);
 					}
 				} else {
-					throw new IOException(target + ": unknown file type");
+                        throw new IOException(toString(file) + ": unknown file type");
+}
 				}
 			} else {
 				throw new IOException("Unsupported mode");
@@ -181,29 +254,28 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 			} catch (IOException e2) {
 				// Ignore
 			}
+            log.info("Error in scp command", e);
+        } finally {
 			if (callback != null) {
 				callback.onExit(exitValue, exitMessage);
 			}
 		}
 	}
 
-	private void writeDir(String header, FileObject path) throws IOException {
+	protected void writeDir(String header, FileObject path) throws IOException {
 		if (log.isDebugEnabled()) {
-			log.debug("Writing dir {}", path);
+			log.debug("Writing dir {}", toString(path));
 		}
 		if (!header.startsWith("D")) {
-			throw new IOException("Expected a D message but got '" + header
-					+ "'");
+			throw new IOException("Expected a D message but got '" + header + "'");
 		}
 
 		String perms = header.substring(1, 5);
-		int length = Integer.parseInt(header.substring(6, header
-				.indexOf(' ', 6)));
+		int length = Integer.parseInt(header.substring(6, header.indexOf(' ', 6)));
 		String name = header.substring(header.indexOf(' ', 6) + 1);
 
 		if (length != 0) {
-			throw new IOException("Expected 0 length for directory but got "
-					+ length);
+			throw new IOException("Expected 0 length for directory but got " + length);
 		}
 		FileObject file;
 		if (path.exists() && path.getType().equals(FileType.FOLDER)) {
@@ -212,7 +284,7 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 				&& path.getParent().getType().equals(FileType.FOLDER)) {
 			file = path;
 		} else {
-			throw new IOException("Can not write to " + path);
+			throw new IOException("Can not write to " + toString(path));
 		}
 		if (!(file.exists() && file.getType().equals(FileType.FOLDER))) {
 			file.createFolder();
@@ -238,36 +310,39 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 
 	private void writeFile(String header, FileObject path) throws IOException {
 		if (log.isDebugEnabled()) {
-			log.debug("Writing file {}", path);
+			log.debug("Writing file {}", toString(path));
 		}
 		if (!header.startsWith("C")) {
-			throw new IOException("Expected a C message but got '" + header
-					+ "'");
+			throw new IOException("Expected a C message but got '" + header + "'");
 		}
 
 		String perms = header.substring(1, 5);
-		int length = Integer.parseInt(header.substring(6, header
-				.indexOf(' ', 6)));
+		int length = Integer.parseInt(header.substring(6, header.indexOf(' ', 6)));
 		String name = header.substring(header.indexOf(' ', 6) + 1);
 
 		FileObject file;
-		if (path.exists() && path.getType().equals(FileType.FOLDER)) {
+		if (path.exists() && path.getType().hasChildren()) {
 			file = path.resolveFile(name);
-		} else if (path.exists() && path.getType().equals(FileType.FILE)) {
+		} else if (path.exists() && path.getType().hasContent()) {
 			file = path;
 		} else if (!path.exists() && path.getParent().exists()
-				&& path.getParent().getType().equals(FileType.FOLDER)) {
+				&& path.getParent().getType().hasChildren()) {
 			file = path;
 		} else {
-			throw new IOException("Can not write to " + path);
+			throw new IOException("Can not write to " + toString(path));
 		}
+		if (file.exists() && !file.getType().hasContent()) {
+            throw new IOException("File is a directory: " + toString(file));
+        } else if (file.exists() && !file.isWriteable()) {
+            throw new IOException("Can not write to file: " + toString(file));
+        }
 		OutputStream os = file.getContent().getOutputStream();
 		try {
 			ack();
 
 			byte[] buffer = new byte[8192];
 			while (length > 0) {
-				int len = Math.min(length, buffer.length);
+				int len = (int) Math.min(length, buffer.length);
 				len = in.read(buffer, 0, len);
 				if (len <= 0) {
 					throw new IOException("End of stream reached");
@@ -280,10 +355,10 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 		}
 
 		ack();
-		readAck();
+        readAck(false);
 	}
 
-	private String readLine() throws IOException {
+    protected String readLine() throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		for (;;) {
 			int c = in.read();
@@ -297,9 +372,9 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 		}
 	}
 
-	private void readFile(FileObject path) throws IOException {
+	protected void readFile(FileObject path) throws IOException {
 		if (log.isDebugEnabled()) {
-			log.debug("Reading file {}", path);
+			log.debug("Reading file {}", toString(path));
 		}
 		StringBuffer buf = new StringBuffer();
 		buf.append("C");
@@ -311,7 +386,7 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 		buf.append("\n");
 		out.write(buf.toString().getBytes());
 		out.flush();
-		readAck();
+        readAck(false);
 
 		InputStream is = path.getContent().getInputStream();
 		try {
@@ -327,12 +402,12 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 			is.close();
 		}
 		ack();
-		readAck();
+        readAck(false);
 	}
 
-	private void readDir(FileObject path) throws IOException {
+	protected void readDir(FileObject path) throws IOException {
 		if (log.isDebugEnabled()) {
-			log.debug("Reading directory {}", path);
+			log.debug("Reading directory {}", toString(path));
 		}
 		StringBuffer buf = new StringBuffer();
 		buf.append("D");
@@ -344,7 +419,7 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 		buf.append("\n");
 		out.write(buf.toString().getBytes());
 		out.flush();
-		readAck();
+        readAck(false);
 
 		for (FileObject child : path.getChildren()) {
 			if (child.getType().equals(FileType.FILE)) {
@@ -356,7 +431,7 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 
 		out.write("E\n".getBytes());
 		out.flush();
-		readAck();
+        readAck(false);
 	}
 
 	protected void ack() throws IOException {
@@ -364,16 +439,37 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 		out.flush();
 	}
 
-	protected void readAck() throws IOException {
+    protected int readAck(boolean canEof) throws IOException {
 		int c = in.read();
 		switch (c) {
-		case 0:
+            case -1:
+                if (!canEof) {
+                    throw new EOFException();
+                }
 			break;
-		case 1:
+            case OK:
+                break;
+            case WARNING:
 			log.warn("Received warning: " + readLine());
 			break;
-		case 2:
+            case ERROR:
 			throw new IOException("Received nack: " + readLine());
+            default:
+                break;
+		}
+        return c;
+	}
+
+    protected FileObject resolveFile(String path) throws FileSystemException {
+    	return this.root.resolveFile(path);
+    }
+    
+    protected String toString(FileObject file) throws FileSystemException {
+		if (this.root!=null) {
+			return this.root.getName().getRelativeName(file.getName());
+		}
+		else {
+			return file.getName().getFriendlyURI();
 		}
 	}
 
