@@ -21,6 +21,7 @@ import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vfsutils.factory.FileSystemManagerFactory;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
 import org.vfsutils.shell.boxed.BoxedCommandRegistry;
@@ -43,7 +44,7 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 	private ExitCallback callback;
 	private Thread thread;
 	
-	private FileSystemManager fsManager;
+	private FileSystemManagerFactory factory;
 	private BoxedEngine engine;
 	private FileObject root;
 	private String path;
@@ -56,8 +57,8 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 	 * @param fsManager
 	 * @param path the path to start in, it can contain the $USER token and can be null
 	 */
-	public VfsShell(FileSystemManager fsManager, String path) {
-		this.fsManager = fsManager;
+	public VfsShell(FileSystemManagerFactory factory, String path) {
+		this.factory = factory;
 		this.path = path;
 	}
 
@@ -101,18 +102,23 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 		
 		//update the root
 		if (this.root == null && startPath!=null) {
+			FileSystemManager fsManager = factory.getManager();
 			this.root = fsManager.resolveFile(startPath);
 		}
-		else if (this.root!=null && startPath!=null) {
-			FileObject startDir = this.root.resolveFile(startPath);
-			if (startDir.exists()) {
-				this.root = startDir;
-			}
-			else {
-				log.warn("Invalid path, directory does not exist:" + startDir);
+		else if (this.root!=null) {
+			if (startPath!=null) {		
+				FileObject startDir = this.root.resolveFile(startPath);
+				if (startDir.exists()) {
+					this.root = startDir;
+				}
+				else {
+					log.warn("Invalid path, directory does not exist:" + startDir);
+				}
 			}
 		}
-		
+		else {
+			throw new IOException("Invalid setup, a root should be provided");
+		}
 		thread = new Thread(this, "VfsShell");
         thread.start();
 		
@@ -158,7 +164,7 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 	public void run() {
 		
 		try {
-			engine = new BoxedEngine(this, new BoxedCommandRegistry(), this.fsManager);	
+			engine = new BoxedEngine(this, new BoxedCommandRegistry(), this.root.getFileSystem().getFileSystemManager());	
 			
 			//userDir is where the server is started
 			FileObject userDir = engine.getCwd();

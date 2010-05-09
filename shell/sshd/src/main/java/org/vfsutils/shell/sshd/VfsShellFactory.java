@@ -1,10 +1,10 @@
 package org.vfsutils.shell.sshd;
 
 import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemManager;
 import org.apache.sshd.common.Factory;
 import org.apache.sshd.common.Session.AttributeKey;
 import org.apache.sshd.server.Command;
+import org.vfsutils.factory.FileSystemManagerFactory;
 
 
 public class VfsShellFactory implements Factory<Command> {
@@ -18,25 +18,21 @@ public class VfsShellFactory implements Factory<Command> {
 	 */
 	protected static final AttributeKey<String> VFS_PATH = new AttributeKey<String>();
 	
-	private FileSystemManager fsManager;
+	private FileSystemManagerFactory factory;
 	private String path;
 	
-	public VfsShellFactory(FileSystemManager fsManager) {
-		this.fsManager = fsManager;
+	public VfsShellFactory(FileSystemManagerFactory factory) {
+		this.factory = factory;
 		this.path = null;
 	}
 
-	public VfsShellFactory(FileSystemManager fsManager, String path) {
-		this.fsManager = fsManager;
+	public VfsShellFactory(FileSystemManagerFactory factory, String path) {
+		this.factory = factory;
 		this.path = path;
 	}
 
 	public Command create() {
-		return new VfsShell(fsManager, path);
-	}
-	
-	
-	
-	
+		return new VfsShell(factory, path);
+	}	
 
 }

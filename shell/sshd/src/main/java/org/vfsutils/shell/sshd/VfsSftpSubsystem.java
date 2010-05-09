@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vfsutils.content.PseudoRandomAccessContent;
 import org.vfsutils.content.PseudoWriteableRandomAccessContent;
+import org.vfsutils.factory.FileSystemManagerFactory;
 
 /**
  * SFTP subsystem
@@ -44,17 +45,18 @@ public class VfsSftpSubsystem extends org.apache.sshd.server.sftp.SftpSubsystem 
     
 	public static class Factory implements NamedFactory<Command> {
         
-		private FileSystemManager fsManager;
+		private FileSystemManagerFactory factory;
 		private String rootPath;
 		
-		public Factory(FileSystemManager fsManager, String rootPath) {
-			this.fsManager = fsManager;
+		public Factory(FileSystemManagerFactory factory, String rootPath) {
+			this.factory = factory;
 			this.rootPath = rootPath;
 		}
 		
-		public Command create() {
-            return new VfsSftpSubsystem(this.fsManager, this.rootPath);
+		public Command create() {		
+            return new VfsSftpSubsystem(factory, this.rootPath);
         }
+		
         public String getName() {
             return "sftp";
         }
@@ -68,8 +70,8 @@ public class VfsSftpSubsystem extends org.apache.sshd.server.sftp.SftpSubsystem 
     private ServerSession session;
     private boolean closed = false;
 
-    // the fsm and rootpath are set via the constructor
-    private FileSystemManager fsManager;
+    // the factory and rootpath are set via the constructor
+    private FileSystemManagerFactory factory;
     private String rootPath;
     // the root can be overridden via the session
 	private FileObject root;
@@ -133,10 +135,10 @@ public class VfsSftpSubsystem extends org.apache.sshd.server.sftp.SftpSubsystem 
         }
     }
 
-    public VfsSftpSubsystem(FileSystemManager fsManager, String rootPath) {
+    public VfsSftpSubsystem(FileSystemManagerFactory factory, String rootPath) {
     	// need to call super with a dummy value
     	super(new File("."));
-    	this.fsManager = fsManager;
+    	this.factory = factory;
     	this.rootPath = rootPath;
     }
     
@@ -169,7 +171,8 @@ public class VfsSftpSubsystem extends org.apache.sshd.server.sftp.SftpSubsystem 
         this.env = env;
         
         if (this.root==null){
-        	this.root = this.fsManager.resolveFile(this.rootPath);
+        	FileSystemManager fsManager = this.factory.getManager();
+        	this.root = fsManager.resolveFile(this.rootPath);
         }
         
         new Thread(this).start();

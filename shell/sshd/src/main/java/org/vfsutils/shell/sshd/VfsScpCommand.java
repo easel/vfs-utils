@@ -20,6 +20,7 @@ import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vfsutils.factory.FileSystemManagerFactory;
 import org.vfsutils.selector.FilenameSelector;
 
 /**
@@ -45,7 +46,7 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 
 	// the root can be set via the session
 	protected FileObject root;
-	protected FileSystemManager fsManager;
+	protected FileSystemManagerFactory factory;
 	// the basepath is resolved within the root if the root has been set,
 	// otherwise it serves as the root
 	protected String basePath;
@@ -58,13 +59,13 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 	protected ExitCallback callback;
 	protected IOException error;
 
-	public VfsScpCommand(FileSystemManager fsManager, String basePath, String[] args) {
+	public VfsScpCommand(FileSystemManagerFactory factory, String basePath, String[] args) {
 		name = Arrays.asList(args).toString();
 		if (log.isDebugEnabled()) {
 			log.debug("Executing command {}", name);
 		}
 		this.targetPath = ".";		
-		this.fsManager = fsManager;
+		this.factory = factory;
 		this.basePath = basePath;		
 
 		for (int i = 1; i < args.length; i++) {
@@ -137,7 +138,8 @@ public class VfsScpCommand implements Command, Runnable, SessionAware {
 		}
 
 		if (this.root == null) {
-			this.root = this.fsManager.resolveFile(this.basePath);
+			FileSystemManager fsManager = this.factory.getManager();
+			this.root = fsManager.resolveFile(this.basePath);
 		} 
 
 		new Thread(this, "VfsScpCommand: " + name).start();

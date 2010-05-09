@@ -10,6 +10,7 @@ import org.apache.sshd.server.PasswordAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vfsutils.factory.FileSystemManagerFactory;
 
 public class VfsPasswordAuthenticator implements PasswordAuthenticator {
 	
@@ -19,10 +20,10 @@ public class VfsPasswordAuthenticator implements PasswordAuthenticator {
 	private boolean virtual = false;
 	private String domain = null;
 	
-	FileSystemManager fileSystemManager;
+	private FileSystemManagerFactory factory;
 	
-	public VfsPasswordAuthenticator(FileSystemManager fileSystemManager, String rootPath, boolean virtual) {
-		this.fileSystemManager = fileSystemManager;
+	public VfsPasswordAuthenticator(FileSystemManagerFactory factory, String rootPath, boolean virtual) {
+		this.factory = factory;
 		this.rootPath = rootPath;
 		this.virtual = virtual;
 	}
@@ -44,7 +45,8 @@ public class VfsPasswordAuthenticator implements PasswordAuthenticator {
 					.setUserAuthenticator(opts, auth);
 				
 			}
-			
+
+			FileSystemManager fileSystemManager = factory.getManager();
 			file = fileSystemManager.resolveFile(rootPath, opts);
 			
 			if (virtual) {

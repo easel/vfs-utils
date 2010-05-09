@@ -3,14 +3,11 @@ package org.vfsutils.shell.sshd;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemManager;
-import org.apache.commons.vfs.VFS;
 import org.apache.sshd.SshServer;
 import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.server.Command;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
-import org.apache.sshd.server.sftp.SftpSubsystem;
+import org.vfsutils.factory.FileSystemManagerFactory;
 import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandParser;
 import org.vfsutils.shell.DefaultCommandParser;
@@ -61,23 +58,21 @@ public class Server {
     		sshd.setPort(port);
     		sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider("hostkey.ser"));
 
-    		
-			FileSystemManager fsManager = VFS.getManager();
-			
-			
-			VfsShellFactory shellFactory = new VfsShellFactory(fsManager, path);
+    		FileSystemManagerFactory factory = new FileSystemManagerFactory();
+						
+			VfsShellFactory shellFactory = new VfsShellFactory(factory, path);
 			sshd.setShellFactory(shellFactory);
 			
-			VfsScpCommandFactory commandFactory = new VfsScpCommandFactory(fsManager);
+			VfsScpCommandFactory commandFactory = new VfsScpCommandFactory(factory);
 			sshd.setCommandFactory(commandFactory);
 			
 			
 			List<NamedFactory<Command>> subsystemFactories = new ArrayList<NamedFactory<Command>>();
-			subsystemFactories.add(new VfsSftpSubsystem.Factory(fsManager, root)); 
+			subsystemFactories.add(new VfsSftpSubsystem.Factory(factory, root)); 
 			//subsystemFactories.add(new SftpSubsystem.Factory());
 			sshd.setSubsystemFactories(subsystemFactories);
 			
-			VfsPasswordAuthenticator pwdAuth = new VfsPasswordAuthenticator(fsManager, root, virtual);
+			VfsPasswordAuthenticator pwdAuth = new VfsPasswordAuthenticator(factory, root, virtual);
 			if (domain != null) {
 				pwdAuth.setDomain(domain);
 			}
