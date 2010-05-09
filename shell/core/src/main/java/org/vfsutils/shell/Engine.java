@@ -449,12 +449,12 @@ public class Engine {
 	public FileObject pathToFile(String path) throws FileSystemException {
 
 		FileObject tmp;
-		// if (path.indexOf("://")!=-1) {
-		// tmp = getMgr().resolveFile(path);
-		// }
-		// else {
-		tmp = getMgr().resolveFile(getCwd(), path);
-		// }
+		if (path.indexOf("://")!=-1) {
+			tmp = getMgr().resolveFile(getCwd(), path);
+		}
+		else {
+			tmp = getCwd().resolveFile(path);
+		}
 		return tmp;
 	}
 

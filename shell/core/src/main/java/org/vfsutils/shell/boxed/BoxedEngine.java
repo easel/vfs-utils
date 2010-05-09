@@ -55,7 +55,8 @@ public class BoxedEngine extends Engine {
 			}			
 		}
 		else {
-			return super.pathToFile(path);
+			// resolve locally
+			return getCwd().resolveFile(path);
 		}
 	}
 
