@@ -228,15 +228,14 @@ public class VfsSftpSubsystem extends org.apache.sshd.server.sftp.SftpSubsystem 
                     throw new IllegalArgumentException();
                 }
                 version = id;
-                if (version >= HIGHEST_SFTP_IMPL) {
+                if (version >= LOWER_SFTP_IMPL && version <= HIGHER_SFTP_IMPL) {
 	                buffer.clear();
 	                buffer.putByte((byte) SSH_FXP_VERSION);
-	                buffer.putInt(HIGHEST_SFTP_IMPL);
+                    buffer.putInt(version);
 	                send(buffer);
-	                version = HIGHEST_SFTP_IMPL;
                 } else {
                 	// We only support version 3 (Version 1 and 2 are not common)
-                    sendStatus(id, SSH_FX_OP_UNSUPPORTED, "SFTP server only support SFTP up to version " + HIGHEST_SFTP_IMPL);
+                    sendStatus(id, SSH_FX_OP_UNSUPPORTED, "SFTP server only support versions " + ALL_SFTP_IMPL);
                 }
 
                 break;
@@ -655,7 +654,6 @@ public class VfsSftpSubsystem extends org.apache.sshd.server.sftp.SftpSubsystem 
         buffer.putByte((byte) SSH_FXP_NAME);
         buffer.putInt(id);
         buffer.putInt(1);
-        
         //normalize the given path, use *nix style separator
         String normalizedPath = SelectorUtils.normalizePath(path, "/");
         if (normalizedPath.length()==0) {
@@ -664,11 +662,11 @@ public class VfsSftpSubsystem extends org.apache.sshd.server.sftp.SftpSubsystem 
         buffer.putString(normalizedPath);
         if (version <= 3) {
             buffer.putString(getLongName(f)); // Format specified in the specs
+            buffer.putInt(0);
         } else {
             buffer.putString(getName(f)); // Supposed to be UTF-8
+            writeAttrs(buffer, f);
         }
-        writeAttrs(buffer, f);
-        
         send(buffer);
     }
 
