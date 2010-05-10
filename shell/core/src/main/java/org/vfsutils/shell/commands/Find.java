@@ -19,32 +19,40 @@ public class Find extends AbstractCommand {
 		private String exec;
 		private Engine engine;
 		private boolean failOnError;
+		private boolean execNeedsReplacement;
 		
 		public ExecSelector(FileSelector selector, Engine engine, String exec, boolean failOnError) {
 			super(selector);
 			this.engine = engine;
 			this.exec = exec;
+			this.execNeedsReplacement = (exec.indexOf("{abspath}")>-1 || exec.indexOf("{relpath}")>-1 || exec.indexOf("{fullpath}")>-1);
 			this.failOnError = failOnError;
 		}
 	
+		
+		
 		public void visitFile(FileObject file) throws Exception {
 			
 			try {
-				if (exec.indexOf("$file")>-1) {
-					Object oldValue = null;
-					boolean hasOldValue = engine.getContext().isSet("file");
-					if (hasOldValue) oldValue = engine.getContext().get("file");
-					engine.getContext().set("file", file.getName().getPathDecoded());
-					engine.handleCommand(exec);
-					if (hasOldValue) {
-						engine.getContext().set("file", oldValue);
+				if (this.execNeedsReplacement) {
+					
+					String command = exec;
+					if (exec.indexOf("{relpath}")>-1) {
+						command = command.replaceAll("\\{relpath\\}", this.engine.getCwd().getName().getRelativeName(file.getName()));
 					}
-					else {
-						engine.getContext().unset("file");
+					if (exec.indexOf("{abspath}")>-1) {
+						command = command.replaceAll("\\{abspath\\}", file.getName().getPathDecoded());
 					}
+					if (exec.indexOf("{fullpath}")>-1) {
+						command = command.replaceAll("\\{fullpath\\}", file.getName().getURI());
+					}
+					
+					engine.handleCommand(command);
+					
 				}
 				else {
-					engine.handleCommand(exec + " " + file.getName().getPathDecoded());
+					// use relative path
+					engine.handleCommand(exec + " " + this.engine.getCwd().getName().getRelativeName(file.getName()));
 				}
 			}
 			catch (Exception e) {
@@ -59,7 +67,8 @@ public class Find extends AbstractCommand {
 	}
 
 	public Find() {
-		super("find", "Execute a command for the selected files", "<pattern> --exec=<command> [-dfC] [(--files|--folders)] [--size=<expression>] [--age=<expression>] [--attrs=[<name><==|!=><value>]]");
+		super("find", "Execute a command for the selected files", "<pattern> --exec=<command> [-dfC] [(--files|--folders)] [--size=<expression>] [--age=<expression>] [--attrs=[<name><==|!=><value>]]\n" + 
+																  "       In exec you can use {relpath} for relative paths, {abspath} for absolute paths, and {fullpath} for the full URI");
 	}
 	
 	public void execute(Arguments args, Engine engine)
