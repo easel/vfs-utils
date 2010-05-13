@@ -91,7 +91,9 @@ public class Ls extends AbstractCommand implements CommandProvider {
 			boolean showRelativePath, boolean isFolder, boolean longList, Engine engine)
 			throws FileSystemException {
 
-		if (longList && longListType != null && longListType.equals("dos")) {
+		if (!child.exists()) {
+			listUnexisting(base, child, showRelativePath, engine);
+		} else if (longList && longListType != null && longListType.equals("dos")) {
 			SimpleDateFormat dateFormatter = new SimpleDateFormat(dateFormat);
 			listChildDosStyle(base, child, isFolder, showRelativePath,
 					dateFormatter, engine);
@@ -105,15 +107,18 @@ public class Ls extends AbstractCommand implements CommandProvider {
 				
 	}
 
+	protected void listUnexisting(final FileObject base,
+			final FileObject child, boolean showRelativePath,
+			Engine engine) throws FileSystemException {
+		engine.println(getPath(base, child, showRelativePath) + " does not exist");
+	}
+	
 	protected void listChild(final FileObject base, final FileObject child,
 			boolean isFolder, boolean showRelativePath, Engine engine)
 			throws FileSystemException {
 
-		if (showRelativePath) {
-			engine.print(base.getName().getRelativeName(child.getName()));
-		} else {
-			engine.print(child.getName().getBaseName());
-		}
+		engine.print(getPath(base, child, showRelativePath));
+		
 		if (isFolder) {
 			engine.println("/");
 		} else {
@@ -155,12 +160,7 @@ public class Ls extends AbstractCommand implements CommandProvider {
 		}
 
 		engine.print(dateFormatter.format(date) + middle + " ");
-
-		if (showRelativePath) {
-			engine.println(base.getName().getRelativeName(child.getName()));
-		} else {
-			engine.println(child.getName().getBaseName());
-		}
+		engine.println(getPath(base, child, showRelativePath));
 
 	}
 
@@ -199,14 +199,17 @@ public class Ls extends AbstractCommand implements CommandProvider {
 		}
 
 		engine.print(start += middle + " " + dateFormatter.format(date) + " ");
-
-		if (showRelativePath) {
-			engine.println(base.getName().getRelativeName(child.getName()));
-		} else {
-			engine.println(child.getName().getBaseName());
-		}
+		engine.println(getPath(base, child, showRelativePath));
 	}
 
+	protected String getPath(FileObject base, FileObject child, boolean showRelativePath) throws FileSystemException {
+		if (showRelativePath) {
+			return base.getName().getRelativeName(child.getName());
+		} else {
+			return child.getName().getBaseName();
+		}
+	}
+	
 	/**
 	 * Set the format the long listing should use.
 	 * 
