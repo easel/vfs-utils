@@ -15,6 +15,7 @@ public class VfsUser extends BaseUser {
 	private static final long serialVersionUID = -799346491877716615L;
 	
 	private VfsInfo vfsInfo = null;
+	private boolean isAdmin = false;
 
 	public VfsInfo getVfsInfo() {
 		return vfsInfo;
@@ -23,9 +24,14 @@ public class VfsUser extends BaseUser {
 	public void setVfsInfo(VfsInfo vfsInfo) {
 		this.vfsInfo = vfsInfo;
 	}
-	
-	
-	
+
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
 	
 
 }

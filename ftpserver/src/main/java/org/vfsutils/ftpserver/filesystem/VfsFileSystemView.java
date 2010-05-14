@@ -3,14 +3,15 @@ package org.vfsutils.ftpserver.filesystem;
 import org.apache.commons.vfs.Capability;
 import org.apache.commons.vfs.FileSystem;
 import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.impl.DefaultFileSystemManager;
+import org.apache.commons.vfs.provider.AbstractFileSystem;
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.ftpserver.ftplet.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vfsutils.ftpserver.usermanager.VfsUser;
 
 /**
  * FileSystemView on a VFS filesystem. The input for this class is a Apache Commons VFS FileObject
@@ -61,26 +62,36 @@ public class VfsFileSystemView implements FileSystemView {
 
 	public void dispose() {
 		FileSystem fs = this.workingDir.getVfsFile().getFileSystem();
-		FileSystemManager fsm = fs.getFileSystemManager();
+		String userName = this.user.getName();
+		boolean isAdmin = false;
 		
-		boolean shared = this.vfsInfo.isShared();
+		if (user instanceof VfsUser && ((VfsUser)user).isAdmin()) {
+			isAdmin = true;
+		}
 		
-		log.info("Dispose file system view using " + (shared?"shared":"dedicated") + " file system manager");
-		
-		// releasing handles
+		// release handles
 		this.workingDir = null;
 		this.homeDir = null;
 		this.vfsInfo = null;
 		this.user = null;
 		
-		if (shared && fsm instanceof DefaultFileSystemManager) {
-			// this is a bit too wide because it will iterate over all providers and all filesystems (per user)
-			((DefaultFileSystemManager)fsm).freeUnusedResources();
+		// close the file system if there are no handles anymore (like
+		// is done in AbstractFileProvider.freeUnusedResources
+		if (fs instanceof AbstractFileSystem) {
+			AbstractFileSystem afs = (AbstractFileSystem) fs;
+			if (isAdmin && fs.getFileSystemManager() instanceof DefaultFileSystemManager) {
+				log.info("Forcing gb and finalization");
+				// force gc and finalization to free references to filesystems
+				System.gc();
+				System.runFinalization();
+			} 
+			// kick all filesystems
+			((DefaultFileSystemManager) fs.getFileSystemManager()).freeUnusedResources();
 		}
-		else if (!shared) {
-			// too brutal to use when the fsm is shared
-			fsm.closeFileSystem(fs);
-		}
+		
+		log.info("Disposed file system view of user " + userName + " based on filesystem " + fs.toString());
+		
+		
 	}
 
 	public FtpFile getWorkingDirectory() throws FtpException {

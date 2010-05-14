@@ -120,8 +120,6 @@ public class VfsAuthenticator {
         FileSystemOptions opts = new FileSystemOptions(); 
         DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
 
-        log.info("Authenticating using " + (getFactory().isShare()?"shared":"dedicacted") + " file system manager");
-        
         FileSystemManager manager = getFactory().getManager();        
         
         FileObject rootDir;
@@ -161,8 +159,10 @@ public class VfsAuthenticator {
         		}
         	}
         }		
+    
+        log.info("Authenticated user " + user + " based on filesystem " + rootDir.getFileSystem().toString());
         
-        VfsInfo info = new VfsInfo(manager, getFactory().isShare(), rootDir, homeDir);
+        VfsInfo info = new VfsInfo(manager, rootDir, homeDir);
         return info;
 	}
 

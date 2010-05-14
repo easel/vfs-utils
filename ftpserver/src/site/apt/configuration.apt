@@ -6,9 +6,9 @@
 
 VFS Utils FTPServer Configuration
 
- To use this bridge you should just add the VFS libraries, the VFS FTP Server 
- library and, if needed, your custom VFS Provider and its dependencies to the 
- common/lib directory of your Apache Mina FTP Server installation.
+ To use this bridge you should just add the VFS libraries, the VFS Utils FTPServer 
+ library, the VFS Utils Utils library and, if needed, your custom VFS Provider and 
+ its dependencies to the common/lib directory of your Apache Mina FTP Server installation.
  
  The configuration of the FTPServer is based on a Spring configuration.
  
@@ -36,6 +36,7 @@ VFS Utils FTPServer Configuration
 			<beans:property name="authenticator.vfsRoot" value="file:///d:/ftproot"/>
 			<beans:property name="authenticator.vfsType" value="virtual"/>
 			<!-- beans:property name="authenticator.vfsDomain" value="mydomain" -->
+			<beans:property name="authenticator.factory.share" value="false"/>
 			<beans:property name="adminName" value="admin"/>
 			<!-- normal user settings -->
 			<beans:property name="writePermission" value="false"/>
@@ -76,6 +77,11 @@ VFS Utils FTPServer Configuration
  of domain, but this is not supported by FTP you can optionally specify the 
  domain that should be used in the authentication.
 
+ You can define whether you want to use one shared VFS FileSystemManager or whether
+ there should be one per session (the default). If you share the FileSystemManager the 
+ server will use less memory, but the deconnection can not be forced but will be done 
+ when all references have been garbage collected.
+ 
  You can set which user should be regarded as the admin account with adminName. 
  This account has special privileges such as the 'site who' and the 'site stat' 
  commands. The FTP User management functions do not work however.

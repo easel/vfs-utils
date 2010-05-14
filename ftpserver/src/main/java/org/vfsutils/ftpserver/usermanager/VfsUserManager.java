@@ -40,7 +40,11 @@ public class VfsUserManager extends UserProps implements UserManager {
 	//configurable instance variables
 	protected String vfsHomePath = "";
 	protected VfsAuthenticator authenticator = new VfsAuthenticator();
-	protected String adminName = "dmadmin";
+	protected String adminName = "admin";
+	
+	protected String anonymousName ="anonymous";
+	protected String anonymousPwd = "anon@localhost";
+	
 	protected UserProps admin = new UserProps();
 	
 	/**
@@ -71,8 +75,28 @@ public class VfsUserManager extends UserProps implements UserManager {
 		this.authenticator = authenticator;
 	}
 	
+	public String getAdminName() {
+		return this.adminName;
+	}
+	
 	public void setAdminName(String adminName) {
 		this.adminName = adminName;
+	}
+	
+	public String getAnonymousName() {
+		return this.anonymousName;
+	}
+	
+	public void setAnonymousName(String anonymousName) {
+		this.anonymousName = anonymousName;
+	}
+	
+	public String getAnonymousPwd() {
+		return this.anonymousPwd;
+	}
+	
+	public void setAnonymousPwd(String anonymousPwd) {
+		this.anonymousPwd = anonymousPwd;
 	}
 	
 	public UserProps getAdmin() {
@@ -123,7 +147,22 @@ public class VfsUserManager extends UserProps implements UserManager {
                         
         } else if(authentication instanceof AnonymousAuthentication) {
             if(doesExist("anonymous")) {
-                return getUserByName("anonymous");
+            	String user = this.anonymousName;
+            	String password = this.anonymousPwd;
+            	try {
+	            	String adaptedHomePath = vfsHomePath.replaceAll("\\$\\{user\\}", String.valueOf(user));
+	            	VfsInfo info = this.authenticator.authenticate(user, password, adaptedHomePath);
+	            	
+	            	VfsUser userObject = (VfsUser) getUserByName(user);
+	            	userObject.setHomeDirectory(info.getHomeDir().getName().getURI());
+	                userObject.setVfsInfo(info);                
+	                
+	                return userObject;
+            	}
+                catch (FileSystemException e) {
+                	log.error("Error in authentication", e);
+                	throw new AuthenticationFailedException("Authentication failed: " + e.getMessage(), e);
+                }
             } else {
                 throw new AuthenticationFailedException("Authentication failed");
             }
@@ -145,10 +184,6 @@ public class VfsUserManager extends UserProps implements UserManager {
 		return true;
 	}
 
-	public String getAdminName() throws FtpException {
-		return this.adminName;
-	}
-
 	public String[] getAllUserNames() throws FtpException {
 		// TODO Auto-generated method stub
 		return null;
@@ -166,6 +201,7 @@ public class VfsUserManager extends UserProps implements UserManager {
         UserProps userProps;
         if (this.isAdmin(login)) {
         	userProps = this.admin;
+        	user.setAdmin(true);
         }
         else {
         	userProps = this;
