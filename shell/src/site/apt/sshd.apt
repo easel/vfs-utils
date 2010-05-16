@@ -6,19 +6,19 @@
 
 VFS Shell SSHD
 
- This module delivers integration of the VFS Shell with {{{http://mina.apache.org/sshd}Apache MINA SSHD}}. Apache MINA SSHD provides a Java implementation for an SSH Server and Client.
+ This module delivers integration of the VFS Shell with {{{http://mina.apache.org/sshd}Apache MINA SSHD}}. Apache MINA SSHD provides a Java implementation for an SSH Server and Client with support for SCP and SFTP.
  
- This combination allows secure remote access to a VFS Shell using for example Cygwin or a *nix based ssh client. (PuTTY does not work; it hangs when receiving more then 16K.)
+ This combination allows secure remote access to a VFS Shell using for example Putty, Cygwin or a *nix based ssh client. 
  
  <<Warning: the code is not yet tested enough to use in a production environment!>>
  
- The VFS SSHD server also supports SCP.
+ With the SCP and SFTP support you can use VFS SSHD server also for file transfers.
  
  To use it, the mina sshd jars and all dependecies, the vfs jar and all its dependencies and all the vfs shell and vfs utils jars must be added to your classpath. 
  
  If you download the VFS SSHD server distribution you will have all you need to run the server. Additional VFS plugins and custom commands or scripts are easily added.
  
- You can also just use the VFS enabled shell and SCP command in your own custom server, see {{{#components}Components}}. 
+ You can also just use the VFS enabled shell, SCP command or SFTP subsystem in your own custom server, see {{{#components}Components}}. 
  
  You can start the shell server using:
 
@@ -102,7 +102,7 @@ file:///d:/vfswork/root as virtual root would mean that the root the users see i
  
 * VfsShellFactory
  
- The VfsShellFactory creates shells based on the VFS Shell. To initialize it you must pass a VFS FileSystemManager.
+ The VfsShellFactory creates shells based on the VFS Shell. To initialize it you must pass a VFS FileSystemManagerFactory.
  Optionally you can give a path as well. The behaviour will depend on whether a root and/or path are passed through the session attributes as well. If you pass a session attribute for the path then it will overwrite the path given to the VfsShellFactory. If you pass a session attribute for the root then the path will be resolved relative to the root; otherwise it will be interpreted as an absolute path. 
  
  In other words, when there is no root passed in the session, the path you give must be absolute (e.g. file://sshd_root; otherwise it must be relative.
@@ -116,19 +116,25 @@ file:///d:/vfswork/root as virtual root would mean that the root the users see i
  
 * VfsScpCommandFactory
  
- The VfsScpCommandFactory creates VfsScpCommands when "scp" is the requested command. You must pass it a VFS FileSystemManager. Just as the VfsShellFactory it will look for the root attribute in the session. If your PasswordAuthenticator does not set it then you must give a path to the ScpCommandFactory that indicates the root
+ The VfsScpCommandFactory creates VfsScpCommands when "scp" is the requested command. It is based on the SSHD ScpCommandFactory. You must pass it a VFS FileSystemManagerFactory. Just as the VfsShellFactory it will look for the root attribute in the session. If your PasswordAuthenticator does not set it then you must give a path to the ScpCommandFactory that indicates the root
  from where the requested files will be resolved; it should be absolute including the scheme (e.g. file:///sshd_root)
  
+* VfsSftpSubsystem
 
+ The VfsSftpSubsystem provides the SFTP services. It is based on the SSHD SftpSubsystem. You must pass it a VFS FileSystemManagerFactory, but it will not use it if the root attribute is set in the session, see the VfsScpCommandFactory
  
 
 Possible clients
 
- * Cygwin
+ * Cygwin (SSH)
  
  * Linux/Unix/OSX ssh
  
- * PuTTY
+ * PuTTY (SSH), PSCP (SCP), PSFTP (SFTP)
+ 
+ * FileZilla (SFTP)
+ 
+ * WinSCP (SFTP)
  
   []
 

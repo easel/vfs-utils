@@ -27,7 +27,7 @@ VFS Shell
  
  Using the {{{http://mina.apache.org/sshd}Apache Mina SSHD Server}} as core you can setup a secure server shell application with the
  {{{./sshd.html}VFS SSHD Server}} integration. Users can connect with a normal ssh client and perform
- shell operations on your remote virtual filesystem. By default the shell only offers limited operations to avoid users from 'escaping' from the preconfigured file system. Of course you can easily change or add commands to make your own shell environment.
+ shell operations on your remote virtual filesystem. By default the shell only offers limited operations to avoid users from 'escaping' from the preconfigured file system. Of course you can easily change or add commands to make your own shell environment. The SSHD server supports SCP and SFTP for file transfer.
  
 * Download
 

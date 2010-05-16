@@ -30,7 +30,8 @@ VFS Utils
  and tab completion for commands and file names.
  
  You can also run the shell as a {{{shell/sshd.html}SSHD server application}} that can be accessed with ssh 
- clients. Every user will have its own independent remote shell.
+ clients. Every user will have its own independent remote shell. The VFS SSHD server also supports SCP and 
+ SFTP connections.
  
  Additional VFS utilities can be found in the {{{utils/index.html}Utils project}}.
  
@@ -49,6 +50,8 @@ Other VFS clients
  This project is hosted at {{{http://sourceforge.net}SourceForge}}.
  
 News
+
+  * 16-05-2010: Improvement of FTP Server session isolation, SFTP support for SSHD, some command improvements
 
   * 07-02-2010: Improvements of Shell cp, mv and rm commands
 
