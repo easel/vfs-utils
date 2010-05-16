@@ -17,6 +17,7 @@ public class Sync extends AbstractCommand {
 	
 	public class SyncOptions {
 		public boolean compareDate = true;
+		public boolean compareDateNewer = true;
 		public boolean compareSize = false;
 		public boolean compareMd5 = false;
 		public boolean purge = false;
@@ -37,7 +38,7 @@ public class Sync extends AbstractCommand {
 	protected org.vfsutils.Md5 md5Helper;
 	
 	public Sync() {
-		super("sync", "Synchronize two locations", "<fromPath> <toPath> [--delete] [--dry-run] [-sdmPv]");
+		super("sync", "Synchronize two locations", "<fromPath> <toPath> [--delete] [--dry-run] [-sdmNPv]");
 		this.md5Helper = new org.vfsutils.Md5();
 	}
 
@@ -56,6 +57,7 @@ public class Sync extends AbstractCommand {
 		options.compareSize = args.hasFlag('s');
 		options.compareMd5 = args.hasFlag('m');
 		options.compareDate = args.hasFlag('d') || !(options.compareSize || options.compareMd5);
+		options.compareDateNewer = !args.hasFlag("N");
 		options.preserveLastModified = !args.hasFlag('P');
 		options.verbose = args.hasFlag('v');
 		options.dryRun = args.hasFlag("dry-run");
@@ -64,7 +66,7 @@ public class Sync extends AbstractCommand {
 		options.destBase = destFileObject;
 		
 		if (options.verbose) {
-			engine.println("Comparing using " + (options.compareSize?"size ":"") + (options.compareDate?"date ":"") + (options.compareMd5?"md5 ":""));
+			engine.println("Comparing using " + (options.compareSize?"size ":"") + (options.compareDate?(options.compareDateNewer?"newer":"strict") + " date ":"") + (options.compareMd5?"md5 ":""));
 			engine.println((options.dryRun?"Doing a dry-run ":"") + (options.purge?"Allowing delete ":"") + (options.preserveLastModified?"Preserving last modified date ":""));
 		}
 		
@@ -99,6 +101,8 @@ public class Sync extends AbstractCommand {
 				throw new IllegalArgumentException("You cannot synchronize a folder with a file");
 			}
 			else {
+				// do not count the starting dir
+				options.cntDirs--;
 				syncDirs(src, dest, options, engine);
 			}
 		}
@@ -176,10 +180,10 @@ public class Sync extends AbstractCommand {
 		
 		int remaining = 0;
 		if (!options.dryRun) {
-			remaining = remainingChild.delete(Selectors.SELECT_SELF_AND_CHILDREN);
+			remaining = remainingChild.delete(Selectors.SELECT_ALL);
 		}
 		else {
-			remaining = remainingChild.findFiles(Selectors.SELECT_SELF_AND_CHILDREN).length;
+			remaining = remainingChild.findFiles(Selectors.SELECT_ALL).length;
 		}
 		if (options.verbose){
 			engine.println("Removed " + engine.toString(remainingChild));
@@ -195,10 +199,10 @@ public class Sync extends AbstractCommand {
 		
 		if (srcChild.getType().equals(FileType.FILE) & destChild.getType().equals(FileType.FOLDER)) {
 			if (!options.dryRun) {
-				removed = destChild.delete(Selectors.SELECT_SELF_AND_CHILDREN);
+				removed = destChild.delete(Selectors.SELECT_ALL);
 			}
 			else {
-				removed = destChild.findFiles(Selectors.SELECT_SELF_AND_CHILDREN).length;
+				removed = destChild.findFiles(Selectors.SELECT_ALL).length;
 			}
 			if (options.verbose) {
 				engine.println("Removed folder " + engine.toString(destChild) + " because of a type conflict");
@@ -258,7 +262,13 @@ public class Sync extends AbstractCommand {
 		
 		boolean sameDate = true;
 		if (options.compareDate) {
+			if (options.compareDateNewer) {
 			sameDate = (fileA.getContent().getLastModifiedTime() <= fileB.getContent().getLastModifiedTime());
+			}
+			else {
+				sameDate = (fileA.getContent().getLastModifiedTime() == fileB.getContent().getLastModifiedTime());
+			}
+			
 		}
 		
 		boolean sameSize = true;
