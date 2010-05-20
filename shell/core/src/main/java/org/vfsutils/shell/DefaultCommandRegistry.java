@@ -44,6 +44,7 @@ public class DefaultCommandRegistry extends CommandRegistry {
 		new Sysinfo().register(this);
 		new Xslt().register(this);
 		new Find().register(this);
+		new Stopwatch().register(this);
 	}
 	
 }
