@@ -6,7 +6,6 @@ import java.util.Date;
 
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.FileType;
 import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;
@@ -72,19 +71,21 @@ public class Ls extends AbstractCommand implements CommandProvider {
 		
 		int nrOfFiles = 0;
 		int nrOfFolders = 0;
+		long totalSize = 0;
 		for (int i = 0; i < files.length; i++) {
 			final FileObject child = files[i];
 
-			boolean isFolder = (child.getType() == FileType.FOLDER);
+			boolean isFolder = (child.getType().hasChildren());
 			listChild(dir, child, showRelativePath, isFolder, longList, engine);
 
 			if (isFolder) {
 				nrOfFolders++;
 			} else {
 				nrOfFiles++;
+				totalSize += child.getContent().getSize();
 			}
 		}
-		engine.println(nrOfFolders + " Folder(s), " + nrOfFiles + " File(s)");
+		engine.println(nrOfFolders + " Folder(s), " + nrOfFiles + " File(s), " + formatSize(totalSize) + " bytes");
 	}
 
 	private void listChild(final FileObject base, final FileObject child,
@@ -139,21 +140,8 @@ public class Ls extends AbstractCommand implements CommandProvider {
 			middle = "   <DIR>         ";
 		} else {
 			long size = child.getContent().getSize();
-			String sizeAsString = Long.toString(size);
-			String formattedSize;
-			if (sizeAsString.length() <= 3) {
-				formattedSize = sizeAsString;
-			} else {
-				int start = sizeAsString.length() % 3;
-				if (start == 0)
-					start = 3;
-				formattedSize = sizeAsString.substring(0, start);
-
-				for (int i = start; i < sizeAsString.length(); i = i + 3) {
-					formattedSize = formattedSize + "."
-							+ sizeAsString.substring(i, i + 3);
-				}
-			}
+			String formattedSize = formatSize(size);
+			
 			middle = middle.substring(0, middle.length()
 					- formattedSize.length())
 					+ formattedSize;
@@ -208,6 +196,29 @@ public class Ls extends AbstractCommand implements CommandProvider {
 		} else {
 			return child.getName().getBaseName();
 		}
+	}
+	
+	protected String formatSize(long size) {
+		String sizeAsString = Long.toString(size);
+		
+		String result;
+		if (sizeAsString.length() <= 3) {
+			result = sizeAsString;
+		} else {
+			StringBuffer formattedSize = new StringBuffer(sizeAsString.length()+5);
+			int start = sizeAsString.length() % 3;
+			if (start == 0) {
+				start = 3;
+			}
+			
+			formattedSize.append(sizeAsString.substring(0, start));
+
+			for (int i = start; i < sizeAsString.length(); i = i + 3) {
+				formattedSize.append(".").append(sizeAsString.substring(i, i + 3));
+			}
+			result = formattedSize.toString();
+		}
+		return result;
 	}
 	
 	/**
