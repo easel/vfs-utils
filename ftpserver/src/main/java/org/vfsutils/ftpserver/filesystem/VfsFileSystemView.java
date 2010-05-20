@@ -69,27 +69,35 @@ public class VfsFileSystemView implements FileSystemView {
 			isAdmin = true;
 		}
 		
+		boolean shouldClose = vfsInfo.isShouldClose();
+		String fsId = fs.toString();
+		
 		// release handles
 		this.workingDir = null;
 		this.homeDir = null;
 		this.vfsInfo = null;
 		this.user = null;
 		
-		// close the file system if there are no handles anymore (like
-		// is done in AbstractFileProvider.freeUnusedResources
-		if (fs instanceof AbstractFileSystem) {
-			AbstractFileSystem afs = (AbstractFileSystem) fs;
-			if (isAdmin && fs.getFileSystemManager() instanceof DefaultFileSystemManager) {
-				log.info("Forcing gb and finalization");
-				// force gc and finalization to free references to filesystems
-				System.gc();
-				System.runFinalization();
-			} 
-			// kick all filesystems
-			((DefaultFileSystemManager) fs.getFileSystemManager()).freeUnusedResources();
+		if (shouldClose) {
+			log.info("Closing fs");
+			fs.getFileSystemManager().closeFileSystem(fs);
 		}
-		
-		log.info("Disposed file system view of user " + userName + " based on filesystem " + fs.toString());
+		else {
+			// close the file system if there are no handles anymore (like
+			// is done in AbstractFileProvider.freeUnusedResources
+			if (fs instanceof AbstractFileSystem) {
+				AbstractFileSystem afs = (AbstractFileSystem) fs;
+				if (isAdmin && fs.getFileSystemManager() instanceof DefaultFileSystemManager) {
+					log.info("Forcing gc and finalization");
+					// force gc and finalization to free references to filesystems
+					System.gc();
+					System.runFinalization();
+				} 
+				// kick all filesystems
+				((DefaultFileSystemManager) fs.getFileSystemManager()).freeUnusedResources();
+			}
+		}		
+		log.info("Disposed file system view of user " + userName + " based on filesystem " + fsId);
 		
 		
 	}

@@ -1,35 +1,33 @@
 package org.vfsutils.ftpserver.filesystem;
 
 import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemManager;
 
 public class VfsInfo {
 	
-	private FileSystemManager manager;
 	private FileObject rootDir;
 	private FileObject homeDir;
+	private boolean shouldClose;
 	
 	
-	public VfsInfo(FileSystemManager manager, FileObject rootDir, FileObject homeDir) {
-		this.manager = manager;
+	public VfsInfo(FileObject rootDir, FileObject homeDir, boolean shouldClose) {
 		this.rootDir = rootDir;
 		this.homeDir = homeDir;
+		this.shouldClose = shouldClose;
 	}
-
-
-	public FileSystemManager getManager() {
-		return manager;
-	}
-
 
 	public FileObject getRootDir() {
 		return rootDir;
 	}
 
-
 	public FileObject getHomeDir() {
 		return homeDir;
 	}
+
+	public boolean isShouldClose() {
+		return shouldClose;
+	}
+	
+	
 
 	
 

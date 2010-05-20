@@ -36,8 +36,11 @@ VFS Utils FTPServer Configuration
 			<beans:property name="authenticator.vfsRoot" value="file:///d:/ftproot"/>
 			<beans:property name="authenticator.vfsType" value="virtual"/>
 			<!-- beans:property name="authenticator.vfsDomain" value="mydomain" -->
+			<beans:property name="authenticator.vfsShare" value="true"/>
 			<beans:property name="authenticator.factory.share" value="false"/>
 			<beans:property name="adminName" value="admin"/>
+			<beans:property name="anonymousName" value="anonymous"/>
+			<beans:property name="anonymousPwd" value="anon@localhost"/>
 			<!-- normal user settings -->
 			<beans:property name="writePermission" value="false"/>
 			<beans:property name="maxLogin" value="10"/>
@@ -76,15 +79,17 @@ VFS Utils FTPServer Configuration
  Since VFS supports the notion
  of domain, but this is not supported by FTP you can optionally specify the 
  domain that should be used in the authentication.
-
- You can define whether you want to use one shared VFS FileSystemManager or whether
- there should be one per session (the default). If you share the FileSystemManager the 
- server will use less memory, but the deconnection can not be forced but will be done 
- when all references have been garbage collected.
+ 
+ Properties authenticator.vfsShare and authenticator.factory.share are discussed below.
  
  You can set which user should be regarded as the admin account with adminName. 
  This account has special privileges such as the 'site who' and the 'site stat' 
  commands. The FTP User management functions do not work however.
+ 
+ To enable anonymous access you can specify which username should be used towards the 
+ file system for anonymous access. Though not very safe you can also specify which password
+ is used for that account. By default anonymous is used for the name and anon@localhost is 
+ used for the password.
  
  Opposite to the default User Managers of the FTP Server which allow different settings for 
  each user, the VFS User Manager only makes an exception for the administrator role. Below the 
@@ -126,6 +131,51 @@ VFS Utils FTPServer Configuration
  <beans:property name="authenticator.vfsType" value="layered"/>
 -----------
  
+** FTP session isolation / reuse of the file system
+
+ By default ftp sessions with the same user/password combination share a FileSystem
+ instance, becaue FileSystemManager.resolveFile(String, FileSystemOptions) will
+ return the same FileSystem if the FileSystemOptions are the same.
+ 
+ You might want to isolate FTP sessions of the same user, for instance to have 
+ single-threaded access to your file system. 
+ 
+ Two configuration options influence this. The most radical is to create a new
+ FileSystemManager for each session.
+ 
+-----------
+ <beans:property name="authenticator.factory.share" value="false"/>
+-----------
+ 
+ However, it can be quite costly to create a new instance each time because the 
+ new FileSystemManager will scan plugin configuration files to determine which 
+ providers are available. So unless you provide your own manager implementation
+ you normally do not want to do this. 
+ 
+-----------
+ <beans:property name="authenticator.factory.managerClassName" value="my.own.Manager"/>
+-----------
+
+ You can also opt to share the FileSystemManager, but not the FileSystem.
+
+-----------
+ <beans:property name="authenticator.vfsShare" value="false"/>
+-----------
+
+ This does not have a big performance penalty, and will isolate operations on the file
+ system done in different sessions, resulting in single threaded access.
+ 
+ It will take more memory of course, but has the advantage that the file system can be
+ properly closed when the ftp session is terminated.
+ 
+ When you do share both the manager as the file system then the filesystem will not be 
+ closed when the FTP session is terminated because this would affect the other sessions.
+ Instead the method FileSystemManager.freeUnusedResources() is called, but this will not 
+ remove the FileSystem from the internal administration of the FileSystemManager 
+ (the FileSystemProvider to be precise).
+  
+ Note: it does not make much sense to not share the file system if the manager is not 
+ shared either.
 
 * Standard user authentication
 

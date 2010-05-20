@@ -9,6 +9,7 @@ import org.apache.commons.vfs.impl.DefaultFileSystemConfigBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vfsutils.factory.FileSystemManagerFactory;
+import org.vfsutils.session.UniqueFileSystemConfigBuilder;
 
 public class VfsAuthenticator {
 	
@@ -19,6 +20,8 @@ public class VfsAuthenticator {
 	private String vfsRoot = null;
 	private String vfsType = "normal";
 	private String vfsDomain = null;
+	
+	private boolean vfsShare = true;
 
 	/**
 	 * The VFS root is the connection string for the underlying
@@ -84,8 +87,6 @@ public class VfsAuthenticator {
 		this.vfsDomain = vfsDomain;
 	}
 	
-	
-	
 	/**
 	 * Returns the factory used to make FileSystemManager instances
 	 * @return factory
@@ -100,6 +101,24 @@ public class VfsAuthenticator {
 	 */
 	public void setFactory(FileSystemManagerFactory factory) {
 		this.factory = factory;
+	}
+
+	/**
+	 * If true, then the filesystem is shared between sessions of the same user. If 
+	 * false, each session will have its own filesystem.
+	 * @return
+	 */
+	public boolean isVfsShare() {
+		return vfsShare;
+	}
+
+	/**
+	 * If true, then the file system is shared between sessions of the same user. If 
+	 * false, each session will have its own file system.
+	 * @param share, if true the file system will be shared amongst sessions
+	 */
+	public void setVfsShare(boolean share) {
+		this.vfsShare = share;
 	}
 
 	/**
@@ -119,6 +138,10 @@ public class VfsAuthenticator {
 		StaticUserAuthenticator auth = new StaticUserAuthenticator(this.vfsDomain, user, password); 
         FileSystemOptions opts = new FileSystemOptions(); 
         DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
+        
+        if (!this.vfsShare) {
+        	UniqueFileSystemConfigBuilder.getInstance().setUniqueKey(opts);
+        }
 
         FileSystemManager manager = getFactory().getManager();        
         
@@ -154,15 +177,17 @@ public class VfsAuthenticator {
         		homeDir = rootDir.resolveFile(homePath);
         	
         		if (!homeDir.exists()) {
-        			//TODO log warning
+        			//TODO log warning?
         			homeDir = rootDir;
         		}
         	}
         }		
     
         log.info("Authenticated user " + user + " based on filesystem " + rootDir.getFileSystem().toString());
-        
-        VfsInfo info = new VfsInfo(manager, rootDir, homeDir);
+        // if the file system is not shared it should be closed
+        // TODO: what about virtual && layered fs?
+        boolean shouldClose = ! (factory.isShare() && this.isVfsShare());
+        VfsInfo info = new VfsInfo(rootDir, homeDir, shouldClose);
         return info;
 	}
 
