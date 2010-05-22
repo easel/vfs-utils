@@ -147,10 +147,8 @@ VFS Utils FTPServer Configuration
  <beans:property name="authenticator.factory.share" value="false"/>
 -----------
  
- However, it can be quite costly to create a new instance each time because the 
- new FileSystemManager will scan plugin configuration files to determine which 
- providers are available. So unless you provide your own manager implementation
- you normally do not want to do this. 
+ This provides the highest grade of isolation. Creating the default file system
+ manager is quite fast. You can specify your own manager if you prefer.
  
 -----------
  <beans:property name="authenticator.factory.managerClassName" value="my.own.Manager"/>
