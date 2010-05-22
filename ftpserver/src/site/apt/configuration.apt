@@ -160,13 +160,13 @@ VFS Utils FTPServer Configuration
  <beans:property name="authenticator.vfsShare" value="false"/>
 -----------
 
- This does not have a big performance penalty, and will isolate operations on the file
- system done in different sessions, resulting in single threaded access.
+ This will isolate operations on the file
+ system done in different sessions, resulting in single threaded access to the file system.
  
- It will take more memory of course, but has the advantage that the file system can be
+ It will take more memory then sharing the file system, but has the advantage that the file system can be
  properly closed when the ftp session is terminated.
  
- When you do share both the manager as the file system then the filesystem will not be 
+ When you share both the manager as the file system then the filesystem will not be 
  closed when the FTP session is terminated because this would affect the other sessions.
  Instead the method FileSystemManager.freeUnusedResources() is called, but this will not 
  remove the FileSystem from the internal administration of the FileSystemManager 
