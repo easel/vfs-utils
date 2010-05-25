@@ -33,16 +33,21 @@ public class LoggingFtplet extends DefaultFtplet {
 	public FtpletResult afterCommand(FtpSession session, FtpRequest request,
 			FtpReply reply) throws FtpException, IOException {
 
-		LOG.debug(session.getUser().getName() + " - after - "
-				+ request.getRequestLine());
+		LOG.debug((session.getUser()!=null?session.getUser().getName():"") 
+				+ " - after - "
+				+ ("PASS".equals(request.getCommand())?request.getCommand():request.getRequestLine()));
 		return null;
 	}
 
 	@Override
 	public FtpletResult beforeCommand(FtpSession session, FtpRequest request)
 			throws FtpException, IOException {
-		LOG.debug(session.getUser().getName() + " - before - "
-				+ request.getRequestLine());
+		
+		
+		LOG.debug(
+			(session.getUser()!=null?session.getUser().getName():"") 
+			+ " - before - "
+			+ ("PASS".equals(request.getCommand())?request.getCommand():request.getRequestLine()));
 		return null;
 	}
 
