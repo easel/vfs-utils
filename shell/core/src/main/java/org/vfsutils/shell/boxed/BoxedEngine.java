@@ -1,5 +1,7 @@
 package org.vfsutils.shell.boxed;
 
+import java.util.Map;
+
 import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystem;
@@ -24,20 +26,20 @@ public class BoxedEngine extends Engine {
 		this.context.setCwd(startDir);
 	}
 	
-	public void setStartDir(String path, boolean askUsername, boolean askPassword, boolean askDomain, boolean virtual) throws FileSystemException {
+	public void setStartDir(String path, boolean askUsername, boolean askPassword, boolean askDomain, boolean virtual, Map options) throws FileSystemException {
 		try {
 			Open openCmd = new Open();
-			openCmd.open(path, askUsername, askPassword, askDomain, virtual, this);
+			openCmd.open(path, askUsername, askPassword, askDomain, virtual, options, this);
 		}
 		catch (CommandException e) {
 			throw new FileSystemException(e);
 		}
 	}
 	
-	public void setStartDir(String path, String username, String password, String domain, boolean virtual) throws FileSystemException {
+	public void setStartDir(String path, String username, String password, String domain, boolean virtual, Map options) throws FileSystemException {
 		try {
 			Open openCmd = new Open();
-			openCmd.open(path, username, password, domain, virtual, this);
+			openCmd.open(path, username, password, domain, virtual, options, this);
 		}
 		catch (CommandException e) {
 			throw new FileSystemException(e);
