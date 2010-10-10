@@ -14,6 +14,7 @@ public class Assert extends AbstractCommand {
 		super("assert", new CommandInfo("Assert existence", "(-nfd)<path> [--cwd=<path>]"));
 	}
 	
+	//TODO: it is better to use --file and --folder for matching the type (more like the find command)
 	public void execute(Arguments args, Engine engine)
 			throws IllegalArgumentException, CommandException, FileSystemException {
 		
