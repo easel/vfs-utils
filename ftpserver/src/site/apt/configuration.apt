@@ -31,7 +31,7 @@ VFS Utils FTPServer Configuration
 	id="myServer">
 	<!-- VFS user manager configuration -->
  	<user-manager>
-		<beans:bean class="org.dctmvfs.ftpserver.vfs.usermanager.VfsUserManager"> 
+		<beans:bean class="org.vfsutils.ftpserver.usermanager.VfsUserManager"> 
 			<beans:property name="vfsHomePath" value="/home/${user}"/>
 			<beans:property name="authenticator.vfsRoot" value="file:///d:/ftproot"/>
 			<beans:property name="authenticator.vfsType" value="virtual"/>
@@ -54,7 +54,7 @@ VFS Utils FTPServer Configuration
 	</user-manager> 
 	<!-- VFS based file system manager configuration -->
  	<filesystem>
-		<beans:bean class="org.dctmvfs.ftpserver.vfs.filesystem.VfsFileSystemFactory"/>		
+		<beans:bean class="org.vfsutils.ftpserver.filesystem.VfsFileSystemFactory"/>		
 	</filesystem>
   </server>	
 -----------
@@ -188,7 +188,7 @@ VFS Utils FTPServer Configuration
 -----------
 	<!-- VFS based file system manager configuration -->
  	<filesystem>
-		<beans:bean class="org.dctmvfs.ftpserver.vfs.filesystem.VfsFileSystemFactory"/>		
+		<beans:bean class="org.vfsutils.ftpserver.filesystem.VfsFileSystemFactory"/>		
 	</filesystem>	
 -----------
  
@@ -203,7 +203,7 @@ VFS Utils FTPServer Configuration
 ----------
 	<!-- VFS based file system manager configuration -->
  	<filesystem>
-		<beans:bean class="org.dctmvfs.ftpserver.vfs.filesystem.VfsFileSystemFactory">
+		<beans:bean class="org.vfsutils.ftpserver.filesystem.VfsFileSystemFactory">
 			<beans:property name="authenticator.vfsRoot" value="file:///d:/ftproot"/>
 			<beans:property name="authenticator.vfsType" value="virtual"/>
 		</beans:bean>
