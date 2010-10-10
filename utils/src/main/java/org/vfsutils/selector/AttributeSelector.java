@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.vfs.FileSelectInfo;
 import org.apache.commons.vfs.FileSelector;
 import org.apache.commons.vfs.FileType;
+import org.vfsutils.StringSplitter;
 import org.vfsutils.attrs.ArraySplitter;
 
 public class AttributeSelector extends FilenameSelector implements FileSelector {
@@ -157,6 +158,8 @@ public class AttributeSelector extends FilenameSelector implements FileSelector 
 		ArraySplitter splitter = new ArraySplitter();
 		String[] constraints = splitter.split(constraint);
 		
+		StringSplitter normalizer = new StringSplitter();
+		
 		for (int i=0; i<constraints.length && result; i++) {
 		
 			String c = constraints[i];
@@ -167,7 +170,7 @@ public class AttributeSelector extends FilenameSelector implements FileSelector 
 			if (m.matches()) {
 				String attrName = m.group(1);
 				String operator = m.group(2);
-				String value = m.group(3);			
+				String value = normalizer.removeQuotesAndEscapes(m.group(3));			
 				
 				result = includeAttribute(attributes.get(attrName), operator, value);			
 				
