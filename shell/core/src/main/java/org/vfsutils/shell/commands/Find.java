@@ -67,7 +67,7 @@ public class Find extends AbstractCommand {
 	}
 
 	public Find() {
-		super("find", "Execute a command for the selected files", "<pattern> --exec=<command> [-dfC] [(--files|--folders)] [--size=<expression>] [--age=<expression>] [--attrs=[<name><==|!=><value>]]\n" + 
+		super("find", "Execute a command for the selected files", "<pattern> [--exec=<command>] [-dfC] [(--files|--folders)] [--size=<expression>] [--age=<expression>] [--attrs=[<name><==|!=><value>]]\n" + 
 																  "       In exec you can use {relpath} for relative paths, {abspath} for absolute paths, and {fullpath} for the full URI");
 	}
 	
