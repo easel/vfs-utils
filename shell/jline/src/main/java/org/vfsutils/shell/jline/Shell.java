@@ -85,7 +85,7 @@ public class Shell extends org.vfsutils.shell.Shell {
 
 	public void println(Object o) {
 		if (consoleReader==null) {
-			System.out.println("console reader null while pritinting " + o);
+			System.out.println("console reader null while printing " + o);
 		}
 		try {
 			consoleReader.printString(o==null?"null":o.toString());
