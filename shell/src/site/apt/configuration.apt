@@ -66,4 +66,10 @@ VFS Shell Configuration
  dir.register(engine.commandRegistry);
 --------------
  
+* Logging
 
+ Logging is not enabled by default, but you can use the listener interface for this. There are currently two different options.
+ 
+ The LoggingEngineEventListener writes to the standard logging. The RecordingEngineEventListener writes the given input and thus acts as a recorder.
+ 
+ engine.addEngineEventListener(new org.vfsutils.shell.events.RecordingEngineEventListener(engine.pathToFile("file://d:/temp/cli/out.log"), engine));

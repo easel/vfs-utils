@@ -19,7 +19,9 @@ VFS Shell Commands
  * {{{#cd}cd}}
 
  * {{{#close}close}} 
- 
+
+ * {{{#compare}compare}} 
+
  * {{{#cp}cp}}
 
  * {{{#dirs}dirs}}
@@ -30,6 +32,8 @@ VFS Shell Commands
  
  * {{{#exit}exit}}
 
+ * {{{#find}find}}
+ 
  * {{{#hash}hash}}
  
  * {{{#help}help}}
@@ -61,6 +65,8 @@ VFS Shell Commands
  * {{{#rm}rm}}
  
  * {{{#set}set}}
+
+ * {{{#stopwatch}stopwatch}}
  
  * {{{#sync}sync}} 
  
@@ -141,6 +147,7 @@ VFS Shell Commands
  bsh -e print(cwd + \" hello world\");
  bsh -e 'print(cwd + " hello world");'
  bsh -e org.apache.xalan.Version.main(new String[]{});
+ bsh -e 'System.out.println(System.getProperty("java.version"));'
  bsh test.bsh hello world -fva --option1=doit
 --------------- 
  
@@ -174,15 +181,52 @@ VFS Shell Commands
  to the directory stack that is manipulated using pushd and popd. The command dirs shows the 
  current state of the directory stack.
  
- See: {{{#dirs}dirs}}
+ See: {{{#dirs}dirs}},{{{#pwd}pwd}}
 
 * {close}
 
  Closes a filesystem. You can specify which filesystem you want to close, otherwise the current 
  filesystem is closed. With the -a flag you can close all open filesystems at once.
 
+ Examples:
+ 
+---------------
+  close
+  close zip://C:/temp/archive.zip
+  close -a
+--------------- 
+ 
  See: {{{#open}open}}
 
+* {compare}
+
+ Compares two files or folders. 
+
+ The first argument
+ represents the source, the second the target. What drives the equality of two files can be configured.
+ By default the date is used (you can also use flag 'd'), if the source is newer it will be considered the same; 
+ using the 'N' flag you can modify this to a stricter date comparison, only when the date matches exactly will the files be considered equal. 
+ If flag 's' is given the size will be used; if there is a difference in size then 
+ the target will be overwritten. 
+ If flag 'm' is given the md5 codes are calculated and compared; note that this
+ is much slower. 
+ When you combine flags then the comparisons are combined; e.g. -sd means that the size and the date 
+ are compared; if you give multiple options the evaluation order is date > size > md5.
+ 
+ To have more details about the differences you can trigger the verbose mode with flag 'v'.
+ 
+ If you want to act on the differences you should use the sync command.
+
+ Examples:
+ 
+---------
+ compare sourcefile.txt remotefile.txt -mv
+ compare ftp://anonymous@server/httpd local/httpd -sdNv 
+---------
+ 
+ 
+ See: {{{#sync}sync}} 
+ 
 * {cp}
 
  Copy the file or directory to the specified location. If you specify the -P flag then it will not try to
@@ -235,7 +279,7 @@ VFS Shell Commands
 
 * {echo}
 
- Prints the arguments to the output. Use it to print variables. You can activate, desactivate and show the 
+ Prints the arguments to the output. Use it to print variables. You can activate, deactivate and show the 
  current status using flags --on, --off and --status. When you use one of these flags the other arguments
  will not be echoed.
  
@@ -277,6 +321,55 @@ VFS Shell Commands
 
  Exit the shell
  
+* {find}
+
+ Finds files or folders. The difference with ls is that ls will collect all matches before printing, while
+ find is memory efficient because it prints while walking the directory tree. 
+ 
+ You can also execute commands
+ on matched files by using the exec option, by default it will print the relative path. In the exec option 
+ the following tokens are replaced with the value corresponding to the document: \{relpath\} for the path relative 
+ to the current working directory, \{abspath\} for the absolute path within the file system and \{fullpath\} to have
+ the full URI including the file system. If you don't specify any of these then the relative path will be appended
+ to the exec command.
+
+ You can steer the behaviour in several ways. 
+ 
+ Flag 'f' will force a stop on the first error that is encountered. 
+ 
+ Flag 'C' will make the match case insensitive. 
+ 
+ Flag 'd' will do a depth first traversal wich means the folders 
+ are treated after their children (useful for rm commands).  Option 'maxdepth' will stop when the given number
+ of levels are traversed. 
+
+ When you give long flag 'files' only files are considered, when you give 'folders' only folders are considered. 
+ 
+ You can also filter on age, size and custom attributes. 
+ 
+ Age will take a pattern of the form \<operator\>\<value\>\<unit\>, where
+ operator is gt, gte, lt, lte, eq or neq (not equals); unit is ms for milliseconds, s for seconds, m for minutes, h for hours, 
+ d for days, w for weeks. If no unit is given days is assumed.
+ 
+ Size will take a pattern of the form \<operator\>\<value\>\<unit\>, where operator is gt, gte, lt, lte, eq or neq; unit is b for bytes,
+ k for kilobytes, m for megabytes and g for gigabytes. 
+ If no unit is given then bytes is assumed.
+ 
+ Custom attributes take the pattern [\<name\>\<operator\>\<value\>(, \<name\>\<operator\>\<value\>, ...], where name is the name of the attribute and operator is == or != 
+ (or the equivalent <>).
+ 
+ Examples:
+ 
+-------------------
+ find --files **/*Tmp --age=gt1w --exec=rm
+ find --files **/*.pdf -C --size=gte10m --exec="echo {fullpath}" 
+ find **/* --attrs="[title=='Hello World', abstract!='The World is abstract']" --maxdepth=2
+-------------------
+ 
+ 
+ See: {{{#ls}ls}} 
+ 
+ 
 * {hash}
 
   Calculates the hashcode of the given arguments. You can also give a checksum with which the hashcode
@@ -302,7 +395,7 @@ VFS Shell Commands
 
 * {load}
 
- Loads a file with shell command. The commands are executed in the current context. If you don't 
+ Loads a file with shell commands. The commands are executed in the current context. If you don't 
  want to change the current context you can use the -c flag. By default it does not echo the read 
  commands, you can activate echoing using the -e flag.
  
@@ -310,7 +403,7 @@ VFS Shell Commands
  use $args to get all arguments or $arg1, $arg2, etc. for individual arguments. You can use $cmd 
  for the name of the script, $flags for the flags and $options for the options. To get around the
  -c en -e flags being caught while calling the script you can pass the --flags option, all values will 
- passed as additional flags.
+ be passed as additional flags.
  
  Examples:
  
@@ -334,6 +427,7 @@ VFS Shell Commands
  ls **/*.zip
 --------------
  
+ See: {{{#find}find}} 
  
 * {md5}
 
@@ -356,7 +450,7 @@ VFS Shell Commands
 * {mkdir}
 
  Create a directory. If the directory already exists, a message will be printed, but it will not be considered an
- error, but an existing file with the same a name is considered an error. You can add multiple levels at once. 
+ error - but an existing file with the same a name is considered an error. You can add multiple levels at once. 
   
 -----------
   mkdir tmp
@@ -374,13 +468,15 @@ VFS Shell Commands
  Opens a filesystem with optional explicit authentication. 
  
  When you specify flag u the username will be asked, when you specify flag p the password will be
- asked, when you specify flag d the domain will be asked.
+ asked, when you specify flag d the domain will be asked. These will supplied as login credentials
+ together with the URI that is opened. Typically you would want to provide the -p flag because VFS
+ is notorious for printing passwords that are specified in the URI.
  
  When you don't specify a URI a list of open filesystems is shown. 
  
- You are not obliged to use the open command to open filesystems, you can also use the cd command. 
+ You are not obliged to use the open command to open filesystems, you can also use the cd command if you specify all parameters in the URI. 
  The difference with the cd command is that you can access 
- layered filesystems more easily and that you can explicitly close opened filesystem.
+ layered filesystems more easily, that you can protect your password and that you can explicitly close opened filesystem.
  
  Examples:
  
@@ -397,20 +493,21 @@ VFS Shell Commands
 
  File object operation support. There are three subcommands: list, do and usage.
  
- list lists the available operations on the specified file object.
+ 'list' lists the available operations on the specified file object.
  
- do executes the operation; you can use the name or the sequence number of the operation to 
+ 'do' executes the operation; you can use the name or the sequence number of the operation to 
  address it.
  
- usage shows the parameters of the operation; you can use the name or the sequence number of the 
- operation to address it.
+ 'usage' shows the parameters of the operation; you can use the name or the sequence number of the 
+ operation to address it. Note that only options are supported to address the parameters.
  
- The availability of operations depends on the specific filesystem.
+ The availability of operations depends on the specific filesystem. The parameters are deduced from
+ the bean spec by scanning all the writable properties.
  
 -------------------
  ops list myfile.txt
  ops usage validate myfile.txt
- ops do 1 myfile.txt -df
+ ops do 1 myfile.txt 
  ops do validate --optionx=true myfile.txt
 -------------------
   
@@ -431,7 +528,7 @@ VFS Shell Commands
 * {popd}
 
  Remove a folder to the directory stack and change the working directory to it. If you provide the
- -n flag the current working directory will not change. 
+ -n flag the current working directory will not change but only the stack will be reduced. 
  
  Examples:
  
@@ -453,7 +550,7 @@ VFS Shell Commands
  
 ----------- 
  pushd
- pushd lib
+ pushd ../../lib
  pushd zip://c:/temp/archive.zip
  pushd -n dctm://dmadmin:pwd@MyDocbase/System
 -----------
@@ -469,8 +566,8 @@ VFS Shell Commands
 
   For the effect of calling a vfs script see the load command, for the effect of calling a beanshell script see the bsh command.
   
-  To register a class you can specify option --type=class; if you don't specify this option an attempt will be made
-  to instantiate the class. The class should be a subclass of the CommandProvider class. 
+  To register a class you can specify option --type=class; but also if you don't specify any option an attempt will be made
+  to map the given argument to a class. The class should be a subclass of the CommandProvider class. 
   
   If you use a script that has extension '.vfs' or '.bsh' the type is detected, but you can also
   specify it explicitly using the type option. The name of the script, without its extension, is used for registering it.
@@ -482,6 +579,8 @@ VFS Shell Commands
 
   Normally the content of the script is read each time it is executed. You can also store the script in memory using the --cache flag; changes in the script will then not be activated until you register the script again.
   
+  You typically use register in the .vfsshellrc init script you add your own commands.
+  
   Examples :
   
 ----------------
@@ -490,6 +589,7 @@ VFS Shell Commands
   register d:/temp/test.vfs --description="test script" --usage="<path>"
   register d:/temp/test --type=bsh --name=mycommand
   register scripts/*.bsh
+  register my-scripts/*.*
 ----------------
  
   See: {{{#bsh}bsh}}, {{{#load}load}}, {{{#unregister}unregister}}
@@ -511,7 +611,7 @@ VFS Shell Commands
  Remove the specified file or folder. It does not remove non-empty directories. You have more 
  verbose output when you specify the -v flag. The -F flag indicates that the command should 
  not fail if the remove does not work. For safety you can not remove everything in a filesystem 
- using rm /**/*; however, if you are in the root and do rm **/* no warning will be issued.
+ using 'rm /**/*'; however, if you are in the root and do 'rm **/*' no warning will be issued.
  The rm command does a depth first transversal using the pattern which means that folders
  are removed after their children.
  
@@ -528,7 +628,7 @@ VFS Shell Commands
  Sets environment variables that you can later use by prefixing a $ sign to the name. To unset a
  variable just give the name.
 
- You have access to the $cwd and $cwp variables; the first contains the full name of the current 
+ You always have access to the $cwd and $cwp variables; the first contains the full name of the current 
  working directory, the second the path within the filesystem. Note that changing them has no 
  effect; the next cd command will reset them. 
  
@@ -546,6 +646,26 @@ VFS Shell Commands
  set PROMPT="\\p#"
  set PROMPT="vfs > "
 ----------------
+
+* {stopwatch}
+
+ Measures elapsed time. It has four subcommands: start, lap, total and stop.
+ start resets the timer and starts it
+ lap shows the time since the last lap or since the start if it is the first lap,
+ total shows the time spent since the timer started
+ stop shows the time spent since the timer started and resets it
+ 
+ Using lap or total before a start, or after a stop, will start the timer.
+ 
+ Examples:
+ 
+---------
+ stopwatch start
+ stopwatch lap
+ stopwatch lap
+ stopwatch total
+---------
+
  
 * {sync}
 
@@ -554,8 +674,8 @@ VFS Shell Commands
  By default the date is used; if the source is newer it will overwrite the target; this behaviour can also
  be triggered by flag 'd'. If flag 's' is given the size will be used; if there is a difference in size then 
  the target will be overwritten. If flag 'm' is given the md5 codes are calculated and compared; note that this
- is costly. When you combine flags then the comparisons are combined; e.g. -sd means that the size and the date 
- are compared; it does not make much sense to combine 'm' with the other flags though.
+ is much slower. When you combine flags then the comparisons are combined; e.g. -sd means that the size and the date 
+ are compared; if you give multiple options the evaluation order is date > size > md5.
  
  If you specify flag '--delete' then superfluous files in the target directory are removed.
  
@@ -578,7 +698,7 @@ VFS Shell Commands
  sync ftp://anonymous@server/httpd . --delete -sd --dry-run
 ---------
 
-  See: {{{#cp}cp}}
+  See: {{{#cp}cp}}, {{{#compare}compare}}
  
 * {sysinfo}
 
@@ -626,13 +746,15 @@ VFS Shell Commands
 * {xslt}
 
  Performs an XSL transformation. It supports different modes: sax, dom and stream which influences the way the
- source xml and xsl files are read (the default mode is sax). Except for the stream mode a VFS enables entity 
- resolver is used by the XML parser. The URI resolver used by the transformation is also VFS enabled. If you 
- don't specify an output file the result is written to the console. 
+ source xml and xsl files are read (the default mode is sax). Except for the stream mode a VFS enabled entity 
+ resolver is used by the XML parser. The URI resolver used by the transformation is also VFS enabled. VFS enabled means
+ that you can use full VFS URIs in your XSL to access other filesystems. 
+ 
+ If you don't specify an output file the result is written to the console. 
  
  You can cache the compiled XSL file using the -c flag.
  
- All parameters that are given are forward to the XSL as parameters.
+ All options that are given are forwarded to the XSL as parameters.
  
  Examples :
  
@@ -643,6 +765,8 @@ VFS Shell Commands
 -----------------
  
 Boxed commands
+
+ Boxed commands are commands with limited functionality to avoid escaping the current filesystem or altering the shell.
 
 * {boxed-open}
 
