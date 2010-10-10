@@ -45,7 +45,11 @@ VFS Shell
  
  * ls: directory content listing
  
+ * find: find files or folders and optionally execute a command on them
+ 
  * cp, mv, mkdir, rmdir, rm: basic file manipulations
+ 
+ * compare: compare two file or directories
  
  * sync: synchronize two directories
  
@@ -80,6 +84,8 @@ VFS Shell
  * assert: verifies a file exists
  
  * sysinfo: shows information about threads, memory and system properties 
+ 
+ * stopwatch: track execution time
  
  * help: displays the list of commands
  

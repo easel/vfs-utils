@@ -51,6 +51,8 @@ Other VFS clients
  
 News
 
+  * 10-10-2010: Added find, compare and stopwatch commands to Shell
+
   * 16-05-2010: Improvement of FTP Server session isolation, SFTP support for SSHD, some command improvements
 
   * 07-02-2010: Improvements of Shell cp, mv and rm commands
