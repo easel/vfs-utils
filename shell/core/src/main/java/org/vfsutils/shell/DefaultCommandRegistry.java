@@ -45,6 +45,7 @@ public class DefaultCommandRegistry extends CommandRegistry {
 		new Xslt().register(this);
 		new Find().register(this);
 		new Stopwatch().register(this);
+		new XmlValidate().register(this);
 	}
 	
 }
