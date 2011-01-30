@@ -6,11 +6,15 @@ import java.util.List;
 import org.apache.sshd.SshServer;
 import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.server.Command;
+import org.apache.sshd.server.command.ScpCommandFactory;
+import org.apache.sshd.server.filesystem.NativeFileSystemFactory;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.apache.sshd.server.sftp.SftpSubsystem;
 import org.vfsutils.factory.FileSystemManagerFactory;
 import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandParser;
 import org.vfsutils.shell.DefaultCommandParser;
+import org.vfsutils.shell.sshd.filesystem.VfsFileSystemFactory;
 
 /**
  * VFS Shell SSHD Server based on Apache Mina SSHD
@@ -60,16 +64,20 @@ public class Server {
 
     		FileSystemManagerFactory factory = new FileSystemManagerFactory();
 						
-			VfsShellFactory shellFactory = new VfsShellFactory(factory, path);
+			VfsShellFactory shellFactory = new VfsShellFactory();
 			sshd.setShellFactory(shellFactory);
 			
-			VfsScpCommandFactory commandFactory = new VfsScpCommandFactory(factory);
+			//VfsScpCommandFactory commandFactory = new VfsScpCommandFactory(factory);
+			ScpCommandFactory commandFactory = new ScpCommandFactory(); 
 			sshd.setCommandFactory(commandFactory);
 			
+			sshd.setFileSystemFactory(new VfsFileSystemFactory(factory, root, (virtual?"virtual":"standard"), path));
+			//sshd.setFileSystemFactory(new VfsFileSystemFactory(null, null, null, path));
+			//sshd.setFileSystemFactory(new NativeFileSystemFactory());
 			
 			List<NamedFactory<Command>> subsystemFactories = new ArrayList<NamedFactory<Command>>();
-			subsystemFactories.add(new VfsSftpSubsystem.Factory(factory, root)); 
-			//subsystemFactories.add(new SftpSubsystem.Factory());
+			//subsystemFactories.add(new VfsSftpSubsystem.Factory(factory, root)); 
+			subsystemFactories.add(new SftpSubsystem.Factory());
 			sshd.setSubsystemFactories(subsystemFactories);
 			
 			VfsPasswordAuthenticator pwdAuth = new VfsPasswordAuthenticator(factory, root, virtual);

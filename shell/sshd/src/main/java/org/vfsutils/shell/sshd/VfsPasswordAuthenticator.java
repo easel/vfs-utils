@@ -16,9 +16,9 @@ public class VfsPasswordAuthenticator implements PasswordAuthenticator {
 	
 	protected static final Logger log = LoggerFactory.getLogger(VfsPasswordAuthenticator.class);
 
-	private String rootPath = null;
-	private boolean virtual = false;
-	private String domain = null;
+	private String rootPath;
+	private boolean virtual;
+	private String domain;
 	
 	private FileSystemManagerFactory factory;
 	

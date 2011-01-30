@@ -13,27 +13,29 @@ import java.net.URL;
 
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.FileSystemManager;
 import org.apache.sshd.server.Command;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
+import org.apache.sshd.server.FileSystemAware;
+import org.apache.sshd.server.FileSystemView;
 import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vfsutils.factory.FileSystemManagerFactory;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;
 import org.vfsutils.shell.boxed.BoxedCommandRegistry;
 import org.vfsutils.shell.boxed.BoxedEngine;
 import org.vfsutils.shell.commands.Register;
 import org.vfsutils.shell.commands.Unregister;
+import org.vfsutils.shell.sshd.filesystem.VfsSshFile;
+import org.vfsutils.shell.sshd.filesystem.VfsFileSystemView;
 
 import bsh.ConsoleInterface;
 import bsh.EvalError;
 import bsh.Interpreter;
 
-public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAware {
+public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAware, FileSystemAware {
 	
 	protected static final Logger log = LoggerFactory.getLogger(VfsShell.class);
 
@@ -44,22 +46,11 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 	private ExitCallback callback;
 	private Thread thread;
 	
-	private FileSystemManagerFactory factory;
 	private BoxedEngine engine;
-	private FileObject root;
-	private String path;
+	
+	private VfsFileSystemView root;
 		
-	/**
-	 * The root is the root of the file system. With path you can influence the start directory.
-	 * The root can be overriden by the session with attribute VfsShellFactory.VFS_ROOT, the
-	 * path with attribute VfsShellFactory.VFS_PATH.
-	 * The path can contain the alias $USER which will be replaced by the user name. 
-	 * @param fsManager
-	 * @param path the path to start in, it can contain the $USER token and can be null
-	 */
-	public VfsShell(FileSystemManagerFactory factory, String path) {
-		this.factory = factory;
-		this.path = path;
+	public VfsShell() {
 	}
 
 	public void destroy() {
@@ -91,34 +82,7 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 			this.in = new EchoReader(this.in, this);
 			log.debug("Activated echo");
 		}
-		
-		String startPath;
-		if (this.path!=null && this.path.contains("$USER")) {
-			startPath = this.path.replaceAll("\\$USER", env.getEnv().get("USER"));
-		}
-		else {
-			startPath = this.path;
-		}
-		
-		//update the root
-		if (this.root == null && startPath!=null) {
-			FileSystemManager fsManager = factory.getManager();
-			this.root = fsManager.resolveFile(startPath);
-		}
-		else if (this.root!=null) {
-			if (startPath!=null) {		
-				FileObject startDir = this.root.resolveFile(startPath);
-				if (startDir.exists()) {
-					this.root = startDir;
-				}
-				else {
-					log.warn("Invalid path, directory does not exist:" + startDir);
-				}
-			}
-		}
-		else {
-			throw new IOException("Invalid setup, a root should be provided");
-		}
+				
 		thread = new Thread(this, "VfsShell");
         thread.start();
 		
@@ -164,7 +128,8 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 	public void run() {
 		
 		try {
-			engine = new BoxedEngine(this, new BoxedCommandRegistry(), this.root.getFileSystem().getFileSystemManager());	
+			FileObject rootFile = ((VfsSshFile) this.root.getFile(".")).getVfsFile();
+			engine = new BoxedEngine(this, new BoxedCommandRegistry(), rootFile.getFileSystem().getFileSystemManager());	
 			
 			//userDir is where the server is started
 			FileObject userDir = engine.getCwd();
@@ -174,9 +139,9 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 			loadGlobalRc(engine, userDir);
 			
 			//set to VFS start dir
-			engine.setStartDir(this.root);
+			engine.setStartDir(rootFile);
 			
-			loadUserRc(engine, this.root);
+			loadUserRc(engine, rootFile);
 			
 			//engine.setEchoOn(true);
 			engine.go();
@@ -190,17 +155,18 @@ public class VfsShell implements Command, ConsoleInterface, Runnable, SessionAwa
 	}
 
 	public void setSession(ServerSession session) {
-		
-		FileObject storedRoot = session.getAttribute(VfsShellFactory.VFS_ROOT);
-		if (storedRoot != null) {
-			this.root = storedRoot;
+	}
+	
+	
+	public void setFileSystemView(FileSystemView view) {
+		log.info("Setting filesystem");
+		if (view instanceof VfsFileSystemView) {
+			this.root = (VfsFileSystemView) view;
 		}
-		
-		String storedPath = session.getAttribute(VfsShellFactory.VFS_PATH);
-		if (storedPath != null) {
-			this.path = storedPath;
+		else {
+			//what to do?
+			log.error("VfsShell only supports the VfsFileSystemView");
 		}
-		
 	}
 
 	/**
