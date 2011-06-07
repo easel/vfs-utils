@@ -11,7 +11,7 @@ import jline.ArgumentCompletor;
 import jline.Completor;
 import jline.ConsoleReaderInputStream;
 
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileSystemException;
 import org.vfsutils.shell.Engine;
 
 public class Shell extends org.vfsutils.shell.Shell {

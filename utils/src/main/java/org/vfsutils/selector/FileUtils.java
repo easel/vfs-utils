@@ -1,7 +1,7 @@
 package org.vfsutils.selector;
 
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.util.Os;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.util.Os;
 
 /**
  * Copied from Apache Ant with some minor modifications

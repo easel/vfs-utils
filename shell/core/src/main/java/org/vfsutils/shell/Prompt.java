@@ -1,7 +1,7 @@
 package org.vfsutils.shell;
 
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileSystemException;
 
 public class Prompt {
 

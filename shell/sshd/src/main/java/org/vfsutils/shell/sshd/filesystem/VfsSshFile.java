@@ -6,18 +6,18 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.vfs.Capability;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.FileType;
-import org.apache.commons.vfs.RandomAccessContent;
-import org.apache.commons.vfs.util.RandomAccessMode;
+import org.apache.commons.vfs2.Capability;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.RandomAccessContent;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 import org.apache.sshd.server.SshFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vfsutils.content.PseudoRandomAccessContent;
 import org.vfsutils.content.PseudoWriteableRandomAccessContent;
-import org.vfsutils.content.RandomAccessContentOutputStream;
+//import org.vfsutils.content.RandomAccessContentOutputStream;
 
 public class VfsSshFile implements SshFile {
 	
@@ -67,6 +67,7 @@ public class VfsSshFile implements SshFile {
 	}
 
 	public OutputStream createOutputStream(long offset) throws IOException {
+      return vfsFile.getOutputStream();
 		RandomAccessMode ram = RandomAccessMode.READ;
 		RandomAccessContent rac;
 		if (this.vfsFile.getFileSystem().hasCapability(Capability.RANDOM_ACCESS_READ)) {
@@ -76,7 +77,8 @@ public class VfsSshFile implements SshFile {
 			rac = new PseudoRandomAccessContent(this.vfsFile, ram);
 		}
 		rac.seek(offset);
-		return new RandomAccessContentOutputStream(rac);
+      // missing class
+		//return new RandomAccessContentOutputStream(rac);
 	}
 
 	public boolean delete() {

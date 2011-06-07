@@ -3,8 +3,8 @@ package org.vfsutils.factory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileSystemManager;
 
 /**
  * This is a configurable replacement of the default VFS class.
@@ -17,7 +17,7 @@ import org.apache.commons.vfs.FileSystemManager;
 public class FileSystemManagerFactory {
 
 	private boolean share = true;
-	private String managerClassName = "org.apache.commons.vfs.impl.StandardFileSystemManager";
+	private String managerClassName = "org.apache.commons.vfs2.impl.StandardFileSystemManager";
 
 	private FileSystemManager sharedManager = null;
 	

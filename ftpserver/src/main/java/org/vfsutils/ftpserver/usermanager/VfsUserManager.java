@@ -3,7 +3,7 @@ package org.vfsutils.ftpserver.usermanager;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.ftpserver.ftplet.Authentication;
 import org.apache.ftpserver.ftplet.AuthenticationFailedException;
 import org.apache.ftpserver.ftplet.Authority;

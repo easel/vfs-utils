@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.Engine;
 

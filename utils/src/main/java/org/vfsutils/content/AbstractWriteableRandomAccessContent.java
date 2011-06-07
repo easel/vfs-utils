@@ -3,8 +3,8 @@ package org.vfsutils.content;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import org.apache.commons.vfs.provider.AbstractRandomAccessStreamContent;
-import org.apache.commons.vfs.util.RandomAccessMode;
+import org.apache.commons.vfs2.provider.AbstractRandomAccessStreamContent;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 
 /**
  * Abstract class to facilitate writing, like AbstractRandomAccessStreamContent

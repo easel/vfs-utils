@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Properties;
 
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileSystemException;
 import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.Engine;

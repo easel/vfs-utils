@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.VFS;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.VFS;
 import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandParser;
 import org.vfsutils.shell.MultilineCommandParser;

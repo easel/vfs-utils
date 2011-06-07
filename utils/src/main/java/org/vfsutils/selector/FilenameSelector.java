@@ -1,11 +1,11 @@
 package org.vfsutils.selector;
 
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileSelectInfo;
-import org.apache.commons.vfs.FileSelector;
-import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.FileType;
-import org.apache.commons.vfs.provider.UriParser;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileSelector;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.provider.UriParser;
 
 public class FilenameSelector implements FileSelector {
 	
@@ -62,9 +62,9 @@ public class FilenameSelector implements FileSelector {
      * @return
      */
     private String normalizePath(String pattern) throws FileSystemException {
-    	StringBuffer buffer = new StringBuffer(pattern);
-    	UriParser.normalisePath(buffer);
-    	return buffer.toString();
+    	StringBuilder builder = new StringBuilder(pattern);
+    	UriParser.normalisePath(builder);
+    	return builder.toString();
     }
     
     /**

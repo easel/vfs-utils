@@ -1,6 +1,6 @@
 package org.vfsutils.shell;
 
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileSystemException;
 
 /**
  * A CommandProvider object can support several different commands. 

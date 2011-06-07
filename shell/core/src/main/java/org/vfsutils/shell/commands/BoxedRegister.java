@@ -1,6 +1,6 @@
 package org.vfsutils.shell.commands;
 
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandProvider;
 import org.vfsutils.shell.Engine;

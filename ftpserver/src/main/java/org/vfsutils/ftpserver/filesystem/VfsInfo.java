@@ -1,6 +1,6 @@
 package org.vfsutils.ftpserver.filesystem;
 
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 
 public class VfsInfo {
 	

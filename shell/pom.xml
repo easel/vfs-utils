@@ -38,8 +38,8 @@
    <modules>
     <module>core</module>
 	<module>jline</module>
-	<module>sshd</module>
-	<module>assembly</module>
+   <!-- <module>sshd</module> -->
+   <!--<module>assembly</module>-->
   </modules>
    
    <licenses>

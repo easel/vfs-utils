@@ -1,7 +1,7 @@
 package org.vfsutils;
 
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
 
 public class VfsUtils {
 

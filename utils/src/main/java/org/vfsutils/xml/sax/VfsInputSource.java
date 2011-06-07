@@ -3,9 +3,9 @@ package org.vfsutils.xml.sax;
 import java.io.InputStream;
 import java.io.Reader;
 
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.vfsutils.VfsUtils;
 import org.xml.sax.InputSource;
 

@@ -6,8 +6,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.FileType;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.ftpserver.ftplet.User;
 import org.apache.ftpserver.usermanager.impl.WriteRequest;
@@ -18,16 +18,16 @@ public class VfsFtpFile implements FtpFile {
 	
 	private final Logger log = LoggerFactory.getLogger(VfsFtpFile.class);
 	
-	private org.apache.commons.vfs.FileObject vfsFile;
+	private org.apache.commons.vfs2.FileObject vfsFile;
 	
 	private User user;
 
-	public VfsFtpFile(org.apache.commons.vfs.FileObject object, User user) {
+	public VfsFtpFile(org.apache.commons.vfs2.FileObject object, User user) {
 		this.vfsFile = object;
 		this.user = user;
 	}
 
-	protected org.apache.commons.vfs.FileObject getVfsFile() {
+	protected org.apache.commons.vfs2.FileObject getVfsFile() {
 		return this.vfsFile;
 	}
 	
@@ -202,7 +202,7 @@ public class VfsFtpFile implements FtpFile {
 		List<FtpFile> files = null;
 		
 		try {
-			org.apache.commons.vfs.FileObject[] children = this.vfsFile.getChildren();
+			org.apache.commons.vfs2.FileObject[] children = this.vfsFile.getChildren();
 			files = new ArrayList<FtpFile>(children.length);
 			for (int i=0; i<children.length;i++) {
 				files.add(new VfsFtpFile(children[i], this.user));

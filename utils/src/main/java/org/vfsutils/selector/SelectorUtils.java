@@ -3,9 +3,9 @@ package org.vfsutils.selector;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 
 /**
  * Copied from Apache Ant with some minor modifications 

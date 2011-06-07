@@ -3,7 +3,7 @@ package org.vfsutils.shell.commands;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileSystemException;
 import org.vfsutils.shell.Arguments;
 import org.vfsutils.shell.CommandException;
 import org.vfsutils.shell.CommandInfo;

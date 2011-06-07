@@ -2,7 +2,7 @@ package org.vfsutils.xml.transform;
 
 import javax.xml.transform.dom.DOMSource;
 
-import org.apache.commons.vfs.FileName;
+import org.apache.commons.vfs2.FileName;
 import org.vfsutils.VfsUtils;
 import org.w3c.dom.Node;
 

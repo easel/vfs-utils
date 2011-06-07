@@ -1,10 +1,10 @@
 package org.vfsutils.ftpserver.filesystem;
 
-import org.apache.commons.vfs.Capability;
-import org.apache.commons.vfs.FileSystem;
-import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.impl.DefaultFileSystemManager;
-import org.apache.commons.vfs.provider.AbstractFileSystem;
+import org.apache.commons.vfs2.Capability;
+import org.apache.commons.vfs2.FileSystem;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
+import org.apache.commons.vfs2.provider.AbstractFileSystem;
 import org.apache.ftpserver.ftplet.FileSystemView;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
@@ -45,7 +45,7 @@ public class VfsFileSystemView implements FileSystemView {
 		boolean result = false;
 		
 		try {
-			org.apache.commons.vfs.FileObject changedDir = this.workingDir.getVfsFile().resolveFile(dir);
+			org.apache.commons.vfs2.FileObject changedDir = this.workingDir.getVfsFile().resolveFile(dir);
 			if (changedDir.getType().hasChildren()) {
 				this.workingDir = new VfsFtpFile(changedDir, user);
 				result = true;

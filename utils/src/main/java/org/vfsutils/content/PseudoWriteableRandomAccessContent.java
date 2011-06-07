@@ -6,8 +6,8 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.util.RandomAccessMode;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.util.RandomAccessMode;
 
 /**
  * Class that offers a Writeable RandomAccessContent interface for 

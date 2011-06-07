@@ -1,6 +1,6 @@
 package org.vfsutils.shell.sshd;
 
-import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.sshd.common.Factory;
 import org.apache.sshd.common.Session.AttributeKey;
 import org.apache.sshd.server.Command;

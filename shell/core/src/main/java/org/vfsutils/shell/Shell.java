@@ -11,7 +11,7 @@ import java.io.PrintStream;
 import java.io.Reader;
 import java.net.URL;
 
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileSystemException;
 
 import bsh.EvalError;
 import bsh.Interpreter;
