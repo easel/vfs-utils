@@ -150,14 +150,18 @@ public class VfsAuthenticator {
         
         if (this.vfsRoot==null) {
         	if (homePath!=null) {
-        		homeDir = manager.resolveFile(homePath, opts);
-        		rootDir = homeDir;
+                     homeDir = manager.resolveFile(homePath, opts);
+                     if(vfsType.equals("chroot")) {
+                        rootDir = manager.createVirtualFileSystem(homeDir);
+                        homeDir = rootDir.resolveFile("/");
+                     } else { // normal
+                        rootDir = homeDir;
+                     }
         	}
         	else {
         		throw new FileSystemException("homePath can not be null when there is no vfs root configured");
         	}
-        }
-        else {
+        } else {
         	FileObject virtualRootDir = manager.resolveFile(this.vfsRoot, opts);
         	
         	if (vfsType.equals("virtual")) {				
